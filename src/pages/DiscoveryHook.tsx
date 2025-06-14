@@ -6,7 +6,6 @@ import ProductCards from "@/components/ProductCards";
 import PreviewModal from "@/components/PreviewModal";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { FileText, MessageSquare, Search } from 'lucide-react';
 
 // NOTE: Replace this with your real auth check and user name when adding auth!
 const useFakeAuth = () => {
@@ -275,6 +274,7 @@ const DiscoveryHook = () => {
 };
 
 // Helper: inject specific card from ProductCards array for manual arrangement
+import ProductCards from "@/components/ProductCards";
 const productsData = [
   {
     id: 'BUSINESS_BUILDER',
@@ -298,6 +298,10 @@ const productsData = [
     href: '/site-audit'
   }
 ];
+// We'll re-implement a minimal ProductCardsCardIndex to pull a single card for our manual layout.
+import { FileText, MessageSquare, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 function ProductCardsCardIndex({index}:{index:number}) {
   const product = productsData[index];
