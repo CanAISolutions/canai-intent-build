@@ -1,103 +1,157 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
-
+/* CanAI Brand Variables */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
+    /* CanAI Color Palette */
+    --canai-primary-blue: #00CFFF;
+    --canai-glow-cyan: #00F0FF;
+    --canai-deep-background: #0A0F1C;
+    --canai-light-text: #E6F6FF;
+    --canai-gradient-anchor: #00B2E3;
+    
+    /* CanAI Gradients */
+    --canai-gradient-primary: linear-gradient(135deg, #00CFFF 0%, #00B2E3 100%);
+    
+    /* CanAI Glows */
+    --glow-soft: 0 0 10px rgba(0, 240, 255, 0.4);
+    --glow-medium: 0 0 20px rgba(0, 240, 255, 0.6);
+    --glow-cube: 0 0 30px rgba(0, 207, 255, 0.8);
+    --glow-intense: 0 0 40px rgba(0, 207, 255, 1);
+    
+    /* Typography */
+    --font-family-primary: 'Manrope', 'Inter', 'Helvetica Neue', sans-serif;
+    --font-weight-bold: 700;
+    --font-weight-extralight: 200;
+    
+    /* Standard shadcn variables */
+    --background: 10 15 28;
+    --foreground: 230 246 255;
+    --card: 10 15 28;
+    --card-foreground: 230 246 255;
+    --popover: 10 15 28;
+    --popover-foreground: 230 246 255;
+    --primary: 0 207 255;
+    --primary-foreground: 10 15 28;
+    --secondary: 0 178 227;
+    --secondary-foreground: 230 246 255;
+    --muted: 20 25 38;
+    --muted-foreground: 200 210 220;
+    --accent: 0 240 255;
+    --accent-foreground: 10 15 28;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
+    --border: 30 35 48;
+    --input: 30 35 48;
+    --ring: 0 207 255;
     --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
   }
 
   body {
-    @apply bg-background text-foreground;
+    font-family: var(--font-family-primary);
+    background-color: rgb(var(--canai-deep-background));
+    color: rgb(var(--canai-light-text));
+    min-height: 100vh;
   }
 }
+
+/* CanAI Component Classes */
+@layer components {
+  .canai-logo {
+    font-family: var(--font-family-primary);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.1em;
+    color: var(--canai-primary-blue);
+    filter: drop-shadow(var(--glow-soft));
+  }
+  
+  .canai-tagline {
+    font-family: var(--font-family-primary);
+    font-weight: var(--font-weight-extralight);
+    color: var(--canai-light-text);
+    opacity: 0.9;
+  }
+  
+  .canai-gradient-text {
+    background: var(--canai-gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .canai-glow-soft {
+    filter: drop-shadow(var(--glow-soft));
+  }
+  
+  .canai-glow-medium {
+    filter: drop-shadow(var(--glow-medium));
+  }
+  
+  .canai-glow-cube {
+    filter: drop-shadow(var(--glow-cube));
+  }
+  
+  .canai-button-primary {
+    background: var(--canai-gradient-primary);
+    border: 1px solid var(--canai-primary-blue);
+    color: var(--canai-deep-background);
+    font-weight: 600;
+    transition: all 0.3s ease;
+    filter: drop-shadow(var(--glow-soft));
+  }
+  
+  .canai-button-primary:hover {
+    filter: drop-shadow(var(--glow-medium));
+    transform: translateY(-1px);
+  }
+  
+  .canai-card {
+    background: rgba(20, 25, 38, 0.8);
+    border: 1px solid rgba(0, 207, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+  }
+  
+  .canai-cube {
+    width: 80px;
+    height: 80px;
+    position: relative;
+    transform-style: preserve-3d;
+    animation: cubeRotate 8s infinite linear;
+    filter: drop-shadow(var(--glow-cube));
+  }
+  
+  .canai-cube-face {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background: var(--canai-gradient-primary);
+    border: 2px solid var(--canai-glow-cyan);
+    opacity: 0.8;
+  }
+  
+  .canai-cube-front { transform: rotateY(0deg) translateZ(40px); }
+  .canai-cube-back { transform: rotateY(180deg) translateZ(40px); }
+  .canai-cube-right { transform: rotateY(90deg) translateZ(40px); }
+  .canai-cube-left { transform: rotateY(-90deg) translateZ(40px); }
+  .canai-cube-top { transform: rotateX(90deg) translateZ(40px); }
+  .canai-cube-bottom { transform: rotateX(-90deg) translateZ(40px); }
+}
+
+@keyframes cubeRotate {
+  0% { transform: rotateX(0deg) rotateY(0deg); }
+  25% { transform: rotateX(90deg) rotateY(0deg); }
+  50% { transform: rotateX(90deg) rotateY(90deg); }
+  75% { transform: rotateX(0deg) rotateY(90deg); }
+  100% { transform: rotateX(0deg) rotateY(0deg); }
+}
+
+/* Utility classes for CanAI */
+.text-canai-primary { color: var(--canai-primary-blue); }
+.text-canai-cyan { color: var(--canai-glow-cyan); }
+.text-canai-light { color: var(--canai-light-text); }
+.bg-canai-deep { background-color: var(--canai-deep-background); }
+.border-canai-primary { border-color: var(--canai-primary-blue); }

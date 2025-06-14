@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,12 +62,21 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// CanAI specific colors
+				'canai-primary': '#00CFFF',
+				'canai-cyan': '#00F0FF',
+				'canai-deep': '#0A0F1C',
+				'canai-light': '#E6F6FF',
+				'canai-gradient': '#00B2E3'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			backgroundImage: {
+				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
 			},
 			keyframes: {
 				'accordion-down': {
@@ -84,11 +94,22 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'cube-rotate': {
+					'0%': { transform: 'rotateX(0deg) rotateY(0deg)' },
+					'25%': { transform: 'rotateX(90deg) rotateY(0deg)' },
+					'50%': { transform: 'rotateX(90deg) rotateY(90deg)' },
+					'75%': { transform: 'rotateX(0deg) rotateY(90deg)' },
+					'100%': { transform: 'rotateX(0deg) rotateY(0deg)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'cube-rotate': 'cube-rotate 8s infinite linear'
+			},
+			fontFamily: {
+				'manrope': ['Manrope', 'Inter', 'Helvetica Neue', 'sans-serif'],
 			}
 		}
 	},
