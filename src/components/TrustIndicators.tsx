@@ -14,10 +14,16 @@ const TrustIndicators = () => {
                 <Star key={i} className="text-yellow-400 fill-current" size={24} />
               ))}
             </div>
-            <blockquote className="text-xl text-canai-light italic">
+            <blockquote 
+              className="text-xl text-canai-light italic"
+              style={{ fontFamily: 'Manrope', fontWeight: 200 }}
+            >
               "CanAI launched my bakery! The business plan was exactly what I needed for investors."
             </blockquote>
-            <cite className="text-canai-light opacity-80 not-italic">
+            <cite 
+              className="text-canai-light opacity-80 not-italic"
+              style={{ fontFamily: 'Manrope', fontWeight: 200 }}
+            >
               — Jane, Sweet Dreams Bakery
             </cite>
           </div>
@@ -29,16 +35,36 @@ const TrustIndicators = () => {
                 <div className="flex items-center justify-center w-16 h-16 bg-canai-primary/20 rounded-full mb-3 mx-auto">
                   <Users className="text-canai-primary" size={28} />
                 </div>
-                <div className="text-3xl font-bold text-canai-primary">500+</div>
-                <div className="text-canai-light opacity-80">Plans Created</div>
+                <div 
+                  className="text-3xl font-bold text-canai-primary"
+                  style={{ fontFamily: 'Manrope', fontWeight: 700 }}
+                >
+                  500+
+                </div>
+                <div 
+                  className="text-canai-light opacity-80"
+                  style={{ fontFamily: 'Manrope', fontWeight: 200 }}
+                >
+                  Plans Created
+                </div>
               </div>
               
               <div className="text-center">
                 <div className="flex items-center justify-center w-16 h-16 bg-canai-primary/20 rounded-full mb-3 mx-auto">
                   <Award className="text-canai-primary" size={28} />
                 </div>
-                <div className="text-3xl font-bold text-canai-primary">98%</div>
-                <div className="text-canai-light opacity-80">Success Rate</div>
+                <div 
+                  className="text-3xl font-bold text-canai-primary"
+                  style={{ fontFamily: 'Manrope', fontWeight: 700 }}
+                >
+                  98%
+                </div>
+                <div 
+                  className="text-canai-light opacity-80"
+                  style={{ fontFamily: 'Manrope', fontWeight: 200 }}
+                >
+                  Success Rate
+                </div>
               </div>
             </div>
           </div>
