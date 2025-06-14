@@ -46,15 +46,16 @@ const DiscoveryHook = () => {
         </svg>
       </div>
 
-      <main className="relative z-10 w-full flex flex-col items-center max-w-5xl mx-auto pt-28 pb-20 px-4">
+      <main className="relative z-10 w-full flex flex-col items-center max-w-5xl mx-auto pt-32 pb-20 px-4">
         {/* Logo and Tagline */}
         <CanAILogo size="lg" showTagline />
 
         {/* Button Row */}
-        <div className="flex flex-col sm:flex-row gap-5 mt-12 mb-12 w-full max-w-3xl justify-center items-center">
+        <div className="flex flex-col sm:flex-row gap-7 mt-14 mb-14 w-full max-w-3xl justify-center items-center">
           <Button
             id="begin-btn"
-            className="canai-button-primary px-8 py-4 text-lg font-bold drop-shadow"
+            variant="canai"
+            className="drop-shadow-xl"
             onClick={() => navigate("/discovery-funnel")}
             aria-label="Begin Your Journey"
           >
@@ -62,7 +63,8 @@ const DiscoveryHook = () => {
           </Button>
           <Button
             id="pricing-btn"
-            className="canai-button-primary px-8 py-4 text-lg font-bold drop-shadow"
+            variant="canai"
+            className="drop-shadow-xl"
             onClick={() => setPricingOpen(true)}
             aria-haspopup="dialog"
             aria-controls="pricing-modal"
@@ -71,7 +73,8 @@ const DiscoveryHook = () => {
           </Button>
           <Button
             id="sample-btn"
-            className="canai-button-primary px-8 py-4 text-lg font-bold drop-shadow"
+            variant="canai"
+            className="drop-shadow-xl"
             onClick={() => navigate("/samples")}
             aria-label="See a Sample"
           >
@@ -79,7 +82,8 @@ const DiscoveryHook = () => {
           </Button>
           <Button
             id="preview-btn"
-            className="canai-button-primary px-8 py-4 text-lg font-bold drop-shadow"
+            variant="canai"
+            className="drop-shadow-xl"
             onClick={() => setPreviewOpen(true)}
             aria-haspopup="dialog"
             aria-controls="preview-modal"
@@ -109,3 +113,4 @@ const DiscoveryHook = () => {
 };
 
 export default DiscoveryHook;
+
