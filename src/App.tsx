@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import DiscoveryHook from "./pages/DiscoveryHook";
+import Samples from "./pages/Samples";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -19,6 +20,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/discovery-hook" element={<DiscoveryHook />} />
+          <Route path="/samples" element={<Samples />} />
           {/* Future CanAI routes will be added here */}
           <Route path="/discovery-funnel" element={<div>Discovery Funnel - Coming Soon</div>} />
           <Route path="/detailed-input" element={<div>Detailed Input - Coming Soon</div>} />
@@ -28,6 +30,9 @@ const App = () => (
           <Route path="/generating" element={<div>Generating - Coming Soon</div>} />
           <Route path="/spark-split" element={<div>SparkSplit - Coming Soon</div>} />
           <Route path="/feedback" element={<div>Feedback - Coming Soon</div>} />
+          <Route path="/business-builder" element={<div>Business Builder - Coming Soon</div>} />
+          <Route path="/social-email" element={<div>Social Email - Coming Soon</div>} />
+          <Route path="/site-audit" element={<div>Site Audit - Coming Soon</div>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
