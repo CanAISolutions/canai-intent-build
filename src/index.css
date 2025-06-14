@@ -152,6 +152,22 @@
     text-shadow: 0 0 18px #36d1fecc, 0 0 8px #00cfff99;
     color: #E6F6FF;
   }
+  @keyframes glow-pop {
+    0% { transform: scale(0.5); opacity: 0.2; filter: blur(2px); }
+    60% { transform: scale(1.2); opacity: 1; filter: blur(0px); }
+    100% { transform: scale(1.06); opacity: 1; filter: blur(0); }
+  }
+  .animate-glow-pop {
+    animation: glow-pop 0.8s cubic-bezier(0.4,0,0.2,1) 1 both;
+  }
+  @keyframes countup-glow {
+    0% { text-shadow: 0 0 0 transparent; }
+    50% { text-shadow: 0 0 15px #36d1fe99; }
+    100% { text-shadow: 0 0 18px #36d1fecc; }
+  }
+  .animate-countup-glow {
+    animation: countup-glow 1.5s cubic-bezier(0.4,0,0.2,1) 1;
+  }
 }
 
 /* Fade-in for subtext */
