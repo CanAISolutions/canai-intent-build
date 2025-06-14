@@ -1,145 +1,127 @@
-
 import React, { useState } from "react";
+import Hero from "@/components/DiscoveryHook/Hero";
+import TrustIndicatorsSection from "@/components/DiscoveryHook/TrustIndicatorsSection";
+import ProductCardsSection from "@/components/DiscoveryHook/ProductCardsSection";
+import SecondaryCTAs from "@/components/DiscoveryHook/SecondaryCTAs";
+import PricingModal from "@/components/PricingModal";
+import PreviewModal from "@/components/PreviewModal";
 
-// Utility placeholder for typing animation
-const Typing = ({ children }: { children: React.ReactNode }) => (
-  <span className="inline-block animate-typing whitespace-nowrap overflow-hidden">{children}</span>
-);
+// Demo auth logic (customize later)
+const useFakeAuth = () => ({ isLoggedIn: true, userName: "Taylor" });
 
 const DiscoveryHook = () => {
-  const [showLogin, setShowLogin] = useState(false);
-  // Demo auth logic (customize later)
-  const isLoggedIn = false;
-  const userName = "Taylor";
+  const [isPricingOpen, setPricingOpen] = useState(false);
+  const [isPreviewOpen, setPreviewOpen] = useState(false);
+  const { isLoggedIn, userName } = useFakeAuth();
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-r from-[#0A0F1C] to-[#00B2E3]">
-      <div className="max-w-7xl mx-auto px-0 py-20 sm:py-5">
-        {/* Hero Section */}
-        <section className="flex flex-col items-center text-center mb-12">
-          <h1
-            id="hero-headline"
-            className="text-[40px] font-[800] font-manrope text-[#E6F6FF] animate-fade-in duration-200"
+    <>
+      {/* START: Modal Placeholders */}
+      <div
+        id="login-modal"
+        role="dialog"
+        aria-modal="true"
+        className="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center"
+      >
+        {/* TODO: Memberstack integration */}
+        <div className="bg-white rounded-xl p-8 shadow-xl text-center w-[350px] max-w-[90vw]">
+          <h2 className="text-xl font-bold mb-2 text-canai-dark">Login Required</h2>
+          <p className="mb-4 text-canai-dark">Please log in to continue.</p>
+          <button
+            className="bg-[#00CFFF] text-white font-semibold px-8 py-3 rounded-lg"
+            aria-label="Log In"
           >
-            Welcome back, {isLoggedIn ? userName : "Founder"}!
-          </h1>
-          <p
-            id="hero-subtext"
-            className="text-base font-[400] font-manrope text-[#E6F6FF] mt-4 animate-typing duration-2000"
-          >
-            <Typing>Elevate your essence with AI-crafted solutions...</Typing>
-          </p>
-          <a
-            id="begin-cta"
-            className="cta-button font-[600] text-[16px] font-manrope bg-[#00CFFF] text-[#fff] px-[18px] py-[18px] rounded-lg mt-8 hover:bg-[#00F0FF] inline-block min-h-[44px] focus-visible:ring-4 focus-visible:ring-canai-cyan transition"
-            aria-label="Begin your CanAI journey"
-            href="/discovery-funnel"
-          >
-            Begin Your Journey
-          </a>
-        </section>
-        {/* Trust Indicators */}
-        <div
-          id="trust-indicators"
-          className="w-grid grid grid-cols-1 md:grid-cols-3 gap-4 text-[#E6F6FF] animate-fade-in duration-200 mb-10"
-        >
-          <div className="bg-[#14365719] rounded-xl px-5 py-6 shadow-sm">
-            “CanAI launched my bakery!” – Jane
-          </div>
-          <div className="bg-[#14365719] rounded-xl px-5 py-6 shadow-sm">
-            <span className="text-2xl font-bold">600+</span> Plans Created
-          </div>
-          <div className="bg-[#14365719] rounded-xl px-5 py-6 shadow-sm">
-            <span className="text-2xl font-bold">98%</span> Success Uplift
-          </div>
+            Log In
+          </button>
         </div>
-        {/* Product Cards */}
-        <div
-          id="product-cards"
-          className="w-grid grid grid-cols-1 md:grid-cols-3 gap-4 mb-12"
-        >
-          <div className="business-plan bg-white/10 rounded-lg p-8 flex flex-col items-center">
-            <h3 className="font-bold text-lg text-[#00CFFF] mb-4">Business Plan</h3>
-            <a className="learn-more underline font-semibold text-[#00CFFF]" href="/business-builder">
-              Learn More
-            </a>
-          </div>
-          <div className="social-launch-kit bg-white/10 rounded-lg p-8 flex flex-col items-center">
-            <h3 className="font-bold text-lg text-[#00CFFF] mb-4">Social Launch Kit</h3>
-            <a className="learn-more underline font-semibold text-[#00CFFF]" href="/social-email">
-              Learn More
-            </a>
-          </div>
-          <div className="website-audit bg-white/10 rounded-lg p-8 flex flex-col items-center">
-            <h3 className="font-bold text-lg text-[#00CFFF] mb-4">Website Audit</h3>
-            <a className="learn-more underline font-semibold text-[#00CFFF]" href="/site-audit">
-              Learn More
-            </a>
-          </div>
-        </div>
-        {/* Secondary CTAs */}
-        <div className="flex flex-col items-center gap-3 sm:flex-row sm:gap-5 justify-center mb-10">
-          <a
-            id="pricing-cta"
-            className="font-semibold rounded-xl border border-[#294a64] bg-[rgba(0,220,255,0.03)] text-white py-3 px-7 hover:bg-[rgba(0,220,255,0.10)] hover:border-[#36d1fe] focus-visible:ring-4 focus-visible:ring-canai-cyan min-w-[138px] transition"
-            href="/pricing"
-          >
-            Pricing
-          </a>
-          <a
-            id="samples-cta"
-            className="font-semibold rounded-xl border border-[#294a64] bg-[rgba(0,220,255,0.03)] text-white py-3 px-7 hover:bg-[rgba(0,220,255,0.10)] hover:border-[#36d1fe] focus-visible:ring-4 focus-visible:ring-canai-cyan min-w-[138px] transition"
-            href="/samples"
-          >
-            Samples
-          </a>
-          <a
-            id="spark-cta"
-            className="font-bold rounded-xl border border-[#00cfff] bg-[rgba(0,220,255,0.09)] text-white py-3 px-7 shadow-[0_0_22px_2px_#00f0ff66] hover:bg-[rgba(0,220,255,0.18)] hover:shadow-[0_0_36px_8px_#00f0ff77] focus-visible:ring-4 focus-visible:ring-canai-cyan min-w-[158px] transition"
-            href="/spark"
-          >
-            Spark for Free
-          </a>
-        </div>
-        {/* LOGIN MODAL PLACEHOLDER */}
-        <div
-          id="login-modal"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="login-modal-heading"
-          tabIndex={-1}
-          className={`fixed inset-0 z-50 bg-black/60 flex items-center justify-center transition-opacity ${showLogin ? "block" : "hidden"}`}
-        >
-          {/* TODO: Memberstack integration */}
-          <div className="bg-white rounded-xl p-8 shadow-xl text-center w-[350px] max-w-[90vw]">
-            <h2 id="login-modal-heading" className="text-xl font-bold mb-2 text-canai-dark">
-              Login Required
-            </h2>
-            <p className="mb-4 text-canai-dark">Please log in to continue.</p>
-            <button
-              className="bg-[#00CFFF] text-white font-semibold px-8 py-3 rounded-lg min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-canai-cyan hover:bg-[#00F0FF] transition"
-              aria-label="Log In"
-              onClick={() => setShowLogin(false)}
-              autoFocus
-            >
-              Log In
-            </button>
-          </div>
-        </div>
-        {/* Show "login" modal button for demo */}
-        {!isLoggedIn && (
-          <div className="flex justify-center mt-6">
-            <button
-              type="button"
-              className="underline text-[#00CFFF] font-semibold"
-              onClick={() => setShowLogin(true)}
-            >
-              Show Login Modal
-            </button>
-          </div>
-        )}
       </div>
-    </div>
+      <div
+        id="error-modal"
+        role="alertdialog"
+        aria-modal="true"
+        className="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center"
+      >
+        {/* TODO: Display API/errors */}
+        <div className="bg-white rounded-xl p-8 shadow-xl text-center w-[350px] max-w-[90vw]">
+          <h2 className="text-xl font-bold mb-2 text-canai-red">Something Went Wrong</h2>
+          <p className="mb-4 text-canai-dark">An error occurred. Please try again later.</p>
+          <button
+            className="bg-[#00CFFF] text-white font-semibold px-8 py-3 rounded-lg"
+            aria-label="Dismiss"
+          >
+            Dismiss
+          </button>
+        </div>
+      </div>
+      <div
+        id="upsell-modal"
+        role="dialog"
+        aria-modal="true"
+        className="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center"
+      >
+        {/* TODO: Upgrade/Upsell integration */}
+        <div className="bg-white rounded-xl p-8 shadow-xl text-center w-[350px] max-w-[90vw]">
+          <h2 className="text-xl font-bold mb-2 text-canai-dark">Upgrade Your Plan</h2>
+          <p className="mb-4 text-canai-dark">Unlock premium features by upgrading now.</p>
+          <button
+            className="bg-[#00CFFF] text-white font-semibold px-8 py-3 rounded-lg"
+            aria-label="Upgrade"
+          >
+            Upgrade
+          </button>
+        </div>
+      </div>
+      {/* END: Modal Placeholders */}
+      <main
+        className="min-h-screen w-full flex flex-col items-center justify-center"
+        style={{
+          background: `radial-gradient(ellipse at 55% 24%, #152647 0%, #091023 65%, #052947 100%)`,
+          backgroundColor: "#0A1535",
+          position: "relative",
+          overflow: "hidden",
+        }}
+        aria-label="CanAI Emotional Sovereignty Platform Landing"
+      >
+        {/* Subtle starfield overlay (SVG for cosmic feel) */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-60" style={{zIndex:0}} viewBox="0 0 1920 1080" preserveAspectRatio="none">
+          <defs>
+            <radialGradient id="spotlight" cx="55%" cy="25%" r="0.7">
+              <stop offset="0%" stopColor="#36d1fe22" />
+              <stop offset="70%" stopColor="transparent" />
+            </radialGradient>
+          </defs>
+          <rect width="1920" height="1080" fill="url(#spotlight)" />
+          {/* Random subtle twinkling stars */}
+          <g>
+            <circle cx="220" cy="180" r="1.2" fill="#e6f6ff" opacity="0.08"/>
+            <circle cx="430" cy="400" r="1.6" fill="#36d1fe" opacity="0.11"/>
+            <circle cx="1520" cy="250" r="1" fill="#e6f6ff" opacity="0.08"/>
+            <circle cx="770" cy="850" r="0.7" fill="#00f0ff" opacity="0.09"/>
+            <circle cx="1430" cy="960" r="1.4" fill="#e6f6ff" opacity="0.07"/>
+            <circle cx="1190" cy="780" r="1.1" fill="#36d1fe" opacity="0.13"/>
+          </g>
+        </svg>
+        {/* HERO */}
+        <Hero
+          userName={isLoggedIn ? userName : undefined}
+          onStart={() => window.location.assign("/discovery-funnel")}
+        />
+        {/* Trust Indicators */}
+        <TrustIndicatorsSection />
+        {/* Product Cards (extra spacing for modern look) */}
+        <div className="flex flex-col w-full items-center px-2 sm:px-0">
+          <ProductCardsSection />
+          {/* Secondary CTAs seated naturally below */}
+          <SecondaryCTAs
+            onOpenPricing={() => setPricingOpen(true)}
+            onOpenPreview={() => setPreviewOpen(true)}
+          />
+        </div>
+        {/* Modals */}
+        <PricingModal isOpen={isPricingOpen} onClose={() => setPricingOpen(false)} />
+        <PreviewModal isOpen={isPreviewOpen} onClose={() => setPreviewOpen(false)} />
+      </main>
+    </>
   );
 };
 
