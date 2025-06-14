@@ -19,7 +19,7 @@ const DiscoveryHook = () => {
     <main
       className="min-h-screen w-full flex flex-col items-center justify-center"
       style={{
-        background: `radial-gradient(ellipse at 55% 25%, #183957 0%, #0A1535 65%, #061124 100%)`,
+        background: `radial-gradient(ellipse at 55% 24%, #152647 0%, #091023 65%, #052947 100%)`,
         backgroundColor: "#0A1535",
         position: "relative",
         overflow: "hidden",
@@ -45,20 +45,22 @@ const DiscoveryHook = () => {
           <circle cx="1190" cy="780" r="1.1" fill="#36d1fe" opacity="0.13"/>
         </g>
       </svg>
-      {/* Hero with logo, greeting, and main CTA */}
+      {/* HERO */}
       <Hero
         userName={isLoggedIn ? userName : undefined}
         onStart={() => window.location.assign("/discovery-funnel")}
       />
       {/* Trust Indicators */}
       <TrustIndicatorsSection />
-      {/* Product Cards */}
-      <ProductCardsSection />
-      {/* Secondary CTAs below product cards */}
-      <SecondaryCTAs
-        onOpenPricing={() => setPricingOpen(true)}
-        onOpenPreview={() => setPreviewOpen(true)}
-      />
+      {/* Product Cards (extra spacing for modern look) */}
+      <div className="flex flex-col w-full items-center px-2 sm:px-0">
+        <ProductCardsSection />
+        {/* Secondary CTAs seated naturally below */}
+        <SecondaryCTAs
+          onOpenPricing={() => setPricingOpen(true)}
+          onOpenPreview={() => setPreviewOpen(true)}
+        />
+      </div>
       {/* Modals */}
       <PricingModal isOpen={isPricingOpen} onClose={() => setPricingOpen(false)} />
       <PreviewModal isOpen={isPreviewOpen} onClose={() => setPreviewOpen(false)} />
