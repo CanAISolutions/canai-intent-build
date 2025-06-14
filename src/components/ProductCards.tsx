@@ -32,12 +32,17 @@ const ProductCards = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-24 container mx-auto px-4">
-      <div className="text-center mb-20">
-        <h2 className="text-4xl font-bold text-canai-light mb-4 font-manrope drop-shadow-lg" style={{textShadow:"0 0 18px #36d1fecc"}}>
+    <section className="py-16 container mx-auto px-4">
+      <div className="text-center mb-14">
+        <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#cfefff] via-[#00cfff] to-[#54c1fe] text-transparent bg-clip-text animate-countup-glow drop-shadow-[0_2px_35px_#008cff88] font-manrope mb-2" style={{
+          filter: 'drop-shadow(0 0 17px #36d1fecc)',
+          letterSpacing: '0.01em'
+        }}>
           Tailored Solutions For Every Vision
         </h2>
-        <p className="text-xl text-canai-light opacity-90 font-manrope">
+        <p className="text-lg md:text-xl font-manrope text-canai-light opacity-90 max-w-2xl mx-auto" style={{
+          textShadow: '0 4px 18px #36d1fe44'
+        }}>
           Choose your spark – each product delivers expert results, instantly.
         </p>
       </div>
@@ -53,38 +58,49 @@ const ProductCards = () => {
               tabIndex={0}
             >
               <div
-                className="canai-product-card relative transition-transform duration-300
-                  border border-canai-primary/70 rounded-2xl px-8 py-10 shadow-[0_0_24px_rgba(25,60,101,0.28)] hover:scale-105 hover:shadow-[0_0_44px_rgba(25,60,101,0.38)] focus-visible:ring-4 focus-visible:ring-canai-primary"
+                className="relative rounded-2xl px-9 py-12 bg-[rgba(14,36,56,0.92)] overflow-hidden canai-product-card border border-[#22bcfa] hover:scale-105 transition-all duration-300 shadow-[0_0_58px_0_#00cfff33] focus-visible:ring-4 focus-visible:ring-canai-cyan"
                 style={{
-                  borderImage: "linear-gradient(135deg, #36d1fe, #193c65) 1",
-                  background: "var(--canai-blue-card)",
+                  boxShadow: "0 0 36px 0 #00cfff7c, 0 2px 22px #091023bb",
+                  border: '2px solid #00cfff',
                 }}
               >
-                {/* Glowing animated border gradient (overlay) */}
-                <span className="pointer-events-none absolute -inset-0.5 rounded-2xl z-0 group-hover:animate-glow-pop"
+                {/* Neon blue outline glow */}
+                <span
+                  className="absolute -inset-1 pointer-events-none rounded-[18px] z-0"
                   style={{
-                    boxShadow: '0 0 60px 10px #193c6555, 0 0 0 2px #36d1fe44'
+                    boxShadow: '0 0 40px 7px #00cfff90, 0 0px 0 #36d1fe00',
                   }}
                   aria-hidden
                 />
-                <div className="flex flex-col items-center space-y-6 relative z-10">
-                  <div className="canai-card-icon inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#233f66] to-[#193c65] shadow-[0_0_18px_#36d1fe77] mb-2">
-                    <IconComponent size={28} color="#e6f6ff" strokeWidth={2.2} />
+                <div className="flex flex-col items-center gap-8 relative z-10">
+                  <div
+                    className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[rgba(35,63,102,0.81)] neon-glow"
+                    style={{
+                      boxShadow: '0 0 32px 0 #00cfff80,0 0 0 #36d1fe00'
+                    }}>
+                    <IconComponent size={36} color="#E6F6FF" strokeWidth={2.5} />
                   </div>
-                  <h3 className="text-xl font-extrabold text-canai-card-title font-manrope tracking-tight" style={{textShadow:"0 0 10px #36d1fe33"}}>
+                  <h3 className="text-xl font-extrabold text-canai-light font-manrope tracking-tight mb-2"
+                    style={{ textShadow: "0 0 24px #00cfff50, 0 3px 12px #171b36" }}
+                  >
                     {product.title}
                   </h3>
-                  <p className="text-canai-light opacity-90 font-manrope text-base text-center" style={{fontWeight:300}}>
+                  <p className="text-canai-light text-base font-manrope text-center opacity-80"
+                    style={{ fontWeight: 300, minHeight: 68 }}
+                  >
                     {product.description}
                   </p>
                   <Button
                     tabIndex={-1}
-                    variant="canai"
-                    className="w-full max-w-xs mt-6 transition-transform duration-200 group-hover:scale-105 font-bold"
-                    aria-label={`Learn more about ${product.title}`}
+                    variant="ghost"
+                    className="group/button w-full max-w-xs py-4 mt-2 font-bold rounded-xl text-base text-white bg-[rgba(0,220,255,0.07)] border border-[#41e3fd] transition-all duration-200
+                      shadow-[0_0_22px_4px_#00cfff32] hover:bg-[rgba(0,220,255,0.11)] hover:shadow-[0_0_32px_10px_#00f0ff55] hover:border-[#00f0ff] focus-visible:ring-4 focus-visible:ring-canai-cyan"
+                    style={{
+                      boxShadow: "0 0 16px #00f0ff66",
+                    }}
                   >
-                    Learn More
-                    <ArrowRight className="ml-2" size={18} color="#e6f6ff" />
+                    <span className="font-semibold">Learn More</span>
+                    <ArrowRight className="ml-2 group-hover/button:translate-x-1 transition-all" size={22} color="#DFF6FF" />
                   </Button>
                 </div>
               </div>

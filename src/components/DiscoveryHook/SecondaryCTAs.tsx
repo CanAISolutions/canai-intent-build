@@ -14,24 +14,21 @@ const SecondaryCTAs: React.FC<SecondaryCTAsProps> = ({
 }) => {
   const navigate = useNavigate();
   return (
-    <section className="w-full flex flex-col items-center" aria-label="Secondary call-to-action group">
-      <div
-        className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-7 
-        px-6 py-7 rounded-2xl backdrop-blur-xl bg-gradient-to-tr from-[#1e314fef] to-[#22395eef] shadow-strong border border-canai-primary 
-        mt-7 mb-9 max-w-2xl w-full ring-canai-primary animate-fade-in"
-        style={{
-          boxShadow: "0 4px 48px 0 #36d1fe44, 0 0px 0 #36d1fe00",
-          borderWidth: 2,
-        }}
+    <section className="flex justify-center w-full mt-2 mb-6">
+      <nav
+        className="flex gap-5 px-6 py-4 rounded-2xl bg-[rgba(13,35,53,0.54)] 
+          backdrop-blur-lg shadow-[0_0_36px_0_#00f0ff19] border border-[#36d1fe44]
+          animate-fade-in max-w-2xl w-full justify-center items-center"
+        aria-label="Secondary actions"
         tabIndex={-1}
       >
         <Button
-          variant="outline"
+          variant="ghost"
           size="lg"
           onClick={onOpenPricing}
           aria-haspopup="dialog"
           aria-controls="pricing-modal"
-          className="flex-1 min-w-[140px] max-w-xs font-bold ring-canai-primary focus-visible:ring-4 focus-visible:ring-canai-primary shadow-strong hover:scale-105 transition"
+          className="min-w-[138px] text-white font-semibold border border-[#294a64] bg-[rgba(0,220,255,0.03)] hover:bg-[rgba(0,220,255,0.10)] hover:border-[#36d1fe] focus-visible:ring-4 focus-visible:ring-canai-cyan rounded-xl transition-all duration-200"
         >
           Pricing
         </Button>
@@ -39,20 +36,20 @@ const SecondaryCTAs: React.FC<SecondaryCTAsProps> = ({
           variant="ghost"
           size="lg"
           onClick={() => navigate("/samples")}
-          className="flex-1 min-w-[140px] max-w-xs font-bold ring-canai-primary focus-visible:ring-4 focus-visible:ring-canai-primary shadow-strong hover:scale-105 transition"
+          className="min-w-[138px] text-white font-semibold border border-[#294a64] bg-[rgba(0,220,255,0.03)] hover:bg-[rgba(0,220,255,0.10)] hover:border-[#36d1fe] focus-visible:ring-4 focus-visible:ring-canai-cyan rounded-xl transition-all duration-200"
         >
           Samples
         </Button>
         <Button
           variant="canai"
           size="lg"
-          className="flex-1 min-w-[160px] max-w-xs font-bold ring-canai-primary focus-visible:ring-4 focus-visible:ring-canai-primary shadow-strong hover:scale-105 transition"
+          className="min-w-[158px] font-bold border border-[#00cfff] bg-[rgba(0,220,255,0.09)] text-white shadow-[0_0_22px_2px_#00f0ff66] hover:bg-[rgba(0,220,255,0.18)] hover:shadow-[0_0_36px_8px_#00f0ff77] focus-visible:ring-4 focus-visible:ring-canai-cyan rounded-xl transition-all duration-200"
           onClick={onOpenPreview}
           aria-haspopup="dialog"
         >
           Spark for Free
         </Button>
-      </div>
+      </nav>
     </section>
   );
 };
