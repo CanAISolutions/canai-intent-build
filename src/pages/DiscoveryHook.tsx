@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import CanAILogo from "@/components/CanAILogo";
 import TrustIndicators from "@/components/TrustIndicators";
@@ -7,10 +8,19 @@ import PreviewModal from "@/components/PreviewModal";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
+// NOTE: Replace this with your real auth check and user name when adding auth!
+const useFakeAuth = () => {
+  // Fake logged-in state for demo; set to false to revert
+  const isLoggedIn = true;
+  const userName = "Taylor";
+  return { isLoggedIn, userName };
+};
+
 const DiscoveryHook = () => {
   const [isPricingOpen, setPricingOpen] = useState(false);
   const [isPreviewOpen, setPreviewOpen] = useState(false);
   const navigate = useNavigate();
+  const { isLoggedIn, userName } = useFakeAuth();
 
   return (
     <div
@@ -62,7 +72,7 @@ const DiscoveryHook = () => {
             }}
             tabIndex={0}
           >
-            Ignite Your Vision with CanAI
+            {isLoggedIn ? `Welcome back, ${userName}!` : 'Ignite Your Vision with CanAI'}
           </h1>
           <div
             id="hero-subtext"

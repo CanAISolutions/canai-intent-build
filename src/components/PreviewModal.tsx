@@ -1,8 +1,8 @@
-
 import React from 'react';
 import { X, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import Confetti from "./Confetti";
 
 interface PreviewModalProps {
   isOpen: boolean;
@@ -35,16 +35,22 @@ const sparkText = (
 
 const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
+  const [showConfetti, setShowConfetti] = React.useState(false);
 
   if (!isOpen) return null;
 
   const handleGetSparks = () => {
-    navigate('/discovery-funnel');
-    onClose();
+    setShowConfetti(true);
+    setTimeout(() => {
+      setShowConfetti(false);
+      navigate('/discovery-funnel');
+      onClose();
+    }, 1100); // Allow confetti to finish
   };
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" style={{ backdropFilter: 'blur(2px)' }}>
+      <Confetti active={showConfetti} />
       <div 
         className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[94vh] overflow-y-auto relative px-0 py-0 border-4
           animate-glow-pop"
@@ -93,6 +99,9 @@ const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, onClose }) => {
               size="lg" 
               className="canai-button-primary text-lg px-10 py-5 shadow-md font-extrabold rounded-2xl transition-all group focus-visible:canai-focus-glow
                animate-glow-pop hover:scale-105"
+              aria-label="Claim Your Sparks"
+              tabIndex={0}
+              autoFocus
             >
               Claim Your Sparks
               <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={22} />
@@ -108,4 +117,3 @@ const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, onClose }) => {
 };
 
 export default PreviewModal;
-
