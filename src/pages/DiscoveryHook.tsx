@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import CanAILogo from "@/components/CanAILogo";
 import TrustIndicators from "@/components/TrustIndicators";
@@ -49,6 +48,35 @@ const DiscoveryHook = () => {
       <main className="relative z-10 w-full flex flex-col items-center max-w-5xl mx-auto pt-32 pb-20 px-4">
         {/* Logo and Tagline */}
         <CanAILogo size="lg" showTagline />
+
+        {/* New Hero Headline & Subtext */}
+        <div className="mt-12 mb-10 w-full flex flex-col items-center text-center">
+          <h1
+            id="hero-headline"
+            className="font-manrope font-extrabold tracking-wide animate-text-glow text-canai-luminescent"
+            style={{
+              fontSize: "clamp(2.6rem,6vw,3.5rem)",
+              letterSpacing: "1px",
+              lineHeight: 1.06,
+              marginBottom: "0.7rem"
+            }}
+            tabIndex={0}
+          >
+            Ignite Your Vision with CanAI
+          </h1>
+          <div
+            id="hero-subtext"
+            className="text-lg sm:text-xl font-manrope font-light text-canai-luminescent/90 animate-fade-in"
+            style={{
+              letterSpacing: "0.01em",
+              lineHeight: 1.6,
+              maxWidth: "36rem"
+            }}
+            tabIndex={0}
+          >
+            Elevate your essence with AI-crafted solutions that resonate.
+          </div>
+        </div>
 
         {/* Button Row */}
         <div className="flex flex-col sm:flex-row gap-7 mt-14 mb-14 w-full max-w-3xl justify-center items-center">
@@ -113,4 +141,3 @@ const DiscoveryHook = () => {
 };
 
 export default DiscoveryHook;
-
