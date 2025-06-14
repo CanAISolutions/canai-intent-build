@@ -55,33 +55,45 @@ const DiscoveryHook = () => {
         </svg>
       </div>
 
+      {/* Remove "block" panel by letting content float and layering subtle glows instead */}
       <main
-        className="relative z-10 w-full flex flex-col items-center max-w-5xl mx-auto pt-32 pb-20 px-4
-        bg-white/10 shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-3xl"
+        className="
+          relative z-10 w-full flex flex-col items-center max-w-5xl mx-auto 
+          pt-32 pb-20 px-2 sm:px-6 
+          rounded-[3rem] sm:rounded-[2.5rem] 
+          shadow-[0_8px_56px_0_#36d1fe26] 
+          transition-shadow duration-500 
+        "
         style={{
-          // Remove any visible border and replace with soft shadow and background
-          border: "none",
-          // Very subtle border only on focus/active/hover - done by class, not inline here
-          background:
-            "linear-gradient(135deg, rgba(20,54,87,0.10) 80%, rgba(54,209,254,0.12) 100%)",
-          boxShadow: "0 6px 36px 0 #0a223377, 0 1.5px 4px #0002"
+          background: "linear-gradient(140deg,rgba(23,43,71,0.82)_68%,rgba(36,209,254,0.10)_100%)",
+          boxShadow: "0 18px 56px 0 #36d1fea8, 0 1.5px 4px #0002" // so soft, not intrusive!
         }}
-        tabIndex={0} // Ensure accessibility/focus styling works
+        tabIndex={0}
       >
-        {/* Logo and Tagline */}
-        <CanAILogo size="lg" showTagline />
+        {/* Logo and Tagline - float up visually, organic */}
+        <div className="w-full flex flex-col items-center" style={{marginTop: '-2.5rem'}}>
+          <div className="shadow-[0_0_36px_#36d1fe33] rounded-full px-3 py-1 bg-white/5 backdrop-blur-xl mb-1">
+            <CanAILogo size="lg" showTagline />
+          </div>
+        </div>
 
-        {/* Hero Headline & Subtext */}
-        <div className="mt-14 mb-12 w-full flex flex-col items-center text-center">
+        {/* Hero Headline & Subtext with more organic spacing */}
+        <div className="mt-10 mb-12 w-full flex flex-col items-center text-center">
           <h1
             id="hero-headline"
-            className="font-manrope font-extrabold tracking-wide animate-text-glow text-canai-luminescent drop-shadow-xl rounded-lg px-6 py-4 bg-gradient-to-br from-cyan-900/60 to-cyan-700/30 backdrop-blur-xl
-              shadow-[0_2px_32px_#36d1fe44] ring-2 ring-canai-cyan/40 hover:ring-4 focus:ring-4 ring-offset-2 ring-offset-transparent transition-all duration-200"
+            className="
+              font-manrope font-extrabold tracking-wide animate-text-glow text-canai-luminescent drop-shadow-xl 
+              rounded-[2rem] px-6 py-4 bg-gradient-to-br from-cyan-900/60 to-cyan-700/20
+              shadow-[0_2px_32px_#36d1fe26] ring-2 ring-canai-cyan/30 hover:ring-4 focus:ring-4 ring-offset-4 ring-offset-transparent 
+              transition-all duration-200
+              backdrop-blur-2xl
+            "
             style={{
               fontSize: "clamp(2.8rem,6vw,3.5rem)",
               letterSpacing: "1px",
               lineHeight: 1.08,
-              marginBottom: "0.8rem"
+              marginBottom: "0.8rem",
+              border: "none"
             }}
             tabIndex={0}
           >
@@ -89,12 +101,14 @@ const DiscoveryHook = () => {
           </h1>
           <div
             id="hero-subtext"
-            className="text-xl sm:text-2xl font-manrope font-semibold text-[#E6F6FF] animate-fade-in shadow-[0_1px_24px_#36d1fe88] drop-shadow-lg"
+            className="text-xl sm:text-2xl font-manrope font-semibold text-[#E6F6FF] animate-fade-in shadow-[0_1px_24px_#36d1fe55] drop-shadow-lg"
             style={{
               letterSpacing: "0.01em",
               lineHeight: 1.65,
-              maxWidth: "35rem",
-              textShadow: "0 0 10px #00F0FFcc, 0 2px 14px #002638cc, 0 0 10px #193c65cc"
+              maxWidth: "37rem",
+              textShadow: "0 0 10px #00F0FFcc, 0 2px 14px #002638cc, 0 0 10px #193c65cc",
+              opacity: 0.97,
+              filter: "drop-shadow(0 5px 22px #36d1fe22)"
             }}
             tabIndex={0}
           >
@@ -116,13 +130,21 @@ const DiscoveryHook = () => {
           </div>
         </div>
 
-        {/* Futuristic Button Row */}
-        <div className="flex flex-col sm:flex-row gap-8 mt-10 mb-16 w-full max-w-3xl justify-center items-center">
+        {/* Curved, organic button row with natural gap, no hard grouping */}
+        <div
+          className="
+            flex flex-wrap sm:flex-row gap-6 sm:gap-8 mt-8 mb-16 w-full max-w-3xl justify-center items-center
+            rounded-[2rem] p-3 sm:p-4
+            bg-gradient-to-br from-white/5 to-canai-blue-card/30 blur-0
+            shadow-[0_2px_18px_#36d1fe33]
+          "
+          style={{border: 'none'}}
+        >
           <Button
             id="ignite-btn"
             variant="canai"
             size="lg"
-            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow backdrop-blur-md shadow-lg font-bold"
+            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow font-bold rounded-xl transition-transform duration-200 hover:scale-105"
             onClick={() => navigate("/discovery-funnel")}
             aria-label="Ignite Your Journey"
           >
@@ -132,7 +154,7 @@ const DiscoveryHook = () => {
             id="pricing-btn"
             variant="canai"
             size="lg"
-            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow backdrop-blur-md shadow-lg font-bold"
+            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow font-bold rounded-xl transition-transform duration-200 hover:scale-105"
             onClick={() => setPricingOpen(true)}
             aria-haspopup="dialog"
             aria-controls="pricing-modal"
@@ -144,7 +166,7 @@ const DiscoveryHook = () => {
             id="sample-btn"
             variant="canai"
             size="lg"
-            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow backdrop-blur-md shadow-lg font-bold"
+            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow font-bold rounded-xl transition-transform duration-200 hover:scale-105"
             onClick={() => navigate("/samples")}
             aria-label="Explore Samples"
           >
@@ -154,7 +176,7 @@ const DiscoveryHook = () => {
             id="preview-btn"
             variant="canai"
             size="lg"
-            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow backdrop-blur-md shadow-lg font-bold"
+            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow font-bold rounded-xl transition-transform duration-200 hover:scale-105"
             onClick={() => setPreviewOpen(true)}
             aria-haspopup="dialog"
             aria-controls="preview-modal"
@@ -165,12 +187,12 @@ const DiscoveryHook = () => {
         </div>
 
         {/* Trust Indicators */}
-        <div className="w-full mt-6">
+        <div className="w-full mt-8 mb-6">
           <TrustIndicators />
         </div>
 
-        {/* Product Cards */}
-        <div className="w-full mt-10">
+        {/* Product Cards - extra breathing room, less blocky paddings */}
+        <div className="w-full mt-8">
           <ProductCards />
         </div>
       </main>
@@ -185,4 +207,3 @@ const DiscoveryHook = () => {
 };
 
 export default DiscoveryHook;
-
