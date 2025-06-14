@@ -32,7 +32,7 @@ const DiscoveryHook = () => {
     >
       {/* Cosmic star dots */}
       <div aria-hidden className="fixed inset-0 pointer-events-none z-0">
-        <svg width="100%" height="100%" className="absolute inset-0 opacity-50" style={{ mixBlendMode: "screen" }}>
+        <svg width="100%" height="100%" className="absolute inset-0 opacity-60" style={{ mixBlendMode: "screen" }}>
           <defs>
             <radialGradient id="star" r="60%" cx="50%" cy="40%">
               <stop offset="0%" stopColor="#36d1fe" stopOpacity="0.10" />
@@ -46,9 +46,9 @@ const DiscoveryHook = () => {
                 key={i}
                 cx={`${Math.random() * 100}%`}
                 cy={`${Math.random() * 100}%`}
-                r={Math.random() * 1.22 + 0.35}
+                r={Math.random() * 1.8 + 0.6}
                 fill="#B4EFFF"
-                opacity={Math.random() * 0.24 + 0.13}
+                opacity={Math.random() * 0.30 + 0.18}
               />
             ))}
           </g>
@@ -60,15 +60,16 @@ const DiscoveryHook = () => {
         <CanAILogo size="lg" showTagline />
 
         {/* Hero Headline & Subtext */}
-        <div className="mt-12 mb-10 w-full flex flex-col items-center text-center">
+        <div className="mt-14 mb-12 w-full flex flex-col items-center text-center">
           <h1
             id="hero-headline"
-            className="font-manrope font-extrabold tracking-wide animate-text-glow text-canai-luminescent"
+            className="font-manrope font-extrabold tracking-wide animate-text-glow text-canai-luminescent drop-shadow-xl rounded-lg px-6 py-4 bg-gradient-to-br from-cyan-900/60 to-cyan-700/30 backdrop-blur-xl
+              border border-white/10 shadow-[0_2px_32px_#36d1fe44] ring-2 ring-canai-cyan/40"
             style={{
-              fontSize: "clamp(2.6rem,6vw,3.5rem)",
+              fontSize: "clamp(2.8rem,6vw,3.5rem)",
               letterSpacing: "1px",
-              lineHeight: 1.06,
-              marginBottom: "0.7rem"
+              lineHeight: 1.08,
+              marginBottom: "0.8rem"
             }}
             tabIndex={0}
           >
@@ -76,25 +77,25 @@ const DiscoveryHook = () => {
           </h1>
           <div
             id="hero-subtext"
-            className="text-lg sm:text-xl font-manrope font-light text-canai-luminescent/90 animate-fade-in"
+            className="text-xl sm:text-2xl font-manrope font-light text-canai-luminescent/90 animate-fade-in shadow-none"
             style={{
               letterSpacing: "0.01em",
-              lineHeight: 1.6,
-              maxWidth: "36rem"
+              lineHeight: 1.65,
+              maxWidth: "35rem"
             }}
             tabIndex={0}
           >
-            Elevate your essence with AI-crafted solutions that resonate.
+            Elevate your essence with <span className="font-semibold text-canai-primary">AI-crafted solutions</span> that resonate.
           </div>
         </div>
 
         {/* Futuristic Button Row */}
-        <div className="flex flex-col sm:flex-row gap-7 mt-14 mb-14 w-full max-w-3xl justify-center items-center">
+        <div className="flex flex-col sm:flex-row gap-8 mt-10 mb-16 w-full max-w-3xl justify-center items-center">
           <Button
             id="ignite-btn"
             variant="canai"
             size="lg"
-            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow"
+            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow backdrop-blur-md shadow-lg font-bold"
             onClick={() => navigate("/discovery-funnel")}
             aria-label="Ignite Your Journey"
           >
@@ -104,7 +105,7 @@ const DiscoveryHook = () => {
             id="pricing-btn"
             variant="canai"
             size="lg"
-            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow"
+            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow backdrop-blur-md shadow-lg font-bold"
             onClick={() => setPricingOpen(true)}
             aria-haspopup="dialog"
             aria-controls="pricing-modal"
@@ -116,7 +117,7 @@ const DiscoveryHook = () => {
             id="sample-btn"
             variant="canai"
             size="lg"
-            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow"
+            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow backdrop-blur-md shadow-lg font-bold"
             onClick={() => navigate("/samples")}
             aria-label="Explore Samples"
           >
@@ -126,7 +127,7 @@ const DiscoveryHook = () => {
             id="preview-btn"
             variant="canai"
             size="lg"
-            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow"
+            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow backdrop-blur-md shadow-lg font-bold"
             onClick={() => setPreviewOpen(true)}
             aria-haspopup="dialog"
             aria-controls="preview-modal"

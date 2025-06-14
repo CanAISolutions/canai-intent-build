@@ -68,29 +68,29 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
     <div
       ref={modalRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
-      style={{ backdropFilter: "blur(2px)" }}
+      style={{ backdropFilter: "blur(6px)" }}
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
     >
       <div
-        className="relative bg-white rounded-3xl px-4 py-8 max-w-2xl w-full flex flex-col items-center shadow-2xl border-4 border-transparent animate-glow-pop"
+        className="relative bg-gradient-to-br from-white/95 to-canai-light/80 rounded-3xl px-4 py-8 max-w-2xl w-full flex flex-col items-center shadow-2xl border-4 border-transparent animate-glow-pop ring-2 ring-canai-primary/30"
         style={{
           borderImage: "linear-gradient(120deg, #36d1fe 70%, #07c3fb 100%) 1",
-          boxShadow: "0 0 48px 8px #36d1fe33"
+          boxShadow: "0 0 48px 10px #36d1fe3a"
         }}
         onClick={e => e.stopPropagation()}
       >
         <button
           id="pricing-close"
           onClick={onClose}
-          className="absolute top-6 right-6 z-10 text-canai-primary transition-colors bg-white/75 rounded-full p-2 hover:bg-canai-cyan/20 focus-visible:outline-canai-primary"
+          className="absolute top-6 right-6 z-10 text-canai-primary transition-colors bg-white/80 rounded-full p-2 hover:bg-canai-cyan/30 focus-visible:outline-canai-primary"
           aria-label="Close Pricing Modal"
         >
           <X size={22} />
         </button>
         <div className="text-center mb-5">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2" id="modal-title" tabIndex={0} style={{textShadow:"0 0 10px #36d1fe55"}}>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2" id="modal-title" tabIndex={0} style={{textShadow:"0 0 14px #36d1fe44"}}>
             CanAI Pricing
           </h2>
           <p className="text-gray-700 font-medium">
@@ -107,8 +107,8 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
             ))}
           </CarouselContent>
           {/* Styled Controls */}
-          <CarouselPrevious className="left-1 top-1/2 -translate-y-1/2 border-none bg-canai-cyan shadow-md hover:scale-110 focus:ring-canai-primary" />
-          <CarouselNext className="right-1 top-1/2 -translate-y-1/2 border-none bg-canai-cyan shadow-md hover:scale-110 focus:ring-canai-primary" />
+          <CarouselPrevious className="left-1 top-1/2 -translate-y-1/2 border-none bg-canai-cyan shadow-lg hover:scale-110 focus:ring-canai-primary" />
+          <CarouselNext className="right-1 top-1/2 -translate-y-1/2 border-none bg-canai-cyan shadow-lg hover:scale-110 focus:ring-canai-primary" />
         </Carousel>
       </div>
     </div>

@@ -22,25 +22,27 @@ const PricingCard: React.FC<PricingCardProps> = ({
   highlighted = false,
 }) => (
   <div
-    className={`relative w-full h-full rounded-2xl shadow-lg bg-white/95 px-8 py-8 flex flex-col items-center border-4
+    className={`relative w-full h-full rounded-2xl shadow-xl bg-gradient-to-br from-white/95 to-canai-light/80
+      px-8 py-10 flex flex-col items-center border-4
       ${highlighted
-        ? "border-canai-primary animate-glow-pop"
+        ? "border-canai-primary animate-glow-pop ring-2 ring-canai-primary/40"
         : "border-transparent"}
       before:content-[''] before:absolute before:inset-0 before:rounded-2xl before:pointer-events-none before:z-0
-      before:shadow-[0_0_42px_5px_#36d1fe33]`}
+      before:shadow-[0_0_42px_8px_#36d1fe33]`}
     tabIndex={0}
+    style={{ backdropFilter: "blur(8px)" }}
   >
     {/* Animated border using a gradient */}
     <div className="absolute inset-0 rounded-2xl pointer-events-none z-0 border-2 border-transparent"
       style={{
-        boxShadow: "0 0 32px 4px #36d1fe44, 0 0 0 2px #36d1fe66",
+        boxShadow: "0 0 38px 8px #36d1fe24, 0 0 0 2px #36d1fe44",
         borderImage: "linear-gradient(130deg, #36d1fe, #07c3fb) 1"
       }}
       aria-hidden
     />
     <div className="relative z-10 w-full flex flex-col items-center">
-      <h3 className="text-canai-primary text-lg font-bold font-manrope uppercase tracking-wider mb-1">{product}</h3>
-      <span className="text-3xl font-extrabold text-gray-900 mb-1">{price}</span>
+      <h3 className="text-canai-primary text-lg font-bold font-manrope uppercase tracking-wider mb-2">{product}</h3>
+      <span className="text-3xl font-extrabold text-gray-900 mb-1 drop-shadow-lg">{price}</span>
       <div className="text-xl text-gray-800 font-semibold mb-4">{title}</div>
       <ul className="mb-4 space-y-2 w-full text-left max-w-xs">
         {features.map((f, i) => (
@@ -50,8 +52,8 @@ const PricingCard: React.FC<PricingCardProps> = ({
           </li>
         ))}
       </ul>
-      <p className="mb-6 text-gray-500 text-center font-manrope">{description}</p>
-      <Button variant="canai" className="w-full max-w-xs">{cta}</Button>
+      <p className="mb-7 text-gray-600 text-center font-manrope">{description}</p>
+      <Button variant="canai" className="w-full max-w-xs font-bold">{cta}</Button>
     </div>
   </div>
 );

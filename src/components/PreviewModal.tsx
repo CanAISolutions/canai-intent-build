@@ -49,14 +49,14 @@ const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" style={{ backdropFilter: 'blur(2px)' }}>
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" style={{ backdropFilter: 'blur(7px)' }}>
       <Confetti active={showConfetti} />
       <div 
-        className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[94vh] overflow-y-auto relative px-0 py-0 border-4
-          animate-glow-pop"
+        className="bg-gradient-to-br from-white/95 to-canai-light/90 rounded-3xl shadow-2xl max-w-3xl w-full max-h-[94vh] overflow-y-auto relative px-0 py-0 border-4
+          animate-glow-pop ring-2 ring-canai-primary/30"
         style={{
           borderImage: "linear-gradient(120deg, #36d1fe 70%, #07c3fb 100%) 1",
-          boxShadow: "0 0 48px 8px #36d1fe33"
+          boxShadow: "0 0 48px 12px #36d1fe33"
         }}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
@@ -65,7 +65,7 @@ const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, onClose }) => {
       >
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 z-10 text-canai-primary transition-colors bg-white/75 rounded-full p-2 hover:bg-canai-cyan/20 focus-visible:outline-canai-primary"
+          className="absolute top-6 right-6 z-10 text-canai-primary transition-colors bg-white/80 rounded-full p-2 hover:bg-canai-cyan/30 focus-visible:outline-canai-primary"
           aria-label="Close Preview Modal"
         >
           <X size={22} />
@@ -73,7 +73,7 @@ const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, onClose }) => {
 
         <div className="px-10 py-10 sm:px-14 space-y-8 flex flex-col items-center">
           <div className="text-center">
-            <h2 id="modal-title" className="text-3xl font-bold text-gray-900 mb-3 select-none" tabIndex={0} style={{textShadow:"0 0 10px #36d1fe55"}}>
+            <h2 id="modal-title" className="text-3xl font-bold text-gray-900 mb-3 select-none" tabIndex={0} style={{textShadow:"0 0 11px #36d1fe55"}}>
               ✨ The Community Spark
             </h2>
             <div className="flex justify-center">
@@ -82,7 +82,7 @@ const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, onClose }) => {
                 <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-canai-primary-blue to-canai-glow-cyan shadow-[0_0_36px_#36d1fe99] text-white rounded-full px-3 py-1 font-manrope text-sm font-bold uppercase tracking-wide z-10 select-none animate-countup-glow">
                   Spark Example
                 </span>
-                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl border-l-4 border-canai-primary p-8
+                <div className="bg-gradient-to-br from-blue-50/80 to-cyan-50/80 rounded-2xl border-l-4 border-canai-primary p-8
                   shadow-[0_2px_28px_#36d1fe30] mt-3 mb-3 animate-fade-in voice-bubble"
                   style={{
                     borderImage: "linear-gradient(120deg, #36d1fe 50%, #00b2e3 100%) 1",

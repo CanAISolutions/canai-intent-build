@@ -247,3 +247,43 @@
     border-radius: 14px;
   }
 }
+
+/* ======= CANAI PHASE 1 BEAUTY AND CLARITY TWEAKS ====== */
+@layer components {
+  .glassmorphism {
+    /* Stripe-style translucent card */
+    background: linear-gradient(135deg, rgba(245,255,255,0.92) 80%, rgba(215, 240, 255, 0.85) 100%);
+    box-shadow: 0 0 50px 8px #36d1fe22;
+    backdrop-filter: blur(12px) saturate(138%);
+    border-radius: 24px;
+    border: 1.5px solid rgba(36, 207, 254, 0.09);
+  }
+}
+@layer utilities {
+  .shadow-strong {
+    box-shadow: 0 2px 32px 6px #36d1fe44, 0 0 18px #00F0FF44;
+  }
+  .text-glow-hero {
+    text-shadow: 0 0 22px #36d1fecc, 0 0 8px #00cfff99, 0 1px 2px #fff;
+  }
+  .backdrop-blur-xl {
+    backdrop-filter: blur(12px) saturate(120%);
+  }
+  .ring-canai-primary {
+    box-shadow: 0 0 0 2.5px #36d1fe77, 0 0 16px #00cfff44;
+  }
+  .drop-shadow-xl {
+    filter: drop-shadow(0 8px 24px #36d1fe44);
+  }
+}
+
+/* Improve light-on-dark text for all .canai-product-card */
+.canai-product-card {
+  color: #263755;
+}
+/* Modal content background polish */
+.bg-glass-modal {
+  background: linear-gradient(134deg, #fff 89%, #E6F6FF 100%);
+  backdrop-filter: blur(10px) saturate(114%);
+  box-shadow: 0 0 55px 16px #36d1fe15;
+}
