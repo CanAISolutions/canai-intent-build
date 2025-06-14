@@ -169,3 +169,65 @@
 .text-canai-luminescent {
   color: #E6F6FF;
 }
+
+/* Futuristic Button Glow */
+@layer components {
+  .canai-btn-glow {
+    box-shadow: 0 0 0 0 #00CFFF, 0 0 20px #00F0FFcc, 0 0 30px #00CFFF80;
+    transition: box-shadow 0.2s cubic-bezier(.4,0,.2,1);
+  }
+  .canai-btn-glow:hover, .canai-btn-glow:focus-visible {
+    box-shadow: 0 0 0 4px #00F0FF55, 0 0 38px #00F0FFee, 0 0 65px #00CFFF99;
+    filter: brightness(1.08) drop-shadow(0 0 32px #00CFFFcc);
+  }
+}
+
+/* Ripple Effect */
+@layer components {
+  .canai-btn-ripple {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .canai-btn-ripple::after {
+    content: '';
+    position: absolute;
+    display: block;
+    left: 50%;
+    top: 50%;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    background: radial-gradient(circle, #00F0FF66 0%, #00F0FF22 60%, transparent 100%);
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: width 0.4s, height 0.4s, opacity 0.5s;
+    z-index: 1;
+  }
+  .canai-btn-ripple:active::after {
+    width: 230px;
+    height: 230px;
+    opacity: 0.35;
+    transition: 0s;
+  }
+}
+
+/* Intense Glow On Focus */
+@layer components {
+  .canai-focus-glow:focus-visible {
+    outline: 0 !important;
+    box-shadow: 0 0 0 4px #00F0FFcc, 0 0 18px #00CFFFcc, 0 0 32px #00CFFFaa, 0 0 52px #00F0FF88;
+    border-color: #00CFFF;
+  }
+}
+
+/* Elevate the font and padding for larger, bolder buttons */
+@layer components {
+  .btn-canai, .canai-btn-glow {
+    font-family: var(--font-family-primary);
+    font-weight: 600;
+    font-size: 1.13rem;
+    padding: 1.25rem 2.25rem;
+    border-radius: 14px;
+  }
+}

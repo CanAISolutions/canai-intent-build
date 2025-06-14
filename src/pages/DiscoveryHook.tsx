@@ -49,7 +49,7 @@ const DiscoveryHook = () => {
         {/* Logo and Tagline */}
         <CanAILogo size="lg" showTagline />
 
-        {/* New Hero Headline & Subtext */}
+        {/* Hero Headline & Subtext */}
         <div className="mt-12 mb-10 w-full flex flex-col items-center text-center">
           <h1
             id="hero-headline"
@@ -78,45 +78,51 @@ const DiscoveryHook = () => {
           </div>
         </div>
 
-        {/* Button Row */}
+        {/* Futuristic Button Row */}
         <div className="flex flex-col sm:flex-row gap-7 mt-14 mb-14 w-full max-w-3xl justify-center items-center">
           <Button
-            id="begin-btn"
+            id="ignite-btn"
             variant="canai"
-            className="drop-shadow-xl"
+            size="lg"
+            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow"
             onClick={() => navigate("/discovery-funnel")}
-            aria-label="Begin Your Journey"
+            aria-label="Ignite Your Journey"
           >
-            Begin Your Journey
+            Ignite Your Journey
           </Button>
           <Button
             id="pricing-btn"
             variant="canai"
-            className="drop-shadow-xl"
+            size="lg"
+            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow"
             onClick={() => setPricingOpen(true)}
             aria-haspopup="dialog"
             aria-controls="pricing-modal"
+            aria-label="Reveal Pricing"
           >
-            View Pricing
+            Reveal Pricing
           </Button>
           <Button
             id="sample-btn"
             variant="canai"
-            className="drop-shadow-xl"
+            size="lg"
+            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow"
             onClick={() => navigate("/samples")}
-            aria-label="See a Sample"
+            aria-label="Explore Samples"
           >
-            See a Sample
+            Explore Samples
           </Button>
           <Button
             id="preview-btn"
             variant="canai"
-            className="drop-shadow-xl"
+            size="lg"
+            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow"
             onClick={() => setPreviewOpen(true)}
             aria-haspopup="dialog"
             aria-controls="preview-modal"
+            aria-label="Spark for Free"
           >
-            Try a Free Spark
+            Spark for Free
           </Button>
         </div>
 
