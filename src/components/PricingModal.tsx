@@ -1,94 +1,115 @@
 
 import React from 'react';
 import { X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import PricingCard from './PricingCard';
 
 interface PricingModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+const PRICING_DATA = [
+  {
+    product: 'BUSINESS_BUILDER',
+    title: "Business Plan Accelerator",
+    price: '$99',
+    features: [
+      "700–800 words, investor-ready",
+      "AI+expert crafted analysis",
+      "Market positioning, competition, plan",
+      "Fast 24h turnaround"
+    ],
+    description: "Get a beautiful, actionable business plan—delivered fast. Designed to impress investors and clarify your next winning moves.",
+    highlighted: true,
+  },
+  {
+    product: 'SOCIAL_EMAIL',
+    title: "Social Launch Kit",
+    price: '$49',
+    features: [
+      "3-7 social posts, branded",
+      "3-5 conversion email drafts",
+      "Tailored to your audience",
+      "Messaging for launch or boost"
+    ],
+    description: "Jumpstart your brand buzz with social and emails written for max engagement—ideal for launches or campaign boosts.",
+    highlighted: false,
+  },
+  {
+    product: 'SITE_AUDIT',
+    title: "Website Audit & Boost",
+    price: '$79',
+    features: [
+      "300–400 word deep-dive audit",
+      "Actionable recommendations",
+      "Design, UX & copy insights",
+      "Prioritized next steps"
+    ],
+    description: "Optimize your digital presence. Pinpoint improvements and get a roadmap to a site that finally converts and reflects your vision.",
+    highlighted: false,
+  }
+];
+
 const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
+  const modalRef = React.useRef<HTMLDivElement>(null);
+
+  // Accessibility: close with Escape
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const keyHandler = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", keyHandler);
+    return () => window.removeEventListener("keydown", keyHandler);
+  }, [isOpen, onClose]);
+  
   if (!isOpen) return null;
 
-  const pricingData = [
-    {
-      product: 'BUSINESS_BUILDER',
-      price: '$99',
-      description: 'Investor-ready business plan (700–800 words).'
-    },
-    {
-      product: 'SOCIAL_EMAIL',
-      price: '$49',
-      description: '3–7 social posts + 3–5 emails.'
-    },
-    {
-      product: 'SITE_AUDIT',
-      price: '$79',
-      description: 'Website audit (300–400 words) + recommendations.'
-    }
-  ];
-
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div 
-        className="bg-white rounded-xl p-10 max-w-2xl w-full max-h-[90vh] overflow-y-auto relative"
-        onClick={(e) => e.stopPropagation()}
+    <div
+      ref={modalRef}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+      style={{ backdropFilter: "blur(2px)" }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+    >
+      <div
+        className="relative bg-white rounded-3xl px-4 py-8 max-w-2xl w-full flex flex-col items-center shadow-2xl border-4 border-transparent animate-glow-pop"
+        style={{
+          borderImage: "linear-gradient(120deg, #36d1fe 70%, #07c3fb 100%) 1",
+          boxShadow: "0 0 48px 8px #36d1fe33"
+        }}
+        onClick={e => e.stopPropagation()}
       >
         <button
           id="pricing-close"
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
+          className="absolute top-6 right-6 z-10 text-canai-primary transition-colors bg-white/75 rounded-full p-2 hover:bg-canai-cyan/20 focus-visible:outline-canai-primary"
+          aria-label="Close Pricing Modal"
         >
-          <X size={24} />
+          <X size={22} />
         </button>
-
-        <div className="space-y-6">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              CanAI Pricing
-            </h2>
-            <p className="text-gray-600">
-              Choose the perfect solution for your business needs
-            </p>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b-2 border-gray-200">
-                  <th className="text-left py-4 px-2 font-semibold text-gray-900">Product</th>
-                  <th className="text-left py-4 px-2 font-semibold text-gray-900">Price</th>
-                  <th className="text-left py-4 px-2 font-semibold text-gray-900">Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pricingData.map((item, index) => (
-                  <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-4 px-2 font-medium text-gray-900">
-                      {item.product}
-                    </td>
-                    <td className="py-4 px-2 text-2xl font-bold text-canai-primary">
-                      {item.price}
-                    </td>
-                    <td className="py-4 px-2 text-gray-600">
-                      {item.description}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="text-center pt-4">
-            <Button 
-              onClick={onClose}
-              className="canai-button-primary px-8 py-3"
-            >
-              Get Started
-            </Button>
-          </div>
+        <div className="text-center mb-5">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2" id="modal-title" tabIndex={0} style={{textShadow:"0 0 10px #36d1fe55"}}>
+            CanAI Pricing
+          </h2>
+          <p className="text-gray-700 font-medium">
+            Choose the perfect solution for your business.
+          </p>
         </div>
+        {/* Carousel */}
+        <Carousel className="w-full max-w-xl py-2 select-none">
+          <CarouselContent>
+            {PRICING_DATA.map((item, idx) => (
+              <CarouselItem key={item.product} className="px-2 py-4">
+                <PricingCard {...item} />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          {/* Styled Controls */}
+          <CarouselPrevious className="left-1 top-1/2 -translate-y-1/2 border-none bg-canai-cyan shadow-md hover:scale-110 focus:ring-canai-primary" />
+          <CarouselNext className="right-1 top-1/2 -translate-y-1/2 border-none bg-canai-cyan shadow-md hover:scale-110 focus:ring-canai-primary" />
+        </Carousel>
       </div>
     </div>
   );
