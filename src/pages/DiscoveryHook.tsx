@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import CanAILogo from "@/components/CanAILogo";
 import TrustIndicators from "@/components/TrustIndicators";
@@ -82,11 +81,25 @@ const DiscoveryHook = () => {
               letterSpacing: "0.01em",
               lineHeight: 1.65,
               maxWidth: "35rem",
-              textShadow: "0 0 10px #00F0FF88, 0 2px 10px #000"
+              textShadow: "0 0 10px #00F0FFcc, 0 2px 14px #002638cc, 0 0 10px #193c65cc"
             }}
             tabIndex={0}
           >
-            Elevate your essence with <span className="font-bold text-canai-primary">AI-crafted solutions</span> that resonate.
+            Elevate your essence with{" "}
+            <span
+              className="font-bold"
+              style={{
+                color: "#E6F6FF",
+                filter: "drop-shadow(0 0 8px #36d1fecc)",
+                background: "linear-gradient(90deg, #00CFFF 55%, #36d1fe 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                textShadow: "0 0 10px #00CFFFcc, 0 2px 16px #002638cc"
+              }}
+            >
+              AI-crafted solutions
+            </span>{" "}
+            that resonate.
           </div>
         </div>
 
