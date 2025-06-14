@@ -20,9 +20,10 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         canai:
           "font-manrope font-bold text-canai-light text-base px-10 py-6 rounded-[14px] " +
-          "bg-[linear-gradient(135deg,#193c65_50%,#36d1fe_100%)] shadow-[0_0_22px_#36d1fec0,0_1.5px_8px_#12294a89] border-2 border-[#36d1fe] [background-clip:padding-box] " +
+          "bg-[linear-gradient(135deg,#193c65_60%,#1e314f_100%)] shadow-[0_0_22px_#36d1fe99,0_1.5px_8px_#12294a89] border border-[#36d1fe] [background-clip:padding-box] " +
           "transition-all duration-300 focus-visible:ring-2 focus-visible:ring-canai-primary " +
-          "hover:bg-[linear-gradient(135deg,#285288_44%,#00F0FF_100%)] hover:text-white hover:scale-105 hover:shadow-[0_0_36px_#36d1fee3,0_2.5px_12px_#12294acc] active:scale-100"
+          "hover:bg-[linear-gradient(135deg,#275084_60%,#37d1fe_100%)] hover:text-white hover:scale-105 hover:shadow-[0_0_36px_#36d1fee3,0_2.5px_12px_#12294acc] active:scale-100" +
+          " text-white drop-shadow-lg"
       },
       size: {
         default: "",

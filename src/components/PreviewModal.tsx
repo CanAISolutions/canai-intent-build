@@ -11,21 +11,21 @@ interface PreviewModalProps {
 
 const sparkText = (
   <>
-    <h3 className="text-xl font-semibold text-gray-900 mb-4">
+    <h3 className="text-xl font-semibold text-canai-card-title mb-4">
       Building Your Local Community Network
     </h3>
-    <p className="text-gray-700 leading-relaxed mb-4">
+    <p className="text-canai-light leading-relaxed mb-4">
       Your business isn't just a service—it's a cornerstone of your community. By creating genuine 
       connections with local businesses, you're not just expanding your network; you're building 
       a foundation of mutual support that elevates everyone.
     </p>
-    <p className="text-gray-700 leading-relaxed mb-4">
+    <p className="text-canai-light leading-relaxed mb-4">
       Start with one meaningful conversation per week. Reach out to complementary businesses—not 
       competitors, but allies. A coffee shop partnering with a bookstore, a yoga studio connecting 
       with a healthy café. These relationships create referral networks that feel natural and authentic.
     </p>
-    <div className="bg-white/60 rounded-lg p-4 mt-6">
-      <p className="text-sm text-gray-600 italic">
+    <div className="bg-white/10 rounded-lg p-4 mt-6">
+      <p className="text-xs text-canai-light-softer italic">
         "This approach helped us triple our referrals in just 3 months by focusing on genuine 
         community building rather than transactional networking." - Sarah M., Local Business Owner
       </p>
@@ -51,8 +51,8 @@ const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, onClose }) => {
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" style={{ backdropFilter: 'blur(7px)' }}>
       <Confetti active={showConfetti} />
-      <div 
-        className="bg-gradient-to-br from-canai-primary-blue-glass to-canai-primary-blue-dark rounded-3xl shadow-2xl max-w-3xl w-full max-h-[94vh] overflow-y-auto relative px-0 py-0 border-4 animate-glow-pop ring-2 ring-canai-primary/30"
+      <div
+        className="bg-gradient-to-br from-canai-primary-blue-dark to-canai-blue-card rounded-3xl shadow-2xl max-w-3xl w-full max-h-[94vh] overflow-y-auto relative px-0 py-0 border-4 animate-glow-pop ring-2 ring-canai-primary/30"
         style={{
           borderImage: "linear-gradient(120deg, #36d1fe 70%, #193c65 100%) 1",
           boxShadow: "0 0 48px 12px #12294a77"
@@ -64,15 +64,15 @@ const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, onClose }) => {
       >
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 z-10 text-canai-primary transition-colors bg-white/80 rounded-full p-2 hover:bg-canai-cyan/30 focus-visible:outline-canai-primary"
+          className="absolute top-6 right-6 z-10 modal-close transition-colors bg-[#143657]/80 rounded-full p-2 hover:bg-canai-cyan/30 focus-visible:outline-canai-primary"
           aria-label="Close Preview Modal"
         >
-          <X size={22} />
+          <X size={22} color="#e6f6ff" />
         </button>
 
         <div className="px-10 py-10 sm:px-14 space-y-8 flex flex-col items-center">
           <div className="text-center">
-            <h2 id="modal-title" className="text-3xl font-bold text-gray-900 mb-3 select-none" tabIndex={0} style={{textShadow:"0 0 11px #36d1fe55"}}>
+            <h2 id="modal-title" className="modal-title text-3xl font-bold text-canai-card-title mb-3 select-none" tabIndex={0}>
               ✨ The Community Spark
             </h2>
             <div className="flex justify-center">
@@ -96,16 +96,16 @@ const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, onClose }) => {
             <Button 
               onClick={handleGetSparks}
               size="lg" 
-              className="canai-button-primary text-lg px-10 py-5 shadow-md font-extrabold rounded-2xl transition-all group focus-visible:canai-focus-glow
+              className="btn-canai text-lg px-10 py-5 shadow-md font-extrabold rounded-2xl transition-all group focus-visible:canai-focus-glow
                animate-glow-pop hover:scale-105"
               aria-label="Claim Your Sparks"
               tabIndex={0}
               autoFocus
             >
               Claim Your Sparks
-              <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={22} />
+              <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={22} color="#e6f6ff" />
             </Button>
-            <p className="text-sm text-gray-500">
+            <p className="text-xs text-canai-light-softer mt-2">
               Unlock more personalized strategies—crafted just for your business!
             </p>
           </div>

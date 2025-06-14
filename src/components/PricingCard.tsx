@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 
@@ -46,7 +45,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
       <ul className="mb-4 space-y-2 w-full text-left max-w-xs">
         {features.map((f, i) => (
           <li key={i} className="flex items-center gap-2 text-canai-light-blue text-base">
-            <span className="inline-block w-2 h-2 bg-canai-cyan rounded-full mr-2" />
+            <span className="canai-feature-dot inline-block w-2 h-2 rounded-full mr-2" />
             <span className="text-canai-light">{f}</span>
           </li>
         ))}

@@ -56,7 +56,8 @@ const ProductCards = () => {
                 className="canai-product-card relative transition-transform duration-300
                   border border-canai-primary/70 rounded-2xl px-8 py-10 shadow-[0_0_24px_rgba(25,60,101,0.28)] hover:scale-105 hover:shadow-[0_0_44px_rgba(25,60,101,0.38)] focus-visible:ring-4 focus-visible:ring-canai-primary"
                 style={{
-                  borderImage: "linear-gradient(135deg, #36d1fe, #193c65) 1"
+                  borderImage: "linear-gradient(135deg, #36d1fe, #193c65) 1",
+                  background: "var(--canai-blue-card)",
                 }}
               >
                 {/* Glowing animated border gradient (overlay) */}
@@ -67,8 +68,8 @@ const ProductCards = () => {
                   aria-hidden
                 />
                 <div className="flex flex-col items-center space-y-6 relative z-10">
-                  <div className="canai-card-icon inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#36d1fe] to-[#193c65] shadow-[0_0_18px_#36d1fe77] mb-2">
-                    <IconComponent size={28} />
+                  <div className="canai-card-icon inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#233f66] to-[#193c65] shadow-[0_0_18px_#36d1fe77] mb-2">
+                    <IconComponent size={28} color="#e6f6ff" strokeWidth={2.2} />
                   </div>
                   <h3 className="text-xl font-extrabold text-canai-card-title font-manrope tracking-tight" style={{textShadow:"0 0 10px #36d1fe33"}}>
                     {product.title}
@@ -83,7 +84,7 @@ const ProductCards = () => {
                     aria-label={`Learn more about ${product.title}`}
                   >
                     Learn More
-                    <ArrowRight className="ml-2" size={18} />
+                    <ArrowRight className="ml-2" size={18} color="#e6f6ff" />
                   </Button>
                 </div>
               </div>

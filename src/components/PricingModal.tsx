@@ -74,7 +74,7 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
       aria-labelledby="modal-title"
     >
       <div
-        className="relative bg-gradient-to-br from-canai-primary-blue-glass to-canai-primary-blue-dark rounded-3xl px-4 py-8 max-w-2xl w-full flex flex-col items-center shadow-2xl border-4 border-canai-primary animate-glow-pop ring-2 ring-canai-primary/30"
+        className="relative bg-gradient-to-br from-canai-primary-blue-dark to-canai-blue-card rounded-3xl px-4 py-8 max-w-2xl w-full flex flex-col items-center shadow-2xl border-4 border-canai-primary animate-glow-pop ring-2 ring-canai-primary/30"
         style={{
           borderImage: "linear-gradient(120deg, #36d1fe 70%, #193c65 100%) 1",
           boxShadow: "0 0 48px 10px #12294a77"
@@ -84,16 +84,16 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
         <button
           id="pricing-close"
           onClick={onClose}
-          className="absolute top-6 right-6 z-10 text-canai-primary transition-colors bg-white/80 rounded-full p-2 hover:bg-canai-cyan/30 focus-visible:outline-canai-primary"
+          className="absolute top-6 right-6 z-10 modal-close transition-colors bg-[#143657]/80 rounded-full p-2 hover:bg-canai-cyan/30 focus-visible:outline-canai-primary"
           aria-label="Close Pricing Modal"
         >
-          <X size={22} />
+          <X size={22} color="#e6f6ff" />
         </button>
         <div className="text-center mb-5">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2" id="modal-title" tabIndex={0} style={{textShadow:"0 0 14px #36d1fe44"}}>
+          <h2 className="modal-title text-3xl font-bold text-canai-card-title mb-2" id="modal-title" tabIndex={0}>
             CanAI Pricing
           </h2>
-          <p className="text-gray-700 font-medium">
+          <p className="text-canai-light font-medium">
             Choose the perfect solution for your business.
           </p>
         </div>
