@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import CanAILogo from "@/components/CanAILogo";
 import TrustIndicators from "@/components/TrustIndicators";
@@ -26,7 +25,7 @@ const DiscoveryHook = () => {
     <div
       className="min-h-screen w-full flex flex-col items-center justify-center overflow-hidden relative"
       style={{
-        background: "radial-gradient(ellipse at 50% 38%, #143657 0%, #071727 100%)",
+        background: "radial-gradient(ellipse at 50% 38%, #143657 0%, #071727 100%)"
       }}
       aria-label="CanAI Emotional Sovereignty Platform Landing"
     >
@@ -55,35 +54,20 @@ const DiscoveryHook = () => {
         </svg>
       </div>
 
-      {/* Remove "block" panel by letting content float and layering subtle glows instead */}
-      <main
-        className="
-          relative z-10 w-full flex flex-col items-center max-w-5xl mx-auto 
-          pt-32 pb-20 px-2 sm:px-6 
-          rounded-[3rem] sm:rounded-[2.5rem] 
-          shadow-[0_8px_56px_0_#36d1fe26] 
-          transition-shadow duration-500 
-        "
-        style={{
-          background: "linear-gradient(140deg,rgba(23,43,71,0.82)_68%,rgba(36,209,254,0.10)_100%)",
-          boxShadow: "0 18px 56px 0 #36d1fea8, 0 1.5px 4px #0002" // so soft, not intrusive!
-        }}
-        tabIndex={0}
-      >
-        {/* Logo and Tagline - float up visually, organic */}
-        <div className="w-full flex flex-col items-center" style={{marginTop: '-2.5rem'}}>
+      {/* FIRST SECTION - Logo, Headline, Subtext */}
+      {/* Apply organic Fibonacci spacing: pt-20, mt-8, etc. */}
+      <section className="w-full flex flex-col items-center pt-20" style={{zIndex:2}}>
+        <div className="flex flex-col items-center" style={{marginTop: '-2.5rem'}}>
           <div className="shadow-[0_0_36px_#36d1fe33] rounded-full px-3 py-1 bg-white/5 backdrop-blur-xl mb-1">
             <CanAILogo size="lg" showTagline />
           </div>
         </div>
-
-        {/* Hero Headline & Subtext with more organic spacing */}
-        <div className="mt-10 mb-12 w-full flex flex-col items-center text-center">
+        <div className="mt-8 mb-13 w-full flex flex-col items-center text-center">
           <h1
             id="hero-headline"
             className="
               font-manrope font-extrabold tracking-wide animate-text-glow text-canai-luminescent drop-shadow-xl 
-              rounded-[2rem] px-6 py-4 bg-gradient-to-br from-cyan-900/60 to-cyan-700/20
+              rounded-[2rem] px-4 py-4 bg-gradient-to-br from-cyan-900/60 to-cyan-700/20
               shadow-[0_2px_32px_#36d1fe26] ring-2 ring-canai-cyan/30 hover:ring-4 focus:ring-4 ring-offset-4 ring-offset-transparent 
               transition-all duration-200
               backdrop-blur-2xl
@@ -93,7 +77,8 @@ const DiscoveryHook = () => {
               letterSpacing: "1px",
               lineHeight: 1.08,
               marginBottom: "0.8rem",
-              border: "none"
+              border: "none",
+              background: "linear-gradient(135deg, rgba(0,207,255,0.10), rgba(54,209,254,0.07))"
             }}
             tabIndex={0}
           >
@@ -129,78 +114,90 @@ const DiscoveryHook = () => {
             that resonate.
           </div>
         </div>
+        {/* Gradient transition shimmer bottom */}
+        <div className="w-full h-12 flex-shrink-0 pointer-events-none -mb-2 relative z-10">
+          <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-transparent to-[#143657]/80 opacity-80"></div>
+        </div>
+      </section>
 
-        {/* Curved, organic button row with natural gap, no hard grouping */}
-        <div
-          className="
-            flex flex-wrap sm:flex-row gap-6 sm:gap-8 mt-8 mb-16 w-full max-w-3xl justify-center items-center
-            rounded-[2rem] p-3 sm:p-4
-            bg-gradient-to-br from-white/5 to-canai-blue-card/30 blur-0
-            shadow-[0_2px_18px_#36d1fe33]
+      {/* ORGANIC BUTTON GROUP - less blocky/rigid: even spacing & staggered grouping */}
+      <section
+        className="
+          flex flex-wrap justify-center items-center gap-y-8 gap-x-10 mt-8 mb-20 w-full max-w-3xl
+          rounded-[2rem]
+          bg-gradient-to-br from-white/5 via-transparent to-canai-blue-card/30
+          shadow-[0_2px_18px_#36d1fe23]
+          px-4 py-3
           "
-          style={{border: 'none'}}
+        style={{border: "none", zIndex: 2}}
+      >
+        <Button
+          id="ignite-btn"
+          variant="canai"
+          size="lg"
+          className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow font-bold rounded-xl transition-transform duration-200 hover:scale-105"
+          onClick={() => navigate("/discovery-funnel")}
+          aria-label="Ignite Your Journey"
         >
-          <Button
-            id="ignite-btn"
-            variant="canai"
-            size="lg"
-            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow font-bold rounded-xl transition-transform duration-200 hover:scale-105"
-            onClick={() => navigate("/discovery-funnel")}
-            aria-label="Ignite Your Journey"
-          >
-            Ignite Your Journey
-          </Button>
-          <Button
-            id="pricing-btn"
-            variant="canai"
-            size="lg"
-            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow font-bold rounded-xl transition-transform duration-200 hover:scale-105"
-            onClick={() => setPricingOpen(true)}
-            aria-haspopup="dialog"
-            aria-controls="pricing-modal"
-            aria-label="Reveal Pricing"
-          >
-            Reveal Pricing
-          </Button>
-          <Button
-            id="sample-btn"
-            variant="canai"
-            size="lg"
-            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow font-bold rounded-xl transition-transform duration-200 hover:scale-105"
-            onClick={() => navigate("/samples")}
-            aria-label="Explore Samples"
-          >
-            Explore Samples
-          </Button>
-          <Button
-            id="preview-btn"
-            variant="canai"
-            size="lg"
-            className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow font-bold rounded-xl transition-transform duration-200 hover:scale-105"
-            onClick={() => setPreviewOpen(true)}
-            aria-haspopup="dialog"
-            aria-controls="preview-modal"
-            aria-label="Spark for Free"
-          >
-            Spark for Free
-          </Button>
+          Ignite Your Journey
+        </Button>
+        <Button
+          id="pricing-btn"
+          variant="canai"
+          size="lg"
+          className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow font-bold rounded-xl transition-transform duration-200 hover:scale-105"
+          onClick={() => setPricingOpen(true)}
+          aria-haspopup="dialog"
+          aria-controls="pricing-modal"
+          aria-label="Reveal Pricing"
+        >
+          Reveal Pricing
+        </Button>
+        <Button
+          id="sample-btn"
+          variant="canai"
+          size="lg"
+          className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow font-bold rounded-xl transition-transform duration-200 hover:scale-105"
+          onClick={() => navigate("/samples")}
+          aria-label="Explore Samples"
+        >
+          Explore Samples
+        </Button>
+        <Button
+          id="preview-btn"
+          variant="canai"
+          size="lg"
+          className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow font-bold rounded-xl transition-transform duration-200 hover:scale-105"
+          onClick={() => setPreviewOpen(true)}
+          aria-haspopup="dialog"
+          aria-controls="preview-modal"
+          aria-label="Spark for Free"
+        >
+          Spark for Free
+        </Button>
+        {/* Subtle layer gradient shimmer below buttons */}
+        <div className="w-full h-8 mt-4 pointer-events-none relative col-span-full">
+          <div className="absolute inset-0 w-full h-full bg-gradient-to-t from-[#143657]/80 to-transparent opacity-70"></div>
         </div>
+      </section>
 
-        {/* Trust Indicators */}
-        <div className="w-full mt-8 mb-6">
-          <TrustIndicators />
+      {/* TRUST INDICATORS */}
+      {/* Fibonacci natural spacing: mt-14 */}
+      <section className="w-full mt-14 mb-9 px-2 relative z-10">
+        <TrustIndicators />
+        {/* Transition gradient overlay for flow to next section */}
+        <div className="w-full h-10 relative pointer-events-none -mb-2">
+          <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-transparent to-[#143657]/85 opacity-75" />
         </div>
+      </section>
 
-        {/* Product Cards - extra breathing room, less blocky paddings */}
-        <div className="w-full mt-8">
-          <ProductCards />
-        </div>
-      </main>
+      {/* PRODUCT CARDS - more breathing room */}
+      <section className="w-full mt-16 pb-20 relative z-10">
+        <ProductCards />
+      </section>
 
-      {/* Pricing Modal */}
+      {/* Modals (unchanged) */}
       <PricingModal isOpen={isPricingOpen} onClose={() => setPricingOpen(false)} />
-
-      {/* Preview Modal */}
       <PreviewModal isOpen={isPreviewOpen} onClose={() => setPreviewOpen(false)} />
     </div>
   );
