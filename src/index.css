@@ -6,7 +6,9 @@
 @layer base {
   :root {
     /* CanAI Color Palette */
-    --canai-primary-blue: #00CFFF;
+    --canai-primary-blue: #193c65; /* ← Updated deep blue */
+    --canai-primary-blue-dark: #12294a; /* ← NEW: Even darker for panels */
+    --canai-primary-blue-glass: rgba(25, 60, 101, 0.92);
     --canai-glow-cyan: #00F0FF;
     --canai-deep-background: #0A0F1C;
     --canai-light-text: #E6F6FF;
@@ -125,6 +127,37 @@
     transform: scale(1.05);
     box-shadow: 0 0 32px rgba(54,209,254,0.8);
     border-image: linear-gradient(135deg, #36d1fe, #07c3fb) 1;
+  }
+  
+  .canai-product-card,
+  .canai-pricing-card {
+    background: var(--canai-primary-blue-dark);
+    border: 2.5px solid var(--canai-primary-blue);
+    box-shadow: 0 2px 30px 7px #12294a55;
+    backdrop-filter: blur(14px) saturate(128%);
+    color: var(--canai-light-text)!important;
+  }
+  .canai-product-card .text-gray-900,
+  .canai-product-card .text-gray-800,
+  .canai-product-card .text-gray-700,
+  .canai-pricing-card .text-gray-900,
+  .canai-pricing-card .text-gray-800,
+  .canai-pricing-card .text-gray-700 {
+    color: #E6F6FF !important;
+  }
+  .canai-product-card .text-canai-primary {
+    color: #36d1fe !important;
+  } 
+  .canai-pricing-card .text-canai-primary {
+    color: #36d1fe !important;
+  }
+  .canai-product-card .bg-white,
+  .canai-pricing-card .bg-white {
+    background: rgba(230,246,255,0.06) !important;
+  }
+  .canai-product-card .bg-gray-100,
+  .canai-pricing-card .bg-gray-100 {
+    background: rgba(230,246,255,0.08) !important;
   }
 }
 
@@ -283,7 +316,19 @@
 }
 /* Modal content background polish */
 .bg-glass-modal {
-  background: linear-gradient(134deg, #fff 89%, #E6F6FF 100%);
+  background: linear-gradient(134deg, var(--canai-primary-blue-glass) 70%, #1b314c 100%);
   backdrop-filter: blur(10px) saturate(114%);
   box-shadow: 0 0 55px 16px #36d1fe15;
+}
+
+/* Drop shadow for accent, readable text everywhere */
+.text-canai-card-title {
+  color: #E6F6FF !important;
+  text-shadow: 0 2px 18px #36d1fe55;
+  font-weight: bold !important;
+}
+
+/* Adjust card border to pop on dark */
+.canai-product-card, .canai-pricing-card {
+  border-color: #36d1fe !important;
 }

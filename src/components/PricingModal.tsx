@@ -74,10 +74,10 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
       aria-labelledby="modal-title"
     >
       <div
-        className="relative bg-gradient-to-br from-white/95 to-canai-light/80 rounded-3xl px-4 py-8 max-w-2xl w-full flex flex-col items-center shadow-2xl border-4 border-transparent animate-glow-pop ring-2 ring-canai-primary/30"
+        className="relative bg-gradient-to-br from-canai-primary-blue-glass to-canai-primary-blue-dark rounded-3xl px-4 py-8 max-w-2xl w-full flex flex-col items-center shadow-2xl border-4 border-canai-primary animate-glow-pop ring-2 ring-canai-primary/30"
         style={{
-          borderImage: "linear-gradient(120deg, #36d1fe 70%, #07c3fb 100%) 1",
-          boxShadow: "0 0 48px 10px #36d1fe3a"
+          borderImage: "linear-gradient(120deg, #36d1fe 70%, #193c65 100%) 1",
+          boxShadow: "0 0 48px 10px #12294a77"
         }}
         onClick={e => e.stopPropagation()}
       >

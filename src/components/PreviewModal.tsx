@@ -52,11 +52,10 @@ const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, onClose }) => {
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" style={{ backdropFilter: 'blur(7px)' }}>
       <Confetti active={showConfetti} />
       <div 
-        className="bg-gradient-to-br from-white/95 to-canai-light/90 rounded-3xl shadow-2xl max-w-3xl w-full max-h-[94vh] overflow-y-auto relative px-0 py-0 border-4
-          animate-glow-pop ring-2 ring-canai-primary/30"
+        className="bg-gradient-to-br from-canai-primary-blue-glass to-canai-primary-blue-dark rounded-3xl shadow-2xl max-w-3xl w-full max-h-[94vh] overflow-y-auto relative px-0 py-0 border-4 animate-glow-pop ring-2 ring-canai-primary/30"
         style={{
-          borderImage: "linear-gradient(120deg, #36d1fe 70%, #07c3fb 100%) 1",
-          boxShadow: "0 0 48px 12px #36d1fe33"
+          borderImage: "linear-gradient(120deg, #36d1fe 70%, #193c65 100%) 1",
+          boxShadow: "0 0 48px 12px #12294a77"
         }}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
@@ -79,13 +78,13 @@ const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, onClose }) => {
             <div className="flex justify-center">
               {/* Voice bubble - "spark" sample */}
               <div className="relative max-w-xl w-full">
-                <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-canai-primary-blue to-canai-glow-cyan shadow-[0_0_36px_#36d1fe99] text-white rounded-full px-3 py-1 font-manrope text-sm font-bold uppercase tracking-wide z-10 select-none animate-countup-glow">
+                <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-canai-primary-blue to-canai-glow-cyan shadow-[0_0_36px_#36d1fe99] text-canai-card-title rounded-full px-3 py-1 font-manrope text-sm font-bold uppercase tracking-wide z-10 select-none animate-countup-glow">
                   Spark Example
                 </span>
-                <div className="bg-gradient-to-br from-blue-50/80 to-cyan-50/80 rounded-2xl border-l-4 border-canai-primary p-8
+                <div className="bg-canai-primary-blue-glass rounded-2xl border-l-4 border-canai-primary p-8
                   shadow-[0_2px_28px_#36d1fe30] mt-3 mb-3 animate-fade-in voice-bubble"
                   style={{
-                    borderImage: "linear-gradient(120deg, #36d1fe 50%, #00b2e3 100%) 1",
+                    borderImage: "linear-gradient(120deg, #36d1fe 50%, #193c65 100%) 1",
                   }}
                 >
                   {sparkText}
