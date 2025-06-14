@@ -9,6 +9,30 @@ interface PreviewModalProps {
   onClose: () => void;
 }
 
+const sparkText = (
+  <>
+    <h3 className="text-xl font-semibold text-gray-900 mb-4">
+      Building Your Local Community Network
+    </h3>
+    <p className="text-gray-700 leading-relaxed mb-4">
+      Your business isn't just a service—it's a cornerstone of your community. By creating genuine 
+      connections with local businesses, you're not just expanding your network; you're building 
+      a foundation of mutual support that elevates everyone.
+    </p>
+    <p className="text-gray-700 leading-relaxed mb-4">
+      Start with one meaningful conversation per week. Reach out to complementary businesses—not 
+      competitors, but allies. A coffee shop partnering with a bookstore, a yoga studio connecting 
+      with a healthy café. These relationships create referral networks that feel natural and authentic.
+    </p>
+    <div className="bg-white/60 rounded-lg p-4 mt-6">
+      <p className="text-sm text-gray-600 italic">
+        "This approach helped us triple our referrals in just 3 months by focusing on genuine 
+        community building rather than transactional networking." - Sarah M., Local Business Owner
+      </p>
+    </div>
+  </>
+);
+
 const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
 
@@ -20,61 +44,61 @@ const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" style={{ backdropFilter: 'blur(2px)' }}>
       <div 
-        className="bg-white rounded-xl p-10 max-w-3xl w-full max-h-[90vh] overflow-y-auto relative"
+        className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[94vh] overflow-y-auto relative px-0 py-0 border-4
+          animate-glow-pop"
+        style={{
+          borderImage: "linear-gradient(120deg, #36d1fe 70%, #07c3fb 100%) 1",
+          boxShadow: "0 0 48px 8px #36d1fe33"
+        }}
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
+          className="absolute top-6 right-6 z-10 text-canai-primary transition-colors bg-white/75 rounded-full p-2 hover:bg-canai-cyan/20 focus-visible:outline-canai-primary"
+          aria-label="Close Preview Modal"
         >
-          <X size={24} />
+          <X size={22} />
         </button>
 
-        <div className="space-y-8">
+        <div className="px-10 py-10 sm:px-14 space-y-8 flex flex-col items-center">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            <h2 id="modal-title" className="text-3xl font-bold text-gray-900 mb-3 select-none" tabIndex={0} style={{textShadow:"0 0 10px #36d1fe55"}}>
               ✨ The Community Spark
             </h2>
-            <p className="text-lg text-gray-600">
-              Here's a sample of what CanAI can create for you
-            </p>
-          </div>
-
-          <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-8 border-l-4 border-canai-primary">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">
-              Building Your Local Community Network
-            </h3>
-            <p className="text-gray-700 leading-relaxed mb-4">
-              Your business isn't just a service—it's a cornerstone of your community. By creating genuine 
-              connections with local businesses, you're not just expanding your network; you're building 
-              a foundation of mutual support that elevates everyone.
-            </p>
-            <p className="text-gray-700 leading-relaxed mb-4">
-              Start with one meaningful conversation per week. Reach out to complementary businesses—not 
-              competitors, but allies. A coffee shop partnering with a bookstore, a yoga studio connecting 
-              with a healthy café. These relationships create referral networks that feel natural and authentic.
-            </p>
-            <div className="bg-white/60 rounded-lg p-4 mt-6">
-              <p className="text-sm text-gray-600 italic">
-                "This approach helped us triple our referrals in just 3 months by focusing on genuine 
-                community building rather than transactional networking." - Sarah M., Local Business Owner
-              </p>
+            <div className="flex justify-center">
+              {/* Voice bubble - "spark" sample */}
+              <div className="relative max-w-xl w-full">
+                <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-canai-primary-blue to-canai-glow-cyan shadow-[0_0_36px_#36d1fe99] text-white rounded-full px-3 py-1 font-manrope text-sm font-bold uppercase tracking-wide z-10 select-none animate-countup-glow">
+                  Spark Example
+                </span>
+                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl border-l-4 border-canai-primary p-8
+                  shadow-[0_2px_28px_#36d1fe30] mt-3 mb-3 animate-fade-in voice-bubble"
+                  style={{
+                    borderImage: "linear-gradient(120deg, #36d1fe 50%, #00b2e3 100%) 1",
+                  }}
+                >
+                  {sparkText}
+                </div>
+              </div>
             </div>
           </div>
-
           <div className="text-center space-y-4">
             <Button 
               onClick={handleGetSparks}
               size="lg" 
-              className="canai-button-primary text-lg px-8 py-4 group"
+              className="canai-button-primary text-lg px-10 py-5 shadow-md font-extrabold rounded-2xl transition-all group focus-visible:canai-focus-glow
+               animate-glow-pop hover:scale-105"
             >
-              Get Your Sparks
-              <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
+              Claim Your Sparks
+              <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={22} />
             </Button>
             <p className="text-sm text-gray-500">
-              Unlock personalized strategies crafted just for your business
+              Unlock more personalized strategies—crafted just for your business!
             </p>
           </div>
         </div>
@@ -84,3 +108,4 @@ const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, onClose }) => {
 };
 
 export default PreviewModal;
+
