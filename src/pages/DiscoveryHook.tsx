@@ -1,4 +1,3 @@
-
 import React from "react";
 
 // Use the logo and tagline styles as in your branding asset
@@ -34,7 +33,6 @@ const DiscoveryHook = () => {
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
-              textFillColor: "transparent",
               marginLeft: ".1em",
             }}
           >
