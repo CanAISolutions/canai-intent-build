@@ -1,61 +1,28 @@
-import React from "react";
 
-// Use the logo and tagline styles as in your branding asset
+import React, { useState } from "react";
+import CanAILogo from "@/components/CanAILogo";
+import TrustIndicators from "@/components/TrustIndicators";
+import PricingModal from "@/components/PricingModal";
+import ProductCards from "@/components/ProductCards";
+import PreviewModal from "@/components/PreviewModal";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+
 const DiscoveryHook = () => {
+  const [isPricingOpen, setPricingOpen] = useState(false);
+  const [isPreviewOpen, setPreviewOpen] = useState(false);
+  const navigate = useNavigate();
+
   return (
     <div
-      className="min-h-screen w-full flex flex-col items-center justify-center"
+      className="min-h-screen w-full flex flex-col items-center justify-center overflow-hidden relative"
       style={{
         background: "radial-gradient(ellipse at 50% 38%, #143657 0%, #071727 100%)",
-        position: "relative",
-        overflow: "hidden",
       }}
+      aria-label="CanAI Emotional Sovereignty Platform Landing"
     >
-      {/* Brand logo, matching exact composition and colors */}
-      <div className="flex flex-col items-center space-y-8 animate-fadeInLogo">
-        <h1
-          className="text-center leading-none font-bold"
-          style={{
-            fontFamily: "Manrope, 'Inter', Helvetica Neue, sans-serif",
-            fontWeight: 800,
-            fontSize: "clamp(2.5rem, 8vw, 5.5rem)",
-            letterSpacing: "0.04em",
-            lineHeight: 1.06,
-            color: "#fff",
-            textShadow: "0 10px 48px #0f90b880",
-            marginBottom: 0,
-          }}
-        >
-          <span style={{ color: "#fff" }}>CanAI</span>
-          <span
-            style={{
-              background: "linear-gradient(90deg, #36d1fe 0%, #07c3fb 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-              marginLeft: ".1em",
-            }}
-          >
-            .so
-          </span>
-        </h1>
-        <p
-          className="uppercase tracking-widest"
-          style={{
-            color: "rgba(226,246,255,0.91)",
-            fontFamily: "Manrope, 'Inter', Helvetica Neue, sans-serif",
-            fontWeight: 200,
-            fontSize: "clamp(1rem, 2vw, 1.45rem)",
-            letterSpacing: "0.18em",
-            marginTop: "-10px"
-          }}
-        >
-          EMPOWERMENT THROUGH EASE
-        </p>
-      </div>
-
-      {/* Optional: Subtle cosmic dots for extra polish */}
-      <div aria-hidden className="absolute inset-0 pointer-events-none z-0">
+      {/* Cosmic star dots */}
+      <div aria-hidden className="fixed inset-0 pointer-events-none z-0">
         <svg width="100%" height="100%" className="absolute inset-0 opacity-50" style={{ mixBlendMode: "screen" }}>
           <defs>
             <radialGradient id="star" r="60%" cx="50%" cy="40%">
@@ -64,34 +31,79 @@ const DiscoveryHook = () => {
             </radialGradient>
           </defs>
           <rect width="100%" height="100%" fill="url(#star)" />
-          {/* Sprinkle some white dots (stars) */}
           <g>
-            {Array.from({ length: 36 }).map((_, i) => (
+            {Array.from({ length: 40 }).map((_, i) => (
               <circle
                 key={i}
                 cx={`${Math.random() * 100}%`}
                 cy={`${Math.random() * 100}%`}
                 r={Math.random() * 1.22 + 0.35}
                 fill="#B4EFFF"
-                opacity={Math.random() * 0.26 + 0.13}
+                opacity={Math.random() * 0.24 + 0.13}
               />
             ))}
           </g>
         </svg>
       </div>
 
-      {/* Animate fade-in for brand impact */}
-      <style>
-        {`
-          @keyframes fadeInLogo {
-            from { opacity: 0; transform: translateY(32px);}
-            to   { opacity: 1; transform: none;}
-          }
-          .animate-fadeInLogo {
-            animation: fadeInLogo .75s cubic-bezier(.22,1,.36,1);
-          }
-        `}
-      </style>
+      <main className="relative z-10 w-full flex flex-col items-center max-w-5xl mx-auto pt-28 pb-20 px-4">
+        {/* Logo and Tagline */}
+        <CanAILogo size="lg" showTagline />
+
+        {/* Button Row */}
+        <div className="flex flex-col sm:flex-row gap-5 mt-12 mb-12 w-full max-w-3xl justify-center items-center">
+          <Button
+            id="begin-btn"
+            className="canai-button-primary px-8 py-4 text-lg font-bold drop-shadow"
+            onClick={() => navigate("/discovery-funnel")}
+            aria-label="Begin Your Journey"
+          >
+            Begin Your Journey
+          </Button>
+          <Button
+            id="pricing-btn"
+            className="canai-button-primary px-8 py-4 text-lg font-bold drop-shadow"
+            onClick={() => setPricingOpen(true)}
+            aria-haspopup="dialog"
+            aria-controls="pricing-modal"
+          >
+            View Pricing
+          </Button>
+          <Button
+            id="sample-btn"
+            className="canai-button-primary px-8 py-4 text-lg font-bold drop-shadow"
+            onClick={() => navigate("/samples")}
+            aria-label="See a Sample"
+          >
+            See a Sample
+          </Button>
+          <Button
+            id="preview-btn"
+            className="canai-button-primary px-8 py-4 text-lg font-bold drop-shadow"
+            onClick={() => setPreviewOpen(true)}
+            aria-haspopup="dialog"
+            aria-controls="preview-modal"
+          >
+            Try a Free Spark
+          </Button>
+        </div>
+
+        {/* Trust Indicators */}
+        <div className="w-full mt-6">
+          <TrustIndicators />
+        </div>
+
+        {/* Product Cards */}
+        <div className="w-full mt-10">
+          <ProductCards />
+        </div>
+      </main>
+
+      {/* Pricing Modal */}
+      <PricingModal isOpen={isPricingOpen} onClose={() => setPricingOpen(false)} />
+
+      {/* Preview Modal */}
+      <PreviewModal isOpen={isPreviewOpen} onClose={() => setPreviewOpen(false)} />
     </div>
   );
 };
