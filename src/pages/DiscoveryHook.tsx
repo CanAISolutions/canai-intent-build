@@ -55,10 +55,16 @@ const DiscoveryHook = () => {
       </div>
 
       {/* FIRST SECTION - Logo, Headline, Subtext */}
-      {/* Apply organic Fibonacci spacing: pt-20, mt-8, etc. */}
-      <section className="w-full flex flex-col items-center pt-20" style={{zIndex:2}}>
-        <div className="flex flex-col items-center" style={{marginTop: '-2.5rem'}}>
-          <div className="shadow-[0_0_36px_#36d1fe33] rounded-full px-3 py-1 bg-white/5 backdrop-blur-xl mb-1">
+      {/* More floating, glassy/organic: extra shadow and soft-glow, backdrop blur */}
+      <section
+        className="w-full flex flex-col items-center pt-20"
+        style={{ zIndex: 2 }}
+      >
+        <div
+          className="flex flex-col items-center"
+          style={{ marginTop: '-2.5rem' }}
+        >
+          <div className="backdrop-blur-xl shadow-[0_0_48px_16px_#36d1fe33,0_2px_32px_#36d1fe40] rounded-[36px_20px_44px_30px] px-5 py-2 bg-white/7 mb-2 border-none ring-0 transition-all duration-300">
             <CanAILogo size="lg" showTagline />
           </div>
         </div>
@@ -67,8 +73,10 @@ const DiscoveryHook = () => {
             id="hero-headline"
             className="
               font-manrope font-extrabold tracking-wide animate-text-glow text-canai-luminescent drop-shadow-xl 
-              rounded-[2rem] px-4 py-4 bg-gradient-to-br from-cyan-900/60 to-cyan-700/20
-              shadow-[0_2px_32px_#36d1fe26] ring-2 ring-canai-cyan/30 hover:ring-4 focus:ring-4 ring-offset-4 ring-offset-transparent 
+              rounded-[1.8rem_2.4rem_2rem_1.4rem] px-6 py-5
+              shadow-[0_4px_64px_#36d1fe44,0_2px_44px_#00f0ff33]
+              bg-gradient-to-br from-cyan-900/60 to-cyan-700/15
+              ring-2 ring-canai-cyan/40 hover:ring-4 focus:ring-4 ring-offset-4 ring-offset-transparent 
               transition-all duration-200
               backdrop-blur-2xl
             "
@@ -78,7 +86,7 @@ const DiscoveryHook = () => {
               lineHeight: 1.08,
               marginBottom: "0.8rem",
               border: "none",
-              background: "linear-gradient(135deg, rgba(0,207,255,0.10), rgba(54,209,254,0.07))"
+              background: "linear-gradient(135deg, rgba(0,207,255,0.07), rgba(54,209,254,0.11))"
             }}
             tabIndex={0}
           >
@@ -86,7 +94,9 @@ const DiscoveryHook = () => {
           </h1>
           <div
             id="hero-subtext"
-            className="text-xl sm:text-2xl font-manrope font-semibold text-[#E6F6FF] animate-fade-in shadow-[0_1px_24px_#36d1fe55] drop-shadow-lg"
+            className="text-xl sm:text-2xl font-manrope font-semibold text-[#E6F6FF] animate-fade-in
+            drop-shadow-lg rounded-[1.6rem_1.1rem_2rem_2.7rem] backdrop-blur-[6px]
+            bg-white/5 px-4 py-3 mx-auto"
             style={{
               letterSpacing: "0.01em",
               lineHeight: 1.65,
@@ -115,27 +125,28 @@ const DiscoveryHook = () => {
           </div>
         </div>
         {/* Gradient transition shimmer bottom */}
-        <div className="w-full h-12 flex-shrink-0 pointer-events-none -mb-2 relative z-10">
-          <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-transparent to-[#143657]/80 opacity-80"></div>
+        <div className="w-full h-14 flex-shrink-0 pointer-events-none -mb-2 relative z-10">
+          <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-transparent via-[#143657CC] to-[#143657]/80 opacity-90"></div>
         </div>
       </section>
 
-      {/* ORGANIC BUTTON GROUP - less blocky/rigid: even spacing & staggered grouping */}
+      {/* ORGANIC BUTTON GROUP */}
       <section
         className="
-          flex flex-wrap justify-center items-center gap-y-8 gap-x-10 mt-8 mb-20 w-full max-w-3xl
-          rounded-[2rem]
-          bg-gradient-to-br from-white/5 via-transparent to-canai-blue-card/30
-          shadow-[0_2px_18px_#36d1fe23]
-          px-4 py-3
-          "
-        style={{border: "none", zIndex: 2}}
+        flex flex-wrap justify-center items-center gap-y-8 gap-x-10 mt-10 mb-20 w-full max-w-3xl
+        backdrop-blur-xl bg-gradient-to-br from-white/10 via-transparent to-canai-blue-card/25
+        shadow-[0_6px_36px_#36d1fe36,0_2px_22px_#1e314f55]
+        rounded-[2.2rem_1.1rem_2.6rem_1.5rem/1.8rem_2.8rem_1.5rem_2.5rem]
+        px-5 py-5
+        border-none ring-2 ring-canai-cyan/25
+        "
+        style={{ zIndex: 2 }}
       >
         <Button
           id="ignite-btn"
           variant="canai"
           size="lg"
-          className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow font-bold rounded-xl transition-transform duration-200 hover:scale-105"
+          className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow font-bold rounded-2xl md:rounded-[20px_38px_24px_18px] transition-transform duration-200 hover:scale-105 shadow-[0_4px_32px_#36d1fe33]"
           onClick={() => navigate("/discovery-funnel")}
           aria-label="Ignite Your Journey"
         >
@@ -145,7 +156,7 @@ const DiscoveryHook = () => {
           id="pricing-btn"
           variant="canai"
           size="lg"
-          className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow font-bold rounded-xl transition-transform duration-200 hover:scale-105"
+          className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow font-bold rounded-2xl md:rounded-[32px_16px_40px_16px] transition-transform duration-200 hover:scale-105 shadow-[0_4px_32px_#36d1fe33]"
           onClick={() => setPricingOpen(true)}
           aria-haspopup="dialog"
           aria-controls="pricing-modal"
@@ -157,7 +168,7 @@ const DiscoveryHook = () => {
           id="sample-btn"
           variant="canai"
           size="lg"
-          className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow font-bold rounded-xl transition-transform duration-200 hover:scale-105"
+          className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow font-bold rounded-3xl md:rounded-[22px_11px_20px_28px] transition-transform duration-200 hover:scale-105 shadow-[0_4px_32px_#36d1fe33]"
           onClick={() => navigate("/samples")}
           aria-label="Explore Samples"
         >
@@ -167,7 +178,7 @@ const DiscoveryHook = () => {
           id="preview-btn"
           variant="canai"
           size="lg"
-          className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow font-bold rounded-xl transition-transform duration-200 hover:scale-105"
+          className="canai-btn-glow canai-btn-ripple focus:canai-focus-glow font-bold rounded-[2.2rem_1.5rem_2.6rem_1.6rem] transition-transform duration-200 hover:scale-105 shadow-[0_4px_32px_#36d1fe33]"
           onClick={() => setPreviewOpen(true)}
           aria-haspopup="dialog"
           aria-controls="preview-modal"
@@ -175,25 +186,32 @@ const DiscoveryHook = () => {
         >
           Spark for Free
         </Button>
-        {/* Subtle layer gradient shimmer below buttons */}
-        <div className="w-full h-8 mt-4 pointer-events-none relative col-span-full">
-          <div className="absolute inset-0 w-full h-full bg-gradient-to-t from-[#143657]/80 to-transparent opacity-70"></div>
+        {/* Subtle shimmer/gradient below buttons */}
+        <div className="w-full h-10 mt-4 pointer-events-none relative col-span-full">
+          <div className="absolute inset-0 w-full h-full bg-gradient-to-t from-[#143657]/85 via-[#36d1fe33] to-transparent opacity-80 rounded-b-[2.5rem_1.2rem] blur-[2px]"></div>
         </div>
       </section>
 
       {/* TRUST INDICATORS */}
-      {/* Fibonacci natural spacing: mt-14 */}
-      <section className="w-full mt-14 mb-9 px-2 relative z-10">
-        <TrustIndicators />
-        {/* Transition gradient overlay for flow to next section */}
+      <section className="w-full mt-20 mb-12 px-2 relative z-10">
+        <div className="max-w-4xl mx-auto rounded-[2.4rem_2.4rem_1.6rem_2.9rem/2.5rem_2.7rem_1.2rem_3rem] backdrop-blur-xl bg-gradient-to-br from-white/7 via-[#14365714] to-[#36d1fe1e] shadow-[0_2px_28px_#36d1fe1d,0_0_16px_#00f0ff33] px-4 py-8">
+          <TrustIndicators />
+        </div>
+        {/* Gradient for soft section transition */}
         <div className="w-full h-10 relative pointer-events-none -mb-2">
-          <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-transparent to-[#143657]/85 opacity-75" />
+          <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-transparent via-[#14365799] to-[#143657]/85 opacity-80 rounded-b-3xl blur-[2px]" />
         </div>
       </section>
 
-      {/* PRODUCT CARDS - more breathing room */}
-      <section className="w-full mt-16 pb-20 relative z-10">
-        <ProductCards />
+      {/* PRODUCT CARDS */}
+      <section className="w-full mt-20 pb-20 relative z-10">
+        {/* Add backdrop-blur and glow for section base */}
+        <div className="max-w-7xl mx-auto px-2 py-10 
+            rounded-[2.4rem_1.7rem_2.8rem_2.1rem/2.1rem_2.7rem_1.4rem_2.8rem]
+            shadow-[0_6px_42px_#36d1fe24,0_2px_22px_#00f0ff1a]
+            backdrop-blur-lg bg-gradient-to-br from-white/6 via-[#193c6540] to-[#36d1fe12]">
+          <ProductCards />
+        </div>
       </section>
 
       {/* Modals (unchanged) */}
