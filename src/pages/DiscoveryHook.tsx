@@ -77,15 +77,16 @@ const DiscoveryHook = () => {
           </h1>
           <div
             id="hero-subtext"
-            className="text-xl sm:text-2xl font-manrope font-light text-canai-luminescent/90 animate-fade-in shadow-none"
+            className="text-xl sm:text-2xl font-manrope font-semibold text-[#E6F6FF] animate-fade-in shadow-[0_1px_24px_#36d1fe88] drop-shadow-lg"
             style={{
               letterSpacing: "0.01em",
               lineHeight: 1.65,
-              maxWidth: "35rem"
+              maxWidth: "35rem",
+              textShadow: "0 0 10px #00F0FF88, 0 2px 10px #000"
             }}
             tabIndex={0}
           >
-            Elevate your essence with <span className="font-semibold text-canai-primary">AI-crafted solutions</span> that resonate.
+            Elevate your essence with <span className="font-bold text-canai-primary">AI-crafted solutions</span> that resonate.
           </div>
         </div>
 
