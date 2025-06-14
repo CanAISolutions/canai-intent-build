@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import CanAILogo from "@/components/CanAILogo";
 import TrustIndicators from "@/components/TrustIndicators";
@@ -54,7 +55,19 @@ const DiscoveryHook = () => {
         </svg>
       </div>
 
-      <main className="relative z-10 w-full flex flex-col items-center max-w-5xl mx-auto pt-32 pb-20 px-4">
+      <main
+        className="relative z-10 w-full flex flex-col items-center max-w-5xl mx-auto pt-32 pb-20 px-4
+        bg-white/10 shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-3xl"
+        style={{
+          // Remove any visible border and replace with soft shadow and background
+          border: "none",
+          // Very subtle border only on focus/active/hover - done by class, not inline here
+          background:
+            "linear-gradient(135deg, rgba(20,54,87,0.10) 80%, rgba(54,209,254,0.12) 100%)",
+          boxShadow: "0 6px 36px 0 #0a223377, 0 1.5px 4px #0002"
+        }}
+        tabIndex={0} // Ensure accessibility/focus styling works
+      >
         {/* Logo and Tagline */}
         <CanAILogo size="lg" showTagline />
 
@@ -63,7 +76,7 @@ const DiscoveryHook = () => {
           <h1
             id="hero-headline"
             className="font-manrope font-extrabold tracking-wide animate-text-glow text-canai-luminescent drop-shadow-xl rounded-lg px-6 py-4 bg-gradient-to-br from-cyan-900/60 to-cyan-700/30 backdrop-blur-xl
-              border border-white/10 shadow-[0_2px_32px_#36d1fe44] ring-2 ring-canai-cyan/40"
+              shadow-[0_2px_32px_#36d1fe44] ring-2 ring-canai-cyan/40 hover:ring-4 focus:ring-4 ring-offset-2 ring-offset-transparent transition-all duration-200"
             style={{
               fontSize: "clamp(2.8rem,6vw,3.5rem)",
               letterSpacing: "1px",
@@ -172,3 +185,4 @@ const DiscoveryHook = () => {
 };
 
 export default DiscoveryHook;
+
