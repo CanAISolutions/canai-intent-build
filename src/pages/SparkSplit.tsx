@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -89,17 +88,36 @@ const SparkSplit: React.FC = () => {
       setError(null);
       const t0 = performance.now();
       try {
-        // -- API INTEGRATION /v1/spark-split
-        const resp = await fetch("/v1/spark-split", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            canaiOutput,
-            promptId,
-          }),
-        });
-        if (!resp.ok) throw new Error("Failed to load comparison");
-        const data = await resp.json();
+        // MOCK API: In a real app, this would be a fetch call. We are mocking it to prevent errors.
+        await new Promise(resolve => setTimeout(resolve, 400)); // Simulate <500ms network delay
+
+        const mockGenericOutput = `Sprinkle Haven Bakery is a bakery in Denver. It sells pastries to families. It wants to get funding. It competes with Blue Moon Bakery. It has a budget of $50,000 and a team of 3.`;
+        
+        const data = {
+          canaiOutput,
+          genericOutput: mockGenericOutput,
+          trustDelta: 4.3,
+          emotionalResonance: {
+            canaiScore: 0.88,
+            genericScore: 0.42,
+            delta: 0.46,
+            arousal: 0.7,
+            valence: 0.8
+          }
+        };
+
+        // -- API INTEGRATION /v1/spark-split - ORIGINAL CODE --
+        // const resp = await fetch("/v1/spark-split", {
+        //   method: "POST",
+        //   headers: { "Content-Type": "application/json" },
+        //   body: JSON.stringify({
+        //     canaiOutput,
+        //     promptId,
+        //   }),
+        // });
+        // if (!resp.ok) throw new Error("Failed to load comparison");
+        // const data = await resp.json();
+        
         // Expect: { canaiOutput, genericOutput, trustDelta, emotionalResonance }
         setCanai(data.canaiOutput);
         setGeneric(data.genericOutput);
@@ -192,21 +210,24 @@ const SparkSplit: React.FC = () => {
     // Supabase: update comparisons with user_feedback, trust_delta
     // Payload: { prompt_id, trust_delta, user_feedback, selection, dislike_feedback }
     try {
-      await fetch("/v1/spark-split", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          promptId,
-          trustDelta,
-          userFeedback:
-            selection === "generic"
-              ? feedback
-              : selection === "dislike"
-              ? dislikeFeedback
-              : "",
-          selection,
-        }),
-      });
+      // MOCKING a successful submission
+      await new Promise(resolve => setTimeout(resolve, 200));
+      // Original fetch call:
+      // await fetch("/v1/spark-split", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({
+      //     promptId,
+      //     trustDelta,
+      //     userFeedback:
+      //       selection === "generic"
+      //         ? feedback
+      //         : selection === "dislike"
+      //         ? dislikeFeedback
+      //         : "",
+      //     selection,
+      //   }),
+      // });
       toast({
         title: "Thank you for your feedback!",
         description: "Your preferences have been recorded.",
@@ -278,7 +299,7 @@ const SparkSplit: React.FC = () => {
             {/* Show Emotional Resonance (Hume AI) and flagged review */}
             <EmotionalResonanceDisplay emoRes={emoRes} />
             {flagged && (
-              <div className="text-warning-400 font-semibold mb-3">
+              <div className="text-yellow-400 font-semibold mb-3">
                 <span aria-label="Flagged for review">
                   ⚠️ One or more emotional resonance scores is below the QA threshold and will be reviewed.
                 </span>
@@ -312,4 +333,3 @@ const SparkSplit: React.FC = () => {
 };
 
 export default SparkSplit;
-
