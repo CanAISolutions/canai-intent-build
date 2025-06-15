@@ -235,7 +235,7 @@ const DetailedInput = () => {
           <h1 className="text-5xl font-bold text-canai-light mb-4 animate-text-glow">
             Tell Us About Your Business
           </h1>
-          <p className="text-canai-light-blue text-lg mb-8 opacity-90">
+          <p className="text-white text-lg mb-8 opacity-90 font-medium">
             Help us create something amazing for you. This should take about 2 minutes.
           </p>
           
