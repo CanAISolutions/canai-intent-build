@@ -6,6 +6,7 @@ import SecondaryCTAs from "@/components/DiscoveryHook/SecondaryCTAs";
 import PricingModal from "@/components/PricingModal";
 import PreviewModal from "@/components/PreviewModal";
 import MemberstackLoginButton from "@/components/DiscoveryHook/MemberstackLoginButton";
+import StickyMobileCTA from "@/components/DiscoveryHook/StickyMobileCTA";
 
 // Demo auth logic (customize later)
 const useFakeAuth = () => ({ isLoggedIn: true, userName: "Taylor" });
@@ -162,6 +163,8 @@ const DiscoveryHook = () => {
             onOpenPreview={() => setPreviewOpen(true)}
           />
         </div>
+        {/* Mobile Sticky Spark for Free CTA */}
+        <StickyMobileCTA onClick={() => setPreviewOpen(true)} />
         {/* Modals */}
         <PricingModal isOpen={isPricingOpen} onClose={() => setPricingOpen(false)} />
         <PreviewModal isOpen={isPreviewOpen} onClose={() => setPreviewOpen(false)} />
