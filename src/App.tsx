@@ -10,6 +10,7 @@ import Samples from "./pages/Samples";
 import NotFound from "./pages/NotFound";
 import DiscoveryFunnel from "./pages/DiscoveryFunnel";
 import DetailedInput from "./pages/DetailedInput";
+import IntentMirror from "./pages/IntentMirror";
 import SparkLayer from "./pages/SparkLayer";
 import PurchaseFlow from "./pages/PurchaseFlow";
 
@@ -28,7 +29,7 @@ const App = () => (
           {/* Future CanAI routes will be added here */}
           <Route path="/discovery-funnel" element={<DiscoveryFunnel />} />
           <Route path="/detailed-input" element={<DetailedInput />} />
-          <Route path="/intent-mirror" element={<div>Intent Mirror - Coming Soon</div>} />
+          <Route path="/intent-mirror" element={<IntentMirror />} />
           <Route path="/spark-layer" element={<SparkLayer />} />
           <Route path="/purchase" element={<PurchaseFlow />} />
           <Route path="/checkout" element={<div>Checkout - Coming Soon</div>} />
