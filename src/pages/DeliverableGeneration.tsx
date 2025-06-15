@@ -85,6 +85,8 @@ const DeliverableGeneration: React.FC = () => {
     { id: 'finalizing', label: 'Finalizing your deliverable', status: 'pending' }
   ];
 
+  const [steps, setSteps] = useState<LoadingStep[]>(loadingSteps);
+
   useEffect(() => {
     // PostHog tracking
     console.log('PostHog: deliverable_generation_started', { 
