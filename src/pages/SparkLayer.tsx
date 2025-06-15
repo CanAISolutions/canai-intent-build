@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -197,31 +198,39 @@ const SparkLayer: React.FC<SparkLayerProps> = ({
               >
                 <StandardCard
                   variant="product"
+                  padding="lg"
                   className={`hover:scale-[1.02] transition-all duration-300 cursor-pointer h-full ${
                     selectedSpark === spark.id ? 'ring-4 ring-[#36d1fe]/50' : ''
                   }`}
                 >
-                  <div className="text-center h-full flex flex-col justify-between min-h-[400px]">
-                    <div className="flex-1">
-                      <SectionTitle className="text-[#36d1fe] text-lg mb-4 font-manrope leading-tight break-words">
+                  <div className="flex flex-col h-full min-h-[450px] text-center">
+                    {/* Title */}
+                    <div className="mb-6">
+                      <SectionTitle className="text-[#36d1fe] text-lg font-manrope leading-tight mb-0 px-2 break-words hyphens-auto">
                         {spark.title}
                       </SectionTitle>
-                      <BodyText className="text-base leading-relaxed mb-6 break-words hyphens-auto">
-                        {spark.tagline}
-                      </BodyText>
-                      
-                      <div className="mb-6">
-                        <span className="text-2xl font-bold text-[#36d1fe] font-manrope">
-                          {getProductPrice(spark.productTrack)}
-                        </span>
-                      </div>
                     </div>
                     
+                    {/* Tagline */}
+                    <div className="flex-1 mb-6">
+                      <BodyText className="text-base leading-relaxed px-2 break-words hyphens-auto mb-0">
+                        {spark.tagline}
+                      </BodyText>
+                    </div>
+                    
+                    {/* Price */}
+                    <div className="mb-8">
+                      <span className="text-3xl font-bold text-[#36d1fe] font-manrope">
+                        {getProductPrice(spark.productTrack)}
+                      </span>
+                    </div>
+                    
+                    {/* Button */}
                     <div className="mt-auto">
                       <Button
                         variant="default"
                         size="lg"
-                        className="w-full py-3 text-base font-semibold bg-[#36d1fe] hover:bg-[#00f0ff] text-white border-0"
+                        className="w-full py-3 text-base font-semibold bg-[#36d1fe] hover:bg-[#00f0ff] text-white border-0 transition-all duration-200"
                         onClick={() => handleSparkSelection(spark)}
                         disabled={isLoading}
                       >
