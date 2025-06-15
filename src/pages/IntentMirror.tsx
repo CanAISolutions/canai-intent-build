@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, ArrowLeft, Shield, Clock, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import StandardBackground from "@/components/StandardBackground";
+import { PageTitle, BodyText } from "@/components/StandardTypography";
+import PageHeader from "@/components/PageHeader";
 import EditModal from "@/components/IntentMirror/EditModal";
 import SummaryCard from "@/components/IntentMirror/SummaryCard";
 
@@ -38,7 +41,6 @@ const IntentMirror = () => {
   const urlParams = new URLSearchParams(window.location.search);
   const promptId = urlParams.get('prompt_id') || 'demo-prompt-id';
 
-  // Enhanced mock data with dynamic confidence and clarifying questions
   const generateMockIntentData = (confidenceLevel = 0.85): IntentMirrorData => {
     const baseData = {
       summary: "Create a family-friendly organic bakery business plan for Sprinkle Haven in Denver, focusing on community engagement and investor funding.",
@@ -58,7 +60,6 @@ const IntentMirror = () => {
       }
     };
 
-    // Dynamic clarifying questions based on confidence
     let clarifyingQuestions: string[] = [];
     if (confidenceLevel < 0.8) {
       clarifyingQuestions = [
@@ -77,55 +78,24 @@ const IntentMirror = () => {
     };
   };
 
-  // Load intent mirror data with retry logic (F6-E1)
   const loadIntentMirror = async (retryCount = 0) => {
     setIsLoading(true);
     
     try {
       // TODO: API Integration - POST /v1/intent-mirror
-      // const response = await fetch('/v1/intent-mirror', {
-      //   method: 'POST',
-      //   headers: { 
-      //     'Content-Type': 'application/json',
-      //     'X-Correlation-ID': generateCorrelationId()
-      //   },
-      //   body: JSON.stringify({
-      //     businessName: "Sprinkle Haven Bakery",
-      //     targetAudience: "Denver families",
-      //     primaryGoal: "funding",
-      //     competitiveContext: "Blue Moon Bakery",
-      //     brandVoice: "warm",
-      //     resourceConstraints: "$50k budget; team of 3; 6 months",
-      //     currentStatus: "Planning phase",
-      //     businessDescription: "Artisanal bakery offering organic pastries",
-      //     revenueModel: "Sales, events",
-      //     planPurpose: "investor",
-      //     location: "Denver, CO",
-      //     uniqueValue: "Organic, community-focused pastries"
-      //   })
-      // });
-      
-      // Simulate API call with performance target <300ms
       const startTime = Date.now();
       await new Promise(resolve => setTimeout(resolve, 250));
       
-      // Mock potential failure for testing retry logic
       if (Math.random() > 0.9 && retryCount === 0) {
         throw new Error('Simulated API failure');
       }
       
-      // Simulate varying confidence levels for testing
       const mockConfidence = lowConfidenceAttempts > 0 ? 0.65 : 0.85;
       const mockData = generateMockIntentData(mockConfidence);
       setIntentData(mockData);
       
-      // Track low confidence attempts
       if (mockData.confidenceScore < 0.8) {
         setLowConfidenceAttempts(prev => prev + 1);
-        
-        // TODO: Supabase logging for low confidence
-        // INSERT INTO error_logs (prompt_id, error_message, support_request, error_type)
-        // VALUES (?, 'Low confidence score: ' + mockData.confidenceScore, false, 'low_confidence');
       }
       
       const endTime = Date.now();
@@ -135,23 +105,9 @@ const IntentMirror = () => {
         loadTime: endTime - startTime 
       });
       
-      // TODO: PostHog event tracking
-      // posthog.capture('funnel_step', { 
-      //   stepName: 'intent_mirror', 
-      //   completed: true, 
-      //   confidence: mockData.confidenceScore,
-      //   loadTime: endTime - startTime
-      // });
-      
-      // TODO: Supabase logging
-      // UPDATE prompt_logs SET 
-      //   payload = payload || jsonb_build_object('intent_summary', ?, 'confidence_score', ?)
-      // WHERE id = ?;
-      
     } catch (error) {
       console.error('Intent mirror load failed:', error);
       
-      // F6-E1: Retry logic with exponential backoff (3 attempts, 2^i * 1000ms delay)
       if (retryCount < 3) {
         const delay = Math.pow(2, retryCount) * 1000;
         setTimeout(() => {
@@ -163,10 +119,6 @@ const IntentMirror = () => {
           description: "Unable to load your business summary. Please try again.",
           variant: "destructive"
         });
-        
-        // TODO: Supabase error logging
-        // INSERT INTO error_logs (user_id, prompt_id, error_message, action, error_type)
-        // VALUES (auth.uid(), ?, ?, 'intent_mirror_load', 'api_failure');
       }
     } finally {
       setIsLoading(false);
@@ -183,26 +135,13 @@ const IntentMirror = () => {
     setIsConfirming(true);
     
     try {
-      // TODO: Supabase logging - Update prompt_logs with confirmation
-      // UPDATE prompt_logs SET 
-      //   payload = payload || jsonb_build_object('intent_confirmed', true, 'confidence_score', ?)
-      // WHERE id = ?;
-      
       console.log('Intent confirmed:', { promptId, confidence: intentData.confidenceScore });
-      
-      // TODO: PostHog tracking
-      // posthog.capture('funnel_step', { 
-      //   stepName: 'intent_confirmed', 
-      //   confidence: intentData.confidenceScore,
-      //   completed: true
-      // });
       
       toast({
         title: "Perfect! Let's create your plan",
         description: "Moving to deliverable generation...",
       });
       
-      // Navigate to generating spinner
       setTimeout(() => {
         window.location.href = `/generating?prompt_id=${promptId}`;
       }, 1500);
@@ -222,40 +161,15 @@ const IntentMirror = () => {
   const handleEdit = (field: string) => {
     setEditField(field);
     setShowEditModal(true);
-    
-    // TODO: PostHog tracking
-    // posthog.capture('field_edited', { 
-    //   field: field, 
-    //   confidence: intentData?.confidenceScore 
-    // });
-    
     console.log('Edit field requested:', field);
   };
 
   const handleEditConfirm = () => {
     setShowEditModal(false);
-    
-    // TODO: Supabase logging - Update prompt_logs with edit action
-    // UPDATE prompt_logs SET 
-    //   payload = payload || jsonb_build_object('edited_field', ?, 'edit_timestamp', now())
-    // WHERE id = ?;
-    
-    // Navigate back to detailed input with specific field focus
     window.location.href = `/detailed-input?prompt_id=${promptId}&edit_field=${editField}`;
   };
 
   const handleSupportRequest = () => {
-    // TODO: PostHog tracking
-    // posthog.capture('support_requested', { 
-    //   reason: 'low_confidence',
-    //   attempts: lowConfidenceAttempts, 
-    //   confidence: intentData?.confidenceScore 
-    // });
-    
-    // TODO: Supabase logging
-    // INSERT INTO error_logs (prompt_id, error_message, support_request, error_type)
-    // VALUES (?, 'Support requested after low confidence attempts', true, 'low_confidence');
-    
     console.log('Support requested:', { attempts: lowConfidenceAttempts });
     
     toast({
@@ -266,41 +180,30 @@ const IntentMirror = () => {
 
   if (isLoading) {
     return (
-      <main 
-        className="min-h-screen w-full flex flex-col items-center justify-center px-4"
-        style={{
-          background: `radial-gradient(ellipse at 55% 24%, #152647 0%, #091023 65%, #052947 100%)`,
-          backgroundColor: "#0A1535"
-        }}
-      >
-        <div className="text-center">
-          <div className="animate-spin w-12 h-12 border-4 border-canai-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-          <h2 className="text-2xl font-bold text-canai-light mb-2">Analyzing Your Business</h2>
-          <p className="text-white opacity-75">Creating your personalized summary...</p>
+      <StandardBackground className="items-center justify-center">
+        <PageHeader />
+        <div className="text-center animate-fade-in">
+          <div className="animate-spin w-12 h-12 border-4 border-[#36d1fe] border-t-transparent rounded-full mx-auto mb-4"></div>
+          <PageTitle className="text-2xl mb-2">Analyzing Your Business</PageTitle>
+          <BodyText className="opacity-75">Creating your personalized summary...</BodyText>
         </div>
-      </main>
+      </StandardBackground>
     );
   }
 
   if (!intentData) {
     return (
-      <main 
-        className="min-h-screen w-full flex flex-col items-center justify-center px-4"
-        style={{
-          background: `radial-gradient(ellipse at 55% 24%, #152647 0%, #091023 65%, #052947 100%)`,
-          backgroundColor: "#0A1535"
-        }}
-      >
-        {/* F6-E1: Fallback UI on all retries failed */}
-        <div className="error-fallback text-center">
+      <StandardBackground className="items-center justify-center">
+        <PageHeader />
+        <div className="error-fallback text-center animate-fade-in">
           <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-canai-light mb-2">Validation Failed</h2>
-          <p className="text-white opacity-75 mb-6">There was an issue validating your business summary.</p>
+          <PageTitle className="text-2xl mb-2">Validation Failed</PageTitle>
+          <BodyText className="opacity-75 mb-6">There was an issue validating your business summary.</BodyText>
           <Button variant="canai" onClick={() => loadIntentMirror()}>
             Try Again
           </Button>
         </div>
-      </main>
+      </StandardBackground>
     );
   }
 
@@ -308,15 +211,17 @@ const IntentMirror = () => {
   const showSupportLink = lowConfidenceAttempts >= 2;
 
   return (
-    <main 
-      className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-8"
-      style={{
-        background: `radial-gradient(ellipse at 55% 24%, #152647 0%, #091023 65%, #052947 100%)`,
-        backgroundColor: "#0A1535"
-      }}
-    >
-      <div className="w-full max-w-4xl mx-auto">
-        {/* MAIN CARD REFACTOR */}
+    <StandardBackground className="items-center justify-center">
+      <PageHeader />
+      
+      <div className="w-full max-w-4xl mx-auto px-4 py-8">
+        <div className="text-center mb-8 animate-fade-in">
+          <PageTitle className="mb-4">Review Your Business Summary</PageTitle>
+          <BodyText className="text-lg opacity-90">
+            We've analyzed your information and created this summary. Please review and confirm it's accurate.
+          </BodyText>
+        </div>
+
         <SummaryCard
           summary={intentData.summary}
           confidenceScore={intentData.confidenceScore}
@@ -330,11 +235,11 @@ const IntentMirror = () => {
           showSupportLink={showSupportLink}
         />
 
-        <div className="text-center">
+        <div className="text-center animate-fade-in">
           <Button
             variant="ghost"
             onClick={() => window.location.href = `/detailed-input?prompt_id=${promptId}`}
-            className="text-canai-light-blue hover:text-canai-primary transition-colors duration-200 text-lg"
+            className="text-[#36d1fe] hover:text-[#00f0ff] hover:bg-[#36d1fe]/10 transition-colors duration-200 text-lg"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
             Back to Edit Details
@@ -342,14 +247,13 @@ const IntentMirror = () => {
         </div>
       </div>
 
-      {/* EDIT MODAL REFACTOR */}
       <EditModal
         show={showEditModal}
         field={editField}
         onClose={() => setShowEditModal(false)}
         onContinue={handleEditConfirm}
       />
-    </main>
+    </StandardBackground>
   );
 };
 

@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronRight, ChevronLeft, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import StandardBackground from "@/components/StandardBackground";
+import StandardCard from "@/components/StandardCard";
+import { PageTitle, BodyText, CaptionText } from "@/components/StandardTypography";
+import PageHeader from "@/components/PageHeader";
 import StepOneForm from "@/components/DetailedInput/StepOneForm";
 import StepTwoForm from "@/components/DetailedInput/StepTwoForm";
 import AutoSaveIndicator from "@/components/DetailedInput/AutoSaveIndicator";
@@ -72,19 +75,8 @@ const DetailedInput = () => {
       
       try {
         // TODO: API Integration - POST /v1/save-progress
-        // const response = await fetch('/v1/save-progress', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify({
-        //     prompt_id: promptId,
-        //     payload: formData
-        //   })
-        // });
-        
-        // Simulate API call with potential failure
         await new Promise(resolve => setTimeout(resolve, 150));
         
-        // Mock occasional failure for testing retry logic
         if (Math.random() > 0.9 && retryCount === 0) {
           throw new Error('Simulated save failure');
         }
@@ -97,7 +89,6 @@ const DetailedInput = () => {
       } catch (error) {
         console.error('Auto-save failed:', error);
         
-        // F5-E1: Retry logic with exponential backoff
         if (retryCount < 3) {
           const delay = Math.pow(2, retryCount) * 1000;
           setTimeout(() => {
@@ -191,18 +182,15 @@ const DetailedInput = () => {
     if (!validateStep2()) return;
     
     try {
-      // Final save before submission
       await autoSave();
       
       console.log('Form submitted successfully:', formData);
       
-      // Show success feedback
       toast({
         title: "Perfect! Your details are saved",
         description: "Moving to the next step...",
       });
       
-      // Redirect to Intent Mirror page
       setTimeout(() => {
         window.location.href = `/intent-mirror?prompt_id=${promptId}`;
       }, 1500);
@@ -221,34 +209,28 @@ const DetailedInput = () => {
   const resumeLink = `/resume?prompt_id=${promptId}`;
 
   return (
-    <main 
-      className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-8"
-      style={{
-        background: `radial-gradient(ellipse at 55% 24%, #152647 0%, #091023 65%, #052947 100%)`,
-        backgroundColor: "#0A1535"
-      }}
-    >
-      <div className="w-full max-w-3xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold text-canai-light mb-4 animate-text-glow">
-            Tell Us About Your Business
-          </h1>
-          <p className="text-white text-lg mb-8 opacity-90 font-medium">
+    <StandardBackground className="items-center justify-center">
+      <PageHeader />
+      
+      <div className="w-full max-w-4xl mx-auto px-4 py-8">
+        <div className="text-center mb-8 animate-fade-in">
+          <PageTitle className="mb-4">Tell Us About Your Business</PageTitle>
+          <BodyText className="text-lg opacity-90 mb-8">
             Help us create something amazing for you. This should take about 2 minutes.
-          </p>
+          </BodyText>
+          
           {/* Progress Section */}
-          <div className="bg-black/20 rounded-2xl p-6 mb-8 border border-canai-primary/20">
-            <div className="flex justify-between text-sm text-canai-light mb-3">
-              <span className="font-medium">Step {currentStep} of 2</span>
-              <span className="font-medium">{progress}% Complete</span>
+          <StandardCard variant="glass" padding="md" className="mb-8">
+            <div className="flex justify-between text-sm text-[#E6F6FF] mb-3">
+              <CaptionText className="font-medium">Step {currentStep} of 2</CaptionText>
+              <CaptionText className="font-medium">{progress}% Complete</CaptionText>
             </div>
             <Progress 
               id="progress-bar"
               value={progress} 
-              className="h-3 bg-canai-primary-blue-dark rounded-full overflow-hidden"
+              className="h-3 bg-[#19334a] rounded-full overflow-hidden"
             />
-          </div>
+          </StandardCard>
         </div>
 
         {/* Auto-save indicator */}
@@ -258,14 +240,14 @@ const DetailedInput = () => {
         />
 
         {/* Form Card */}
-        <Card className="bg-canai-blue-card/80 border-2 border-canai-primary/30 backdrop-blur-sm mb-8 shadow-2xl">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-2xl text-canai-light text-center font-bold">
+        <StandardCard variant="form" className="mb-8 shadow-2xl">
+          <div className="mb-6">
+            <PageTitle className="text-2xl text-center">
               {currentStep === 1 ? "Business Basics" : "Business Strategy"}
-            </CardTitle>
-          </CardHeader>
+            </PageTitle>
+          </div>
           
-          <CardContent className="space-y-6 px-8 pb-8">
+          <div className="space-y-6">
             {currentStep === 1 ? (
               <StepOneForm 
                 formData={formData}
@@ -281,12 +263,12 @@ const DetailedInput = () => {
             )}
             
             {/* Navigation */}
-            <div className="flex justify-between items-center pt-8 border-t border-canai-primary/20">
+            <div className="flex justify-between items-center pt-8 border-t-2 border-[#36d1fe]/20">
               {currentStep > 1 ? (
                 <Button
                   variant="outline"
                   onClick={handlePrevious}
-                  className="bg-transparent border-canai-primary text-canai-light hover:bg-canai-primary/20 hover:border-canai-cyan transition-all duration-200"
+                  className="bg-transparent border-[#36d1fe] text-[#E6F6FF] hover:bg-[#36d1fe]/20 hover:border-[#36d1fe] transition-all duration-200"
                 >
                   <ChevronLeft className="w-4 h-4 mr-2" />
                   Previous
@@ -315,23 +297,23 @@ const DetailedInput = () => {
                 </Button>
               )}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </StandardCard>
 
         {/* Resume Link */}
-        <div className="text-center text-canai-light-blue text-sm opacity-75">
-          <p>
+        <div className="text-center">
+          <CaptionText>
             Bookmark this link to resume later:{" "}
             <a 
               href={resumeLink}
-              className="text-canai-primary hover:text-canai-cyan underline transition-colors duration-200"
+              className="text-[#36d1fe] hover:text-[#00f0ff] underline transition-colors duration-200"
             >
               {window.location.origin}{resumeLink}
             </a>
-          </p>
+          </CaptionText>
         </div>
       </div>
-    </main>
+    </StandardBackground>
   );
 };
 
