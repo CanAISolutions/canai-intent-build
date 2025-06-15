@@ -5,6 +5,7 @@ import ProductCardsSection from "@/components/DiscoveryHook/ProductCardsSection"
 import SecondaryCTAs from "@/components/DiscoveryHook/SecondaryCTAs";
 import PricingModal from "@/components/PricingModal";
 import PreviewModal from "@/components/PreviewModal";
+import MemberstackLoginButton from "@/components/DiscoveryHook/MemberstackLoginButton";
 
 // Demo auth logic (customize later)
 const useFakeAuth = () => ({ isLoggedIn: true, userName: "Taylor" });
@@ -16,6 +17,9 @@ const DiscoveryHook = () => {
 
   return (
     <>
+      {/* Memberstack login button (top right) */}
+      <MemberstackLoginButton />
+
       {/* START: Modal Placeholders */}
       <div
         id="login-modal"
