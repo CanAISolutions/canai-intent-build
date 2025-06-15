@@ -185,7 +185,7 @@ const DiscoveryHook = () => {
       {process.env.NODE_ENV === 'development' && loadTime > 0 && (
         <div className="fixed bottom-4 left-4 bg-black/80 text-white p-2 rounded text-xs">
           Load Time: {loadTime.toFixed(2)}ms
-          {loadTime > 1500 && <span className="text-red-400"> (⚠️ >1.5s)</span>}
+          {loadTime > 1500 && <span className="text-red-400"> (⚠️ &gt;1.5s)</span>}
         </div>
       )}
     </StandardBackground>
