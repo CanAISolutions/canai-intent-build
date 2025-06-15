@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, CheckCircle, AlertCircle } from "lucide-react";
@@ -141,9 +142,9 @@ const SparkLayer = () => {
           {mockSparks.map((spark, index) => (
             <StandardCard
               key={index}
-              variant="interactive"
+              variant="product"
               onClick={() => handleSparkSelect(index)}
-              className={`group flex flex-col items-center justify-center p-6 rounded-2xl transition-all duration-300 hover:scale-105 ${selectedSpark === index ? 'border-4 border-[#36d1fe] shadow-[0_0_20px_rgba(54,209,254,0.5)]' : 'border border-white/10'}`}
+              className={`group flex flex-col items-center justify-center p-6 rounded-2xl transition-all duration-300 hover:scale-105 cursor-pointer ${selectedSpark === index ? 'border-4 border-[#36d1fe] shadow-[0_0_20px_rgba(54,209,254,0.5)]' : 'border border-white/10'}`}
             >
               {selectedSpark === index && (
                 <div className="absolute top-2 right-2">
