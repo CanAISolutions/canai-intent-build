@@ -1,30 +1,37 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import SparkleIcon from './SparkleIcon'; // <-- Added import
+import SparkleIcon from './SparkleIcon';
 
 type RefinedFeedbackFormProps = {
-  selection: string;
-  onSelection: (value: string) => void;
-  feedback: string;
-  onFeedback: (value: string) => void;
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  onSubmit: (rating: number, comment: string) => Promise<void>;
   isSubmitting?: boolean;
 };
 
 const RefinedFeedbackForm: React.FC<RefinedFeedbackFormProps> = ({
-  selection,
-  onSelection,
-  feedback,
-  onFeedback,
   onSubmit,
   isSubmitting = false
 }) => {
+  const [selection, setSelection] = useState('');
+  const [feedback, setFeedback] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    // Convert selection to rating (1-5 scale)
+    let rating = 5; // Default for CanAI selection
+    if (selection === 'generic') rating = 3;
+    if (selection === 'neither') rating = 2;
+    
+    await onSubmit(rating, feedback);
+  };
+
   return (
     <div className="bg-gradient-to-br from-[#172b47f6] to-[#1E314F] rounded-2xl border border-[#36d1fe66] p-8 shadow-2xl animate-fade-in">
-      <form onSubmit={onSubmit} className="space-y-8">
+      <form onSubmit={handleSubmit} className="space-y-8">
         <div>
           <h3 className="flex items-center text-2xl font-bold font-playfair text-canai-light mb-3" id="feedback-heading">
             <span role="img" aria-label="question" className="mr-2 animate-glow-pop text-canai-cyan text-3xl">💬</span>
@@ -35,7 +42,7 @@ const RefinedFeedbackForm: React.FC<RefinedFeedbackFormProps> = ({
           </p>
           <RadioGroup
             value={selection}
-            onValueChange={onSelection}
+            onValueChange={setSelection}
             className="space-y-4"
             aria-labelledby="feedback-heading"
           >
@@ -109,7 +116,7 @@ const RefinedFeedbackForm: React.FC<RefinedFeedbackFormProps> = ({
             <Textarea
               id="feedback-text"
               value={feedback}
-              onChange={(e) => onFeedback(e.target.value)}
+              onChange={(e) => setFeedback(e.target.value)}
               placeholder={selection === 'generic'
                 ? 'Tell us what resonated with you about the generic version...'
                 : 'Help us understand what both outputs are missing...'
