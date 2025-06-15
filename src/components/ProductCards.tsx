@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ArrowRight, FileText, MessageSquare, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -32,7 +31,8 @@ const ProductCards = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-16 container mx-auto px-4">
+    <section id="product-cards" className="py-16 container mx-auto px-4">
+      {/* TODO: Webflow/Make.com/Product integration goes here */}
       <div className="text-center mb-14">
         <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#cfefff] via-[#00cfff] to-[#54c1fe] text-transparent bg-clip-text animate-countup-glow drop-shadow-[0_2px_35px_#008cff88] font-manrope mb-2" style={{
           filter: 'drop-shadow(0 0 17px #36d1fecc)',

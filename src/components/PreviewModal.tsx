@@ -40,16 +40,24 @@ const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   const handleGetSparks = () => {
+    // TODO: POST /v1/generate-preview-spark
     setShowConfetti(true);
     setTimeout(() => {
       setShowConfetti(false);
       navigate('/discovery-funnel');
       onClose();
-    }, 1100); // Allow confetti to finish
+    }, 1100);
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" style={{ backdropFilter: 'blur(7px)' }}>
+    <div
+      id="spark-preview"
+      className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+      style={{ backdropFilter: 'blur(7px)' }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      >
       <Confetti active={showConfetti} />
       <div
         className="bg-gradient-to-br from-canai-primary-blue-dark to-canai-blue-card rounded-3xl shadow-2xl max-w-3xl w-full max-h-[94vh] overflow-y-auto relative px-0 py-0 border-4 animate-glow-pop ring-2 ring-canai-primary/30"

@@ -4,6 +4,7 @@ import React from "react";
 /**
  * Placeholder Memberstack login button.
  * Replace onClick/anchor with actual Memberstack trigger logic.
+ * TODO: Integrate with Memberstack (or Webflow if embedding)
  */
 const MemberstackLoginButton: React.FC = () => (
   <button

@@ -1,4 +1,3 @@
-
 import React from "react";
 import CanAILogo from "@/components/CanAILogo";
 
@@ -15,7 +14,7 @@ const Hero = ({
       <div className="mb-5 flex flex-col items-center">
         <CanAILogo size="xl" showTagline />
       </div>
-      {/* Greeting + subtitle, now softer, less blocky */}
+      {/* Greeting + subtitle */}
       <div className="flex flex-col items-center gap-2 mt-0 mb-2">
         {userName && (
           <h1
@@ -53,8 +52,9 @@ const Hero = ({
           </span>
         </p>
       </div>
-      {/* Enormous standalone CTA button, magnetically styled */}
+      {/* CTA Button with explicit id */}
       <button
+        id="begin-btn"
         className="mt-11 sm:mt-12 px-20 py-6 rounded-[18px] text-lg sm:text-xl font-manrope font-bold bg-gradient-to-tr from-[#36d1fe] via-[#16B9EC] to-[#00B2E3] text-white shadow-[0_2px_48px_#36d1fe66] transition-all duration-300 hover:scale-105 hover:shadow-[0_0_62px_#00cffdcc] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-canai-primary active:scale-98 animate-glow-pop"
         style={{
           letterSpacing: ".01em",

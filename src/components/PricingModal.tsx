@@ -66,6 +66,7 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <div
+      id="pricing-modal"
       ref={modalRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
       style={{ backdropFilter: "blur(6px)" }}

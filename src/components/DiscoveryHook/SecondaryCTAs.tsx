@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -33,6 +32,7 @@ const SecondaryCTAs: React.FC<SecondaryCTAsProps> = ({
           Pricing
         </Button>
         <Button
+          id="sample-btn"
           variant="ghost"
           size="lg"
           onClick={() => navigate("/samples")}
