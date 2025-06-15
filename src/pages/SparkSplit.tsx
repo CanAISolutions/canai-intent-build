@@ -29,6 +29,8 @@ const F8EdgeFallback = ({ message }: { message: string }) => (
   </div>
 );
 
+const canaiTooltipText = `TrustDelta™ measures the difference in quality, tone, and emotional resonance between your CanAI-crafted output and a generic plan. Scores closer to 5 mean CanAI is better aligned with your brief, tone, and business needs.`;
+
 const SparkSplit: React.FC = () => {
   const [canai, setCanai] = useState<string | null>(null);
   const [generic, setGeneric] = useState<string | null>(null);
