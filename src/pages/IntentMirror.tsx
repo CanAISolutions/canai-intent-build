@@ -545,45 +545,46 @@ const IntentMirror = () => {
         </div>
       </div>
 
-      {/* Enhanced Edit Confirmation Modal with Clean Brand Styling */}
+      {/* Brand-Aligned Edit Modal with CanAI Styling */}
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-        <DialogContent className="bg-white border-0 text-gray-900 max-w-md mx-auto shadow-2xl rounded-2xl overflow-hidden">
-          <DialogHeader className="text-center pb-6 border-b border-gray-100">
-            <DialogTitle className="text-2xl font-bold text-gray-900 mb-2">
+        <DialogContent className="max-w-md mx-auto shadow-2xl rounded-2xl border-0 overflow-hidden bg-gradient-to-br from-canai-blue-card/95 to-canai-primary-blue-dark/95 backdrop-blur-xl border border-canai-primary/30">
+          <DialogHeader className="text-center pb-6 border-b border-canai-primary/20">
+            <DialogTitle className="text-2xl font-bold text-canai-light mb-3">
               Edit Your Details
             </DialogTitle>
-            <div className="w-12 h-0.5 bg-blue-500 rounded-full mx-auto"></div>
+            <div className="w-16 h-0.5 bg-gradient-to-r from-canai-primary to-canai-cyan rounded-full mx-auto canai-glow-soft"></div>
           </DialogHeader>
           
           <div className="p-6 space-y-6">
-            {/* Clean Icon Section */}
+            {/* Brand-Aligned Icon Section */}
             <div className="text-center">
-              <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-200">
-                <Edit2 className="w-8 h-8 text-blue-600" />
+              <div className="w-20 h-20 bg-gradient-to-br from-canai-primary/20 to-canai-cyan/10 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-canai-primary/40 canai-glow-soft">
+                <Edit2 className="w-9 h-9 text-canai-primary canai-glow-medium" />
               </div>
               
-              {/* Improved Content with Better Readability */}
+              {/* Enhanced Content with CanAI Typography */}
               <div className="space-y-4">
-                <p className="text-gray-700 text-lg font-medium leading-relaxed">
+                <p className="text-canai-light text-lg font-medium leading-relaxed">
                   You'll return to the detailed input form to update your{" "}
-                  <span className="font-semibold text-blue-600">
+                  <span className="font-bold text-canai-primary canai-gradient-text">
                     {editField.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                   </span>{" "}
                   information.
                 </p>
                 
-                <div className="flex items-center justify-center gap-2 text-gray-500 text-sm bg-gray-50 rounded-lg py-2 px-4">
-                  <Shield className="w-4 h-4 text-green-500" />
+                <div className="flex items-center justify-center gap-2 text-canai-light/70 text-sm bg-canai-primary/10 rounded-lg py-3 px-4">
+                  <Shield className="w-4 h-4 text-canai-primary" />
                   <span>Your progress will be saved automatically</span>
                 </div>
               </div>
             </div>
             
-            {/* Improved Action Buttons */}
+            {/* Brand-Aligned Action Buttons */}
             <div className="space-y-3 pt-4">
               <Button
+                variant="canai"
                 onClick={handleEditConfirm}
-                className="w-full h-12 text-base font-semibold bg-blue-600 hover:bg-blue-700 text-white border-0 rounded-lg transition-all duration-200"
+                className="w-full h-12 text-base font-bold canai-btn-glow canai-focus-glow"
               >
                 <Edit2 className="w-4 h-4 mr-2" />
                 Continue to Edit
@@ -592,16 +593,16 @@ const IntentMirror = () => {
               <Button
                 variant="outline"
                 onClick={() => setShowEditModal(false)}
-                className="w-full h-12 bg-white border-2 border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 text-base font-medium rounded-lg transition-all duration-200"
+                className="w-full h-12 bg-transparent border-2 border-canai-primary/40 text-canai-light hover:bg-canai-primary/15 hover:border-canai-primary/60 text-base font-semibold rounded-lg transition-all duration-300"
               >
                 Cancel
               </Button>
             </div>
             
-            {/* Improved Footer */}
-            <div className="text-center pt-3 border-t border-gray-100">
-              <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
-                <Clock className="w-3 h-3" />
+            {/* Brand-Aligned Footer */}
+            <div className="text-center pt-4 border-t border-canai-primary/20">
+              <div className="flex items-center justify-center gap-2 text-canai-light/60 text-sm">
+                <Clock className="w-3 h-3 text-canai-primary/60" />
                 <span>Takes less than 30 seconds</span>
               </div>
             </div>
