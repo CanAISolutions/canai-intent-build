@@ -32,6 +32,15 @@ export interface InitialPromptLog {
   created_at: string;
 }
 
+export interface SparkLog {
+  id: string;
+  initial_prompt_id: string;
+  selected_spark: Record<string, any>;
+  product_track: 'business_builder' | 'social_email' | 'site_audit';
+  feedback?: string;
+  created_at: string;
+}
+
 export interface ErrorLog {
   id: string;
   user_id?: string;
@@ -118,6 +127,20 @@ export const insertInitialPromptLog = async (log: Omit<InitialPromptLog, 'id' | 
   return data;
 };
 
+export const insertSparkLog = async (log: Omit<SparkLog, 'id' | 'created_at'>) => {
+  const { data, error } = await supabase
+    .from('spark_logs')
+    .insert([log])
+    .select();
+  
+  if (error) {
+    console.error('[Supabase] Error inserting spark log:', error);
+    throw error;
+  }
+  
+  return data;
+};
+
 export const insertErrorLog = async (log: Omit<ErrorLog, 'id' | 'created_at'>) => {
   const { data, error } = await supabase
     .from('error_logs')
@@ -134,3 +157,26 @@ export const insertErrorLog = async (log: Omit<ErrorLog, 'id' | 'created_at'>) =
 
 // TODO: Add supabase/vault encryption setup
 // https://supabase.com/docs/guides/database/vault
+
+/*
+-- Spark logs schema
+CREATE TABLE spark_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  initial_prompt_id UUID REFERENCES initial_prompt_logs(id),
+  selected_spark JSONB NOT NULL,
+  product_track TEXT CHECK (product_track IN ('business_builder', 'social_email', 'site_audit')),
+  feedback TEXT,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Enable RLS on spark_logs
+ALTER TABLE spark_logs ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Users can only access their own spark logs
+CREATE POLICY "User access spark_logs" ON spark_logs
+  USING (auth.uid() = (SELECT user_id FROM initial_prompt_logs WHERE id = initial_prompt_id));
+
+-- Policy: Anonymous users can insert spark logs
+CREATE POLICY "Anonymous insert spark_logs" ON spark_logs
+  FOR INSERT WITH CHECK (true);
+*/

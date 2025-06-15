@@ -1,4 +1,3 @@
-
 /**
  * Make.com workflow integration for CanAI Platform
  * Handles Webflow → Make.com → Supabase data flow
@@ -19,6 +18,8 @@ const MAKECOM_WEBHOOKS = {
   SESSION_LOG: process.env.VITE_MAKECOM_SESSION_WEBHOOK || 'https://hook.integromat.com/your-session-webhook',
   USER_INTERACTION: process.env.VITE_MAKECOM_INTERACTION_WEBHOOK || 'https://hook.integromat.com/your-interaction-webhook',
   ERROR_LOG: process.env.VITE_MAKECOM_ERROR_WEBHOOK || 'https://hook.integromat.com/your-error-webhook',
+  SPARK_GENERATION: process.env.VITE_MAKECOM_SPARK_WEBHOOK || 'https://hook.integromat.com/your-spark-webhook',
+  SPARK_REGENERATION: process.env.VITE_MAKECOM_SPARK_REGEN_WEBHOOK || 'https://hook.integromat.com/your-spark-regen-webhook',
 };
 
 // Send data to Make.com workflow
@@ -106,6 +107,34 @@ export const logErrorToMakecom = (errorData: {
   return triggerMakecomWorkflow('ERROR_LOG', errorData);
 };
 
+// Spark-specific workflow triggers
+export const triggerSparkGeneration = (sparkData: {
+  business_type: string;
+  tone: string;
+  outcome: string;
+  prompt_id: string;
+}) => {
+  return triggerMakecomWorkflow('SPARK_GENERATION', {
+    action: 'generate_sparks',
+    spark_request: sparkData,
+    gpt4o_integration: true,
+  });
+};
+
+export const triggerSparkRegeneration = (sparkData: {
+  business_type: string;
+  tone: string;
+  outcome: string;
+  attempt_count: number;
+  prompt_id: string;
+}) => {
+  return triggerMakecomWorkflow('SPARK_REGENERATION', {
+    action: 'regenerate_sparks',
+    spark_request: sparkData,
+    gpt4o_integration: true,
+  });
+};
+
 // TODO: Configure Make.com scenarios
 /*
 Scenario 1: add_project.json
@@ -120,4 +149,13 @@ Scenario 3: SAAP Update Project Blueprint.json
 
 Scenario 4: add_client.json
 - New client webhook → Memberstack sync → Supabase user creation
+
+Scenario 5: spark_generation.json (NEW)
+- Spark webhook → GPT-4o API call → Response formatting → Supabase spark_logs insert
+- Include error handling for GPT-4o timeout/failures
+- Performance target: <1.5s end-to-end
+
+Scenario 6: spark_regeneration.json (NEW)
+- Regeneration webhook → GPT-4o API call with attempt_count → Response formatting → Supabase update
+- Include logic for max attempts (3 + 1 extra if trust_score < 50%)
 */

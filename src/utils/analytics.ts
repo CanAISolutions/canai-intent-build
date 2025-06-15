@@ -1,4 +1,3 @@
-
 /**
  * PostHog Analytics Integration for CanAI Platform
  */
@@ -21,6 +20,10 @@ export const POSTHOG_EVENTS = {
   CUSTOM_TONE_ENTERED: 'custom_tone_entered',
   QUIZ_USED: 'quiz_used',
   CONTRADICTION_FLAGGED: 'contradiction_flagged',
+  // Spark Layer Events
+  SPARK_SELECTED: 'spark_selected',
+  SPARKS_REGENERATED: 'sparks_regenerated',
+  SPARKS_REGENERATED_EXTRA: 'sparks_regenerated_extra',
 } as const;
 
 // PostHog configuration
@@ -206,6 +209,49 @@ export const logInteraction = async (data: {
   } catch (error) {
     console.warn('[Analytics] Failed to log to API:', error);
   }
+};
+
+// Spark Layer specific events
+export const trackSparkSelected = (sparkData: {
+  spark_id: string;
+  product: 'business_builder' | 'social_email' | 'site_audit';
+  spark_index: number;
+  attempt_count?: number;
+}) => {
+  trackEvent(POSTHOG_EVENTS.SPARK_SELECTED, {
+    spark_id: sparkData.spark_id,
+    product: sparkData.product,
+    spark_index: sparkData.spark_index,
+    attempt_count: sparkData.attempt_count || 0,
+    selection_timestamp: new Date().toISOString(),
+  });
+};
+
+export const trackSparksRegenerated = (regenerationData: {
+  attempt_count: number;
+  business_type?: string;
+  trust_score?: number;
+}) => {
+  const eventType = regenerationData.attempt_count > 3 
+    ? POSTHOG_EVENTS.SPARKS_REGENERATED_EXTRA 
+    : POSTHOG_EVENTS.SPARKS_REGENERATED;
+    
+  trackEvent(eventType, {
+    attempt_count: regenerationData.attempt_count,
+    business_type: regenerationData.business_type,
+    trust_score: regenerationData.trust_score,
+    regeneration_timestamp: new Date().toISOString(),
+  });
+};
+
+export const trackSparkInteraction = (interactionType: string, details?: Record<string, any>) => {
+  trackEvent(POSTHOG_EVENTS.FUNNEL_STEP, {
+    funnel_step: `spark_layer_${interactionType}`,
+    interaction_type: interactionType,
+    completed: true,
+    step_timestamp: new Date().toISOString(),
+    ...details,
+  });
 };
 
 // TODO: Install actual PostHog

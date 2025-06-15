@@ -1,53 +1,69 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Sparkles, CheckCircle, AlertCircle } from "lucide-react";
+import { Sparkles, CheckCircle, AlertCircle, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import StandardBackground from "@/components/StandardBackground";
 import StandardCard from "@/components/StandardCard";
 import { PageTitle, BodyText } from "@/components/StandardTypography";
 import PageHeader from "@/components/PageHeader";
+import { generateSparks, regenerateSparks, logSparkSelection } from "@/utils/sparkLayerApi";
+import { trackSparkSelected, trackSparksRegenerated, trackSparkInteraction } from "@/utils/analytics";
 
 interface SparkData {
   title: string;
-  description: string;
+  tagline: string;
 }
-
-const mockSparks: SparkData[] = [
-  {
-    title: "Investor-Ready Business Plan",
-    description: "A comprehensive plan to attract investors and secure funding."
-  },
-  {
-    title: "Growth-Focused Marketing Strategy",
-    description: "A detailed strategy to expand your customer base and increase sales."
-  },
-  {
-    title: "Streamlined Operations Blueprint",
-    description: "A clear blueprint to optimize your business operations and improve efficiency."
-  }
-];
 
 const SparkLayer = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
   const [selectedSpark, setSelectedSpark] = useState<number | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
-
-  // Get prompt_id from URL params
+  const [sparks, setSparks] = useState<SparkData[]>([]);
+  const [regenerateCount, setRegenerateCount] = useState(0);
+  const [feedback, setFeedback] = useState('');
+  const [showEdgeToggle, setShowEdgeToggle] = useState(false);
+  
+  // Get params from URL
   const urlParams = new URLSearchParams(window.location.search);
   const promptId = urlParams.get('prompt_id') || 'demo-prompt-id';
+  const businessType = urlParams.get('business_type') || 'general';
+  const tone = urlParams.get('tone') || 'professional';
+  const outcome = urlParams.get('outcome') || 'growth';
+
+  const MAX_REGENERATIONS = 3;
+  const canRegenerate = regenerateCount < MAX_REGENERATIONS;
 
   useEffect(() => {
     const loadSparks = async () => {
       setIsLoading(true);
       try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        trackSparkInteraction('sparks_loading', { 
+          business_type: businessType,
+          tone,
+          outcome 
+        });
+
+        const response = await generateSparks({
+          businessType,
+          tone,
+          outcome
+        });
+
+        if (response.sparks) {
+          setSparks(response.sparks);
+          trackSparkInteraction('sparks_loaded', { 
+            spark_count: response.sparks.length 
+          });
+        }
+        
         setIsLoading(false);
       } catch (error) {
         console.error("Failed to load sparks:", error);
-        setLoadError("Failed to load options. Please try again.");
+        setLoadError("Failed to load spark options. Please try again.");
         toast({
           title: "Loading failed",
           description: "Unable to load your spark options. Please try again.",
@@ -58,23 +74,38 @@ const SparkLayer = () => {
     };
 
     loadSparks();
-  }, [toast]);
+  }, [toast, businessType, tone, outcome]);
 
   const handleSparkSelect = async (sparkIndex: number) => {
     setSelectedSpark(sparkIndex);
     setIsSubmitting(true);
     
     try {
-      const selectedSparkData = mockSparks[sparkIndex];
+      const selectedSparkData = sparks[sparkIndex];
       
-      // Log the spark selection
-      console.log('Spark selected:', { 
-        promptId, 
-        sparkIndex, 
-        sparkData: selectedSparkData 
+      // Track spark selection
+      trackSparkSelected({
+        spark_id: selectedSparkData.title.toLowerCase().replace(/\s+/g, '_'),
+        product: 'business_builder',
+        spark_index: sparkIndex,
+        attempt_count: regenerateCount,
       });
       
-      // Show success feedback
+      // Log to Supabase
+      await logSparkSelection({
+        initial_prompt_id: promptId,
+        selected_spark: selectedSparkData,
+        product_track: 'business_builder',
+        feedback: feedback || undefined,
+      });
+      
+      console.log('[Spark Layer] Spark selected:', { 
+        promptId, 
+        sparkIndex, 
+        sparkData: selectedSparkData,
+        regenerateCount,
+      });
+      
       toast({
         title: "Perfect choice!",
         description: `"${selectedSparkData.title}" selected. Moving to purchase...`,
@@ -82,7 +113,7 @@ const SparkLayer = () => {
       
       // Navigate to Purchase Flow
       setTimeout(() => {
-        window.location.href = `/purchase?prompt_id=${promptId}&spark_index=${sparkIndex}`;
+        window.location.href = `/purchase?prompt_id=${promptId}&spark_index=${sparkIndex}&product_track=business_builder`;
       }, 1500);
       
     } catch (error) {
@@ -93,6 +124,47 @@ const SparkLayer = () => {
         variant: "destructive"
       });
       setIsSubmitting(false);
+    }
+  };
+
+  const handleRegenerate = async () => {
+    if (!canRegenerate) return;
+    
+    setIsRegenerating(true);
+    const newCount = regenerateCount + 1;
+    
+    try {
+      trackSparksRegenerated({
+        attempt_count: newCount,
+        business_type: businessType,
+      });
+
+      const response = await regenerateSparks({
+        businessType,
+        tone,
+        outcome,
+        attempt_count: newCount,
+      });
+
+      if (response.sparks) {
+        setSparks(response.sparks);
+        setRegenerateCount(newCount);
+        setSelectedSpark(null);
+        
+        toast({
+          title: "New sparks generated!",
+          description: `Here are ${response.sparks.length} fresh options for you.`,
+        });
+      }
+    } catch (error) {
+      console.error('Regeneration failed:', error);
+      toast({
+        title: "Regeneration failed",
+        description: "Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsRegenerating(false);
     }
   };
 
@@ -135,12 +207,20 @@ const SparkLayer = () => {
           <BodyText className="text-lg opacity-90">
             Select the option that best fits your goals. Each spark is designed to ignite your business potential.
           </BodyText>
+          
+          {/* Spark Prompt Display */}
+          <div id="spark-prompt" className="mt-4 p-4 bg-white/5 rounded-lg border border-white/10">
+            <BodyText className="text-sm opacity-75">
+              Based on: {businessType} • {tone} tone • Focus: {outcome}
+            </BodyText>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
-          {mockSparks.map((spark, index) => (
+          {sparks.map((spark, index) => (
             <div
-              key={index}
+              key={`${spark.title}-${regenerateCount}`}
+              id={`spark-card-${index}`}
               onClick={() => handleSparkSelect(index)}
               className={`group cursor-pointer transition-all duration-300 hover:scale-105 ${selectedSpark === index ? 'transform scale-105' : ''}`}
             >
@@ -155,20 +235,62 @@ const SparkLayer = () => {
                 )}
                 <Sparkles className="text-[#36d1fe] w-8 h-8 mb-4 group-hover:scale-110 transition-transform" />
                 <h3 className="text-xl font-semibold text-white mb-2">{spark.title}</h3>
-                <BodyText className="text-center opacity-80">{spark.description}</BodyText>
+                <BodyText className="text-center opacity-80">{spark.tagline}</BodyText>
               </StandardCard>
             </div>
           ))}
         </div>
 
-        <div className="text-center mt-8 animate-fade-in">
+        {/* Regeneration Controls */}
+        <div className="text-center mt-8 space-y-4 animate-fade-in">
+          {canRegenerate && (
+            <Button
+              id="regenerate-btn"
+              variant="ghost"
+              onClick={handleRegenerate}
+              disabled={isRegenerating || isSubmitting}
+              className="text-[#36d1fe] hover:text-[#00f0ff] hover:bg-[#36d1fe]/10 transition-colors duration-200 text-lg px-6 py-3"
+            >
+              <RefreshCw className={`mr-2 h-4 w-4 ${isRegenerating ? 'animate-spin' : ''}`} />
+              {isRegenerating ? 'Generating...' : `Regenerate Options (${MAX_REGENERATIONS - regenerateCount} left)`}
+            </Button>
+          )}
+
+          {/* Feedback Input */}
+          <div id="spark-regen-feedback" className="max-w-md mx-auto">
+            <textarea
+              id="spark-feedback"
+              value={feedback}
+              onChange={(e) => setFeedback(e.target.value)}
+              placeholder="Any specific preferences for your spark? (optional)"
+              className="w-full p-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 resize-none"
+              rows={2}
+              maxLength={200}
+            />
+          </div>
+
+          {/* Edge Toggle */}
+          <div id="edge-toggle" className="flex items-center justify-center space-x-2">
+            <input
+              type="checkbox"
+              id="show-comparison"
+              checked={showEdgeToggle}
+              onChange={(e) => setShowEdgeToggle(e.target.checked)}
+              className="rounded"
+            />
+            <label htmlFor="show-comparison" className="text-sm text-white/70">
+              Show generic AI comparison
+            </label>
+          </div>
+
+          {/* Navigation */}
           <Button
             variant="ghost"
             onClick={() => window.location.href = `/discovery-funnel?prompt_id=${promptId}`}
             className="text-[#36d1fe] hover:text-[#00f0ff] hover:bg-[#36d1fe]/10 transition-colors duration-200 text-lg px-6 py-3"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isRegenerating}
           >
-            {isSubmitting ? 'Loading...' : '← Back to Edit Details'}
+            {isSubmitting || isRegenerating ? 'Loading...' : '← Back to Edit Details'}
           </Button>
         </div>
       </div>
