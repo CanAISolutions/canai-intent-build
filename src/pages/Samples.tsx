@@ -1,4 +1,3 @@
-
 import React from "react";
 import { FileText, MessageSquare, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,7 @@ import StandardBackground from "@/components/StandardBackground";
 import PageHeader from "@/components/PageHeader";
 import StandardCard from "@/components/StandardCard";
 import SampleMetricBadge from "@/components/Samples/SampleMetricBadge";
+import { PageTitle, BodyText, SectionTitle, CardTitle, AccentText } from "@/components/StandardTypography";
 
 // Card data lives here so that it's scalable to future additions/changes.
 const sampleCards = [
@@ -105,14 +105,14 @@ const Samples = () => {
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 pb-20 pt-2">
         <section className="max-w-6xl mx-auto space-y-12">
           <header className="text-center pb-6">
-            <h1 className="font-playfair text-5xl md:text-6xl font-bold text-white animate-fade-in mb-4 drop-shadow-lg">
+            <PageTitle className="animate-fade-in">
               Explore CanAI Output Samples
-            </h1>
-            <p className="text-xl text-[#cce7fa] animate-fade-in max-w-3xl mx-auto leading-relaxed font-medium" style={{ animationDelay: '0.12s' }}>
+            </PageTitle>
+            <BodyText className="animate-fade-in max-w-3xl mx-auto text-xl" style={{ animationDelay: '0.12s' }}>
               These examples reflect the same design, polish, and intelligence your final deliverables receive.
               <br className="hidden md:block" />
               Full outputs are always custom and ready to use.
-            </p>
+            </BodyText>
           </header>
           
           {/* Card Grid */}
@@ -126,19 +126,21 @@ const Samples = () => {
                 role="region"
                 aria-labelledby={`sample-title-${idx}`}
               >
-                <StandardCard className="h-full flex flex-col">
-                  <header className="flex items-center gap-5 mb-4 pt-8 px-8">
-                    <div className="relative">
-                      <div className="rounded-2xl bg-gradient-to-br from-[#36d1fe] to-[#00B2E3] p-4 flex items-center justify-center shadow-lg border border-[rgba(255,255,255,0.2)] shadow-[0_0_20px_rgba(54,209,254,0.4)]">
-                        {card.icon}
-                      </div>
+                <StandardCard variant="content" padding="none" className="h-full flex flex-col">
+                  <header className="flex items-center gap-5 p-8 pb-4">
+                    <div className="rounded-2xl bg-gradient-to-br from-[#36d1fe] to-[#00B2E3] p-4 flex items-center justify-center shadow-lg border border-[rgba(255,255,255,0.2)] shadow-[0_0_20px_rgba(54,209,254,0.4)]">
+                      {card.icon}
                     </div>
                     <div className="flex-1">
-                      <h2 id={`sample-title-${idx}`} className="font-playfair font-bold text-2xl text-white tracking-wide leading-tight drop-shadow-lg">{card.title}</h2>
-                      <span className="block text-[#36d1fe] text-sm font-semibold mt-1 tracking-wide">{card.subtitle}</span>
+                      <CardTitle id={`sample-title-${idx}`} className="leading-tight mb-1">
+                        {card.title}
+                      </CardTitle>
+                      <AccentText className="text-sm tracking-wide">
+                        {card.subtitle}
+                      </AccentText>
                     </div>
                   </header>
-                  <section className="bg-[rgba(25,60,101,0.4)] rounded-2xl p-8 mx-6 mb-8 text-[#cce7fa] flex-1 shadow-lg border border-[rgba(54,209,254,0.2)] space-y-2">
+                  <section className="bg-[rgba(25,60,101,0.4)] rounded-2xl p-8 mx-6 mb-8 flex-1 shadow-lg border border-[rgba(54,209,254,0.2)]">
                     {card.content}
                   </section>
                 </StandardCard>
@@ -149,26 +151,28 @@ const Samples = () => {
           {/* CTA Section */}
           <footer className="text-center pt-8 pb-6">
             <div className="max-w-2xl mx-auto mb-8">
-              <h2 className="text-4xl font-playfair font-bold text-white mb-3 drop-shadow-lg animate-fade-in">Ready for Your Custom Content?</h2>
-              <p className="text-[#cce7fa] leading-relaxed font-medium text-lg animate-fade-in" style={{ animationDelay: '0.09s' }}>
+              <SectionTitle className="animate-fade-in mb-4">
+                Ready for Your Custom Content?
+              </SectionTitle>
+              <BodyText className="animate-fade-in text-xl" style={{ animationDelay: '0.09s' }}>
                 Get investor-ready plans, high-converting posts, or expert audits in hours.
                 <br />
-                See why <span className="font-bold text-[#36d1fe]">65% of users prefer CanAI outputs!</span>
-              </p>
+                See why <AccentText className="font-bold">65% of users prefer CanAI outputs!</AccentText>
+              </BodyText>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button
                 onClick={() => navigate('/discovery-funnel')}
                 size="lg"
                 variant="canai"
-                className="text-lg px-12 py-6 shadow-[0_0_30px_rgba(54,209,254,0.4)] hover:shadow-[0_0_50px_rgba(54,209,254,0.6)] hover:scale-105 animate-fade-in min-w-[240px] transition-all duration-300"
+                className="text-lg px-12 py-6 shadow-[0_0_30px_rgba(54,209,254,0.4)] hover:shadow-[0_0_50px_rgba(54,209,254,0.6)] hover:scale-105 animate-fade-in min-w-[240px] transition-all duration-300 font-manrope"
                 style={{ animationDelay: '0.15s' }}
               >
                 Start Your Project
               </Button>
-              <span className="text-base text-[#cce7fa] font-medium mt-2 sm:mt-0 animate-fade-in" style={{ animationDelay: '0.18s' }}>
-                ✨ 500+ plans created &nbsp;•&nbsp; 📈 65% prefer CanAI outputs
-              </span>
+              <BodyText className="mt-2 sm:mt-0 animate-fade-in font-medium" style={{ animationDelay: '0.18s' }}>
+                ✨ 500+ plans created • 📈 65% prefer CanAI outputs
+              </BodyText>
             </div>
           </footer>
         </section>

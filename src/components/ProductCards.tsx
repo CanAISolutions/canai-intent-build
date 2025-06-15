@@ -1,7 +1,9 @@
+
 import React from 'react';
 import { ArrowRight, FileText, MessageSquare, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import StandardCard from './StandardCard';
 
 const products = [
   {
@@ -32,21 +34,16 @@ const ProductCards = () => {
 
   return (
     <section id="product-cards" className="py-16 container mx-auto px-4">
-      {/* TODO: Webflow/Make.com/Product integration goes here */}
       <div className="text-center mb-14">
-        <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#cfefff] via-[#00cfff] to-[#54c1fe] text-transparent bg-clip-text animate-countup-glow drop-shadow-[0_2px_35px_#008cff88] font-manrope mb-2" style={{
-          filter: 'drop-shadow(0 0 17px #36d1fecc)',
-          letterSpacing: '0.01em'
-        }}>
+        <h2 className="text-4xl md:text-5xl font-bold text-white font-manrope mb-4 drop-shadow-lg">
           Tailored Solutions For Every Vision
         </h2>
-        <p className="text-lg md:text-xl font-manrope text-canai-light opacity-90 max-w-2xl mx-auto" style={{
-          textShadow: '0 4px 18px #36d1fe44'
-        }}>
+        <p className="text-lg md:text-xl font-manrope text-[#cce7fa] max-w-2xl mx-auto leading-relaxed">
           Choose your spark – each product delivers expert results, instantly.
         </p>
       </div>
-      <div className="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto">
+      
+      <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
         {products.map((product) => {
           const IconComponent = product.icon;
           return (
@@ -55,55 +52,34 @@ const ProductCards = () => {
               onClick={() => navigate(product.href)}
               className="group w-full focus:outline-none"
               aria-label={`View details for ${product.title}`}
-              tabIndex={0}
             >
-              <div
-                className="relative rounded-2xl px-9 py-12 bg-[rgba(14,36,56,0.92)] overflow-hidden canai-product-card border border-[#22bcfa] hover:scale-105 transition-all duration-300 shadow-[0_0_58px_0_#00cfff33] focus-visible:ring-4 focus-visible:ring-canai-cyan"
-                style={{
-                  boxShadow: "0 0 36px 0 #00cfff7c, 0 2px 22px #091023bb",
-                  border: '2px solid #00cfff',
-                }}
+              <StandardCard 
+                variant="product" 
+                className="h-full flex flex-col group-focus-visible:ring-4 group-focus-visible:ring-[#36d1fe]/50"
               >
-                {/* Neon blue outline glow */}
-                <span
-                  className="absolute -inset-1 pointer-events-none rounded-[18px] z-0"
-                  style={{
-                    boxShadow: '0 0 40px 7px #00cfff90, 0 0px 0 #36d1fe00',
-                  }}
-                  aria-hidden
-                />
-                <div className="flex flex-col items-center gap-8 relative z-10">
-                  <div
-                    className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[rgba(35,63,102,0.81)] neon-glow"
-                    style={{
-                      boxShadow: '0 0 32px 0 #00cfff80,0 0 0 #36d1fe00'
-                    }}>
-                    <IconComponent size={36} color="#E6F6FF" strokeWidth={2.5} />
+                <div className="flex flex-col items-center gap-6 text-center">
+                  <div className="rounded-2xl bg-gradient-to-br from-[#36d1fe] to-[#00B2E3] p-4 flex items-center justify-center shadow-lg border border-[rgba(255,255,255,0.2)] shadow-[0_0_20px_rgba(54,209,254,0.4)]">
+                    <IconComponent size={32} className="text-white drop-shadow-lg" strokeWidth={2} />
                   </div>
-                  <h3 className="text-xl font-extrabold text-canai-light font-manrope tracking-tight mb-2"
-                    style={{ textShadow: "0 0 24px #00cfff50, 0 3px 12px #171b36" }}
-                  >
+                  
+                  <h3 className="text-2xl font-bold text-white font-manrope tracking-tight drop-shadow-lg">
                     {product.title}
                   </h3>
-                  <p className="text-canai-light text-base font-manrope text-center opacity-80"
-                    style={{ fontWeight: 300, minHeight: 68 }}
-                  >
+                  
+                  <p className="text-[#cce7fa] text-base font-manrope leading-relaxed opacity-90 flex-1">
                     {product.description}
                   </p>
+                  
                   <Button
                     tabIndex={-1}
                     variant="ghost"
-                    className="group/button w-full max-w-xs py-4 mt-2 font-bold rounded-xl text-base text-white bg-[rgba(0,220,255,0.07)] border border-[#41e3fd] transition-all duration-200
-                      shadow-[0_0_22px_4px_#00cfff32] hover:bg-[rgba(0,220,255,0.11)] hover:shadow-[0_0_32px_10px_#00f0ff55] hover:border-[#00f0ff] focus-visible:ring-4 focus-visible:ring-canai-cyan"
-                    style={{
-                      boxShadow: "0 0 16px #00f0ff66",
-                    }}
+                    className="w-full max-w-xs py-3 font-semibold rounded-xl text-base text-white bg-[rgba(54,209,254,0.1)] border border-[#36d1fe] transition-all duration-200 hover:bg-[rgba(54,209,254,0.2)] hover:shadow-[0_0_20px_rgba(54,209,254,0.4)] font-manrope"
                   >
-                    <span className="font-semibold">Learn More</span>
-                    <ArrowRight className="ml-2 group-hover/button:translate-x-1 transition-all" size={22} color="#DFF6FF" />
+                    Learn More
+                    <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
                   </Button>
                 </div>
-              </div>
+              </StandardCard>
             </button>
           );
         })}

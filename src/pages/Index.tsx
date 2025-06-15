@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import CanAILogo from '@/components/CanAILogo';
 import StandardBackground from '@/components/StandardBackground';
+import { BodyText, CaptionText } from '@/components/StandardTypography';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -15,27 +16,29 @@ const Index = () => {
         <CanAILogo size="xl" />
         
         <div className="space-y-4">
-          <h2 className="text-2xl text-canai-light font-light">
+          <BodyText className="text-2xl font-light text-white">
             Welcome to the Emotional Sovereignty Platform
-          </h2>
-          <p className="text-canai-light opacity-80 text-lg">
+          </BodyText>
+          <BodyText className="text-xl opacity-80">
             Experience the future of AI-driven business strategy, designed with 
             emotional intelligence and empathy at its core.
-          </p>
+          </BodyText>
         </div>
 
         <Button 
           onClick={() => navigate('/discovery-hook')}
           size="lg" 
           variant="canai"
-          className="text-lg px-8 py-4 group"
+          className="text-lg px-8 py-4 group font-manrope"
         >
           Enter CanAI Platform
           <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
         </Button>
 
-        <div className="pt-8 text-sm text-canai-light opacity-60">
-          <p>🚀 9 Seamless Scenes • 🎯 Emotionally Intelligent • ✨ Zero Manual Touch</p>
+        <div className="pt-8">
+          <CaptionText>
+            🚀 9 Seamless Scenes • 🎯 Emotionally Intelligent • ✨ Zero Manual Touch
+          </CaptionText>
         </div>
       </div>
     </StandardBackground>
