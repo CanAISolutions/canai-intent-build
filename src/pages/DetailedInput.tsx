@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -238,7 +237,6 @@ const DetailedInput = () => {
           <p className="text-white text-lg mb-8 opacity-90 font-medium">
             Help us create something amazing for you. This should take about 2 minutes.
           </p>
-          
           {/* Progress Section */}
           <div className="bg-black/20 rounded-2xl p-6 mb-8 border border-canai-primary/20">
             <div className="flex justify-between text-sm text-canai-light mb-3">
@@ -299,16 +297,18 @@ const DetailedInput = () => {
               
               {currentStep === 1 ? (
                 <Button
+                  variant="canai"
                   onClick={handleNext}
-                  className="bg-gradient-to-r from-canai-primary to-canai-cyan text-white hover:from-canai-cyan hover:to-canai-primary transition-all duration-300 shadow-lg hover:shadow-canai-primary/40 px-8 py-3"
+                  className="px-8 py-3"
                 >
                   Next Step
                   <ChevronRight className="w-4 h-4 ml-2" />
                 </Button>
               ) : (
                 <Button
+                  variant="canai"
                   onClick={handleSubmit}
-                  className="bg-gradient-to-r from-canai-primary to-canai-cyan text-white hover:from-canai-cyan hover:to-canai-primary transition-all duration-300 shadow-lg hover:shadow-canai-primary/40 px-8 py-3"
+                  className="px-8 py-3"
                 >
                   Continue to Review
                   <CheckCircle className="w-4 h-4 ml-2" />
