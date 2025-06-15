@@ -62,12 +62,31 @@ ALTER TABLE initial_prompt_logs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "User access initial_prompt_logs" ON initial_prompt_logs
   USING (auth.uid() = user_id);
 
+-- Policy: Anonymous users can insert prompt logs
+CREATE POLICY "Anonymous insert initial_prompt_logs" ON initial_prompt_logs
+  FOR INSERT WITH CHECK (true);
+
 -- Enable RLS on error_logs
 ALTER TABLE error_logs ENABLE ROW LEVEL SECURITY;
 
 -- Policy: Users can only access their own error logs
 CREATE POLICY "User access error_logs" ON error_logs
   USING (auth.uid() = user_id);
+
+-- Policy: Anonymous users can insert error logs
+CREATE POLICY "Anonymous insert error_logs" ON error_logs
+  FOR INSERT WITH CHECK (true);
+
+-- Initial prompt logs schema
+CREATE TABLE initial_prompt_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id),
+  payload JSONB NOT NULL,
+  trust_score NUMERIC CHECK (trust_score BETWEEN 0 AND 100),
+  other_type TEXT,
+  custom_tone TEXT,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
 */
 
 // Helper functions for database operations
@@ -79,6 +98,20 @@ export const insertSessionLog = async (log: Omit<SessionLog, 'id' | 'created_at'
   
   if (error) {
     console.error('[Supabase] Error inserting session log:', error);
+    throw error;
+  }
+  
+  return data;
+};
+
+export const insertInitialPromptLog = async (log: Omit<InitialPromptLog, 'id' | 'created_at'>) => {
+  const { data, error } = await supabase
+    .from('initial_prompt_logs')
+    .insert([log])
+    .select();
+  
+  if (error) {
+    console.error('[Supabase] Error inserting initial prompt log:', error);
     throw error;
   }
   

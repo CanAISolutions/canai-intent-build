@@ -1,3 +1,4 @@
+
 /**
  * PostHog Analytics Integration for CanAI Platform
  */
@@ -17,6 +18,9 @@ export const POSTHOG_EVENTS = {
   RESET_PASSWORD_CLICKED: 'reset_password_clicked',
   PAGE_VIEWED: 'page_viewed',
   CTA_CLICKED: 'cta_clicked',
+  CUSTOM_TONE_ENTERED: 'custom_tone_entered',
+  QUIZ_USED: 'quiz_used',
+  CONTRADICTION_FLAGGED: 'contradiction_flagged',
 } as const;
 
 // PostHog configuration
@@ -178,6 +182,30 @@ export const trackPageView = (pageName: string) => {
     viewport_width: window.innerWidth,
     viewport_height: window.innerHeight,
   });
+};
+
+// Discovery Funnel specific events
+export const logInteraction = async (data: {
+  user_id?: string;
+  interaction_type: string;
+  interaction_details: Record<string, any>;
+}) => {
+  console.log('[Analytics] logInteraction called:', data);
+  
+  // Track as PostHog event
+  trackEvent(POSTHOG_EVENTS.FUNNEL_STEP, {
+    interaction_type: data.interaction_type,
+    user_id: data.user_id,
+    ...data.interaction_details,
+  });
+  
+  // Also log to Supabase via API
+  try {
+    const { logInteraction: apiLogInteraction } = await import('./api');
+    await apiLogInteraction(data);
+  } catch (error) {
+    console.warn('[Analytics] Failed to log to API:', error);
+  }
 };
 
 // TODO: Install actual PostHog
