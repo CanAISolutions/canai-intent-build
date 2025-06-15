@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
-import { Download, RefreshCw, Edit3, FileText, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { Download, RefreshCw, Edit3, FileText, Clock, CheckCircle, AlertCircle, Copy, ChevronDown, ChevronUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface DeliverableData {
@@ -15,11 +15,21 @@ interface DeliverableData {
   promptId: string;
   generatedAt: string;
   revisionCount: number;
+  pdfUrl?: string;
   emotionalResonance?: {
+    canaiScore: number;
+    genericScore: number;
+    delta: number;
     arousal: number;
     valence: number;
-    score: number;
+    isValid: boolean;
   };
+}
+
+interface GenerationProgress {
+  step: string;
+  message: string;
+  progress: number;
 }
 
 const DeliverableGeneration: React.FC = () => {
@@ -29,6 +39,11 @@ const DeliverableGeneration: React.FC = () => {
   
   const [isGenerating, setIsGenerating] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [currentStep, setCurrentStep] = useState<GenerationProgress>({
+    step: 'analyzing',
+    message: 'Analyzing your inputs...',
+    progress: 10
+  });
   const [deliverable, setDeliverable] = useState<DeliverableData | null>(null);
   const [revisionText, setRevisionText] = useState('');
   const [isRevising, setIsRevising] = useState(false);
@@ -36,35 +51,45 @@ const DeliverableGeneration: React.FC = () => {
   const [regenerationCount, setRegenerationCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [timeoutError, setTimeoutError] = useState(false);
+  const [retryAttempt, setRetryAttempt] = useState(0);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
   const productType = searchParams.get('type') as 'BUSINESS_BUILDER' | 'SOCIAL_EMAIL' | 'SITE_AUDIT' || 'BUSINESS_BUILDER';
   const promptId = searchParams.get('promptId') || 'demo-prompt-id';
 
-  // Sprinkle Haven Bakery example data
-  const exampleData = {
+  // Sprinkle Haven Bakery 12-field inputs from Intent Mirror
+  const intentMirrorInputs = {
     businessName: "Sprinkle Haven Bakery",
-    targetAudience: "Local families and sweet treat enthusiasts",
-    primaryGoal: "Launch community-focused bakery specializing in custom celebration cakes",
-    currentChallenge: "Building brand awareness and establishing customer base",
-    uniqueValue: "Artisanal ingredients with personalized cake design consultation",
-    timeline: "6 months to grand opening",
-    budget: "$15,000 startup capital",
-    experience: "5 years professional baking, new to business ownership",
-    location: "Downtown Springfield",
-    competition: "2 chain bakeries, no artisanal options",
-    resources: "Commercial kitchen lease secured, basic equipment acquired",
-    vision: "Become the go-to celebration destination for meaningful moments"
+    targetAudience: "Denver families",
+    primaryGoal: "funding",
+    competitiveContext: "Blue Moon Bakery",
+    brandVoice: "warm",
+    resourceConstraints: "$50k budget; team of 3; 6 months",
+    currentStatus: "Planning phase",
+    businessDescription: "Artisanal bakery offering organic pastries",
+    revenueModel: "Sales, events",
+    planPurpose: "investor",
+    location: "Denver, CO",
+    uniqueValue: "Organic, community-focused pastries"
   };
+
+  const generationSteps: GenerationProgress[] = [
+    { step: 'analyzing', message: 'Analyzing your inputs...', progress: 10 },
+    { step: 'processing', message: 'Processing with GPT-4o...', progress: 30 },
+    { step: 'validating', message: 'Validating emotional resonance with Hume AI...', progress: 60 },
+    { step: 'formatting', message: 'Formatting deliverable...', progress: 80 },
+    { step: 'finalizing', message: 'Finalizing and generating PDF...', progress: 95 },
+    { step: 'complete', message: 'Generation complete!', progress: 100 }
+  ];
 
   useEffect(() => {
     // PostHog tracking
     console.log('PostHog: deliverable_generation_started', { 
-      productType, 
-      promptId,
+      product_type: productType.toLowerCase(),
+      prompt_id: promptId,
       timestamp: new Date().toISOString() 
     });
 
-    // Start generation process
     generateDeliverable();
   }, []);
 
@@ -73,68 +98,128 @@ const DeliverableGeneration: React.FC = () => {
     setProgress(0);
     setError(null);
     setTimeoutError(false);
+    setRetryAttempt(0);
 
-    // Progress simulation
-    const progressInterval = setInterval(() => {
-      setProgress(prev => Math.min(prev + 10, 90));
-    }, 200);
+    await performGenerationWithRetry();
+  };
 
-    // Timeout handler (15 seconds)
-    const timeoutTimer = setTimeout(() => {
-      setTimeoutError(true);
-      setIsGenerating(false);
-      setError('Generation timed out');
-      clearInterval(progressInterval);
-    }, 15000);
-
-    try {
-      // Simulate generation process since API endpoints don't exist yet
-      await new Promise(resolve => setTimeout(resolve, 2000));
+  const performGenerationWithRetry = async () => {
+    const maxRetries = 3;
+    
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      setRetryAttempt(attempt + 1);
       
-      // Mock emotional resonance validation
-      const humeResponse = {
-        arousal: 0.7,
-        valence: 0.8,
-        score: (0.7 * 0.4) + (0.8 * 0.6),
-        isValid: true
-      };
-      
-      const deliverableData: DeliverableData = {
-        id: `del-${Date.now()}`,
-        content: getTemplateContent(productType),
-        productType,
-        promptId,
-        generatedAt: new Date().toISOString(),
-        revisionCount: 0,
-        emotionalResonance: humeResponse
-      };
-
-      // Supabase: comparisons.canai_output
-      console.log('Storing in Supabase comparisons table:', deliverableData);
-
-      setDeliverable(deliverableData);
-      setProgress(100);
-      
-      // PostHog tracking
-      console.log('PostHog: deliverable_generated', {
-        productType,
-        promptId,
-        deliverableId: deliverableData.id,
-        emotionalResonance: humeResponse?.score,
-        generationTime: 2000
-      });
-
-      // SAAP updates project status
-      console.log('SAAP: Updating project status to completed');
-
-    } catch (error) {
-      console.error('Generation error:', error);
-      setError(error instanceof Error ? error.message : 'Generation failed');
-    } finally {
-      clearInterval(progressInterval);
-      clearTimeout(timeoutTimer);
-      setIsGenerating(false);
+      try {
+        await performGeneration();
+        return; // Success, exit retry loop
+      } catch (error) {
+        console.error(`Generation attempt ${attempt + 1} failed:`, error);
+        
+        if (attempt < maxRetries - 1) {
+          const delay = Math.pow(2, attempt) * 1000; // Exponential backoff: 1s, 2s, 4s
+          console.log(`Retrying in ${delay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          // All retries failed
+          setError('Generation failed after multiple attempts');
+          setIsGenerating(false);
+        }
+      }
     }
+  };
+
+  const performGeneration = async (): Promise<void> => {
+    return new Promise(async (resolve, reject) => {
+      // Timeout handler (15 seconds)
+      const timeoutTimer = setTimeout(() => {
+        setTimeoutError(true);
+        setIsGenerating(false);
+        setError('Generation timed out');
+        reject(new Error('Generation timed out'));
+      }, 15000);
+
+      try {
+        // Step-by-step generation simulation
+        for (const step of generationSteps) {
+          setCurrentStep(step);
+          setProgress(step.progress);
+          await new Promise(resolve => setTimeout(resolve, 300));
+        }
+
+        // TODO: POST /v1/generate-deliverable
+        // Mock API call - replace with actual endpoint
+        console.log('TODO: POST /v1/generate-deliverable', {
+          prompt_id: promptId,
+          product_type: productType,
+          inputs: intentMirrorInputs
+        });
+
+        // Simulate GPT-4o generation
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // TODO: Hume AI validation endpoint
+        // Mock Hume AI emotional resonance validation
+        console.log('TODO: POST /api/hume/validate-resonance');
+        const humeResponse = {
+          arousal: 0.7,
+          valence: 0.8,
+          canaiScore: 0.85,
+          genericScore: 0.45,
+          delta: 0.4,
+          isValid: true // arousal > 0.5 && valence > 0.6
+        };
+
+        if (!humeResponse.isValid) {
+          throw new Error('Emotional resonance validation failed');
+        }
+
+        // TODO: Make.com PDF generation
+        console.log('TODO: Make.com PDF generation via webhook');
+        const pdfUrl = `https://example.com/deliverables/${promptId}.pdf`;
+        
+        const deliverableData: DeliverableData = {
+          id: `del-${Date.now()}`,
+          content: getTemplateContent(productType),
+          productType,
+          promptId,
+          generatedAt: new Date().toISOString(),
+          revisionCount: 0,
+          pdfUrl,
+          emotionalResonance: humeResponse
+        };
+
+        // Supabase: Store in comparisons table
+        console.log('Supabase: comparisons.canai_output', {
+          prompt_id: promptId,
+          canai_output: deliverableData.content,
+          generic_output: getGenericContent(productType),
+          pdf_url: pdfUrl,
+          emotional_resonance: humeResponse
+        });
+
+        setDeliverable(deliverableData);
+        
+        // PostHog tracking
+        console.log('PostHog: deliverable_generated', {
+          product_type: productType.toLowerCase(),
+          prompt_id: promptId,
+          deliverable_id: deliverableData.id,
+          emotional_resonance_score: humeResponse.canaiScore,
+          completion_time_ms: 2000
+        });
+
+        // TODO: SAAP Update Project Blueprint.json
+        console.log('SAAP: Updating project status to completed via Make.com');
+
+        clearTimeout(timeoutTimer);
+        setIsGenerating(false);
+        resolve();
+
+      } catch (error) {
+        clearTimeout(timeoutTimer);
+        reject(error);
+      }
+    });
   };
 
   const handleRevision = async () => {
@@ -144,24 +229,31 @@ const DeliverableGeneration: React.FC = () => {
     
     try {
       // TODO: POST /v1/request-revision
-      console.log('Sending revision request:', { deliverableId: deliverable.id, revisionRequest: revisionText });
+      console.log('TODO: POST /v1/request-revision', {
+        prompt_id: deliverable.promptId,
+        feedback: revisionText
+      });
       
       // Simulate revision processing
       await new Promise(resolve => setTimeout(resolve, 1000));
       
+      // Mock revised content
+      const revisedContent = deliverable.content + `\n\n[REVISION APPLIED: ${revisionText}]\nContent has been updated to address your feedback with a ${intentMirrorInputs.brandVoice} tone.`;
+      
       setDeliverable(prev => prev ? {
         ...prev,
-        content: prev.content + `\n\n[REVISED: ${revisionText}]`,
-        revisionCount: prev.revisionCount + 1
+        content: revisedContent,
+        revisionCount: prev.revisionCount + 1,
+        generatedAt: new Date().toISOString()
       } : null);
 
       setRevisionText('');
       
       // PostHog tracking
       console.log('PostHog: revision_requested', {
-        deliverableId: deliverable.id,
-        revisionCount: deliverable.revisionCount + 1,
-        requestLength: revisionText.length
+        deliverable_id: deliverable.id,
+        reason: revisionText.substring(0, 50),
+        revision_count: deliverable.revisionCount + 1
       });
 
       toast({
@@ -195,7 +287,10 @@ const DeliverableGeneration: React.FC = () => {
     
     try {
       // TODO: POST /v1/regenerate-deliverable
-      console.log('Regenerating deliverable:', { deliverableId: deliverable?.id, attempt: regenerationCount + 1 });
+      console.log('TODO: POST /v1/regenerate-deliverable', {
+        prompt_id: deliverable?.promptId,
+        attempt_count: regenerationCount + 1
+      });
       
       // Simulate regeneration
       await new Promise(resolve => setTimeout(resolve, 1500));
@@ -227,23 +322,23 @@ const DeliverableGeneration: React.FC = () => {
 
   const handleDownloadPDF = async () => {
     try {
-      // Make.com generates PDF (<1s download)
-      console.log('Generating PDF via Make.com:', {
-        deliverableId: deliverable?.id,
-        productType
-      });
+      if (!deliverable?.pdfUrl) {
+        throw new Error('PDF not available');
+      }
 
-      // Simulate PDF generation
-      const pdfContent = `CanAI ${productType.replace('_', ' ')} Deliverable\n\n${deliverable?.content}`;
-      const blob = new Blob([pdfContent], { type: 'text/plain' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${productType.toLowerCase()}-${Date.now()}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      // TODO: GET /v1/generation-status to check PDF readiness
+      console.log('TODO: GET /v1/generation-status');
+      
+      // Mock PDF download via Make.com
+      console.log('Downloading PDF via Make.com:', deliverable.pdfUrl);
+      
+      // Simulate PDF download (<1s)
+      const link = document.createElement('a');
+      link.href = deliverable.pdfUrl;
+      link.download = `${productType.toLowerCase()}-${Date.now()}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
 
       toast({
         title: "PDF Downloaded",
@@ -260,172 +355,262 @@ const DeliverableGeneration: React.FC = () => {
     }
   };
 
+  const copyToClipboard = async (text: string, section: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({
+        title: "Copied!",
+        description: `${section} copied to clipboard.`
+      });
+    } catch (error) {
+      console.error('Copy failed:', error);
+    }
+  };
+
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionId]: !prev[sectionId]
+    }));
+  };
+
+  const formatContent = (content: string) => {
+    const sections = content.split('\n\n## ');
+    if (sections.length === 1) return content;
+
+    return sections.map((section, index) => {
+      if (index === 0) return section;
+      
+      const [title, ...contentLines] = section.split('\n');
+      const sectionContent = contentLines.join('\n');
+      const sectionId = title.toLowerCase().replace(/\s+/g, '-');
+      const isExpanded = expandedSections[sectionId] ?? true;
+
+      return (
+        <div key={sectionId} className="border-b border-[#00CFFF]/20 pb-4 mb-4">
+          <button
+            onClick={() => toggleSection(sectionId)}
+            className="flex items-center justify-between w-full text-left hover:text-[#00CFFF] transition-colors"
+          >
+            <h3 className="text-lg font-semibold text-[#E6F6FF] mb-2">## {title}</h3>
+            {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+          </button>
+          {isExpanded && (
+            <div className="relative group">
+              <pre className="whitespace-pre-wrap text-[#E6F6FF]/90 leading-relaxed">
+                {sectionContent}
+              </pre>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => copyToClipboard(`## ${title}\n${sectionContent}`, title)}
+                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <Copy className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
+        </div>
+      );
+    });
+  };
+
   const getTemplateContent = (type: string): string => {
+    const { businessName, targetAudience, location, uniqueValue, resourceConstraints } = intentMirrorInputs;
+    
     switch (type) {
       case 'BUSINESS_BUILDER':
-        return `# Sprinkle Haven Bakery Business Plan
+        return `# ${businessName} Business Plan
 
 ## Executive Summary
-Sprinkle Haven Bakery represents a unique opportunity to fill the artisanal celebration cake gap in downtown Springfield's market. With 5 years of professional baking experience and a clear vision for community-focused service, this venture is positioned to become the premier destination for meaningful celebrations.
+${businessName} represents a unique opportunity to serve ${targetAudience} in ${location} with ${uniqueValue.toLowerCase()}. This investor-ready plan outlines our path to success with clear financial projections and operational strategy.
 
 ## Market Analysis
-Springfield currently hosts 2 chain bakeries but lacks artisanal options, creating a significant market opportunity. Our target demographic of local families and sweet treat enthusiasts represents an underserved segment seeking personalized, high-quality celebration cakes.
+The ${location} market shows strong demand for artisanal bakery options, particularly among ${targetAudience}. Our competitive analysis against ${intentMirrorInputs.competitiveContext} reveals significant opportunities for differentiation through our ${uniqueValue.toLowerCase()}.
 
 ## Unique Value Proposition
-Sprinkle Haven differentiates itself through artisanal ingredients combined with personalized cake design consultation. This approach transforms routine transactions into memorable experiences, building strong customer relationships and encouraging repeat business.
+${uniqueValue} sets us apart in a crowded marketplace. Our ${intentMirrorInputs.brandVoice} approach to customer service combined with premium organic ingredients creates an unmatched value proposition for ${targetAudience}.
 
 ## Marketing Strategy
-Our 6-month launch timeline focuses on building brand awareness through community engagement, social media presence, and strategic partnerships with local event planners. Initial marketing budget allocation emphasizes word-of-mouth growth and targeted digital advertising.
+Our go-to-market strategy focuses on building strong community relationships in ${location}. Digital marketing through social media and local partnerships will drive initial awareness, while word-of-mouth referrals will sustain long-term growth.
 
 ## Operations Plan
-With a commercial kitchen lease secured and basic equipment acquired, operational foundations are established. The downtown Springfield location provides optimal foot traffic and accessibility for our target market.
+Located in ${location}, our operations are designed for efficiency and quality. ${resourceConstraints} provides the foundation for sustainable growth while maintaining our commitment to artisanal quality.
 
 ## Competitive Advantage
-While competitors focus on volume and convenience, Sprinkle Haven emphasizes craftsmanship and personalization. This positioning allows premium pricing while building customer loyalty through superior service and product quality.
+While ${intentMirrorInputs.competitiveContext} focuses on traditional approaches, ${businessName} differentiates through ${uniqueValue.toLowerCase()} and exceptional customer experience that resonates with ${targetAudience}.
 
 ## Financial Projections (100 words)
-Startup capital of $15,000 covers initial inventory, marketing, and operational expenses. Projected break-even at month 8 with conservative estimates. Revenue streams include custom celebration cakes (70%), daily fresh items (20%), and catering services (10%). Monthly operating costs estimated at $4,200 including rent, ingredients, and utilities. Target first-year revenue of $85,000 with 15% net profit margin by year-end.
+Based on ${resourceConstraints}, we project break-even at month 10 with conservative growth assumptions. Revenue streams include daily pastries (60%), custom orders (30%), and catering (10%). Initial investment of $50,000 covers equipment, inventory, and 6 months operating expenses. Projected first-year revenue of $180,000 with 18% net profit margin by month 12. Cash flow positive by month 8, with reinvestment focused on equipment upgrades and staff expansion. Conservative projections show 25% annual growth through year three, positioning for potential franchise opportunities.
 
 ## Team Structure (50 words)
-Founder brings 5 years professional baking experience with strong creative and customer service skills. Initial staffing includes part-time assistant for peak periods. Plans for additional decorator hire by month 12 based on demand growth and revenue targets.`;
+Founder brings 8 years culinary experience with business management certification. Initial team of 3 includes head baker, customer service specialist, and part-time decorator. Planned expansion includes additional baker by month 6 and marketing coordinator by year 2, supporting projected growth while maintaining quality standards and ${intentMirrorInputs.brandVoice} culture.`;
 
       case 'SOCIAL_EMAIL':
-        return `# Social Media & Email Campaign Package
+        return `# Social Media & Email Campaign Package for ${businessName}
 
-## Social Media Posts (5 posts)
+## Social Media Posts (5 posts, 240 words total)
 
-**Post 1 - Brand Introduction**
-🧁 Welcome to Sprinkle Haven Bakery! Where every celebration deserves a masterpiece. Our artisanal approach to custom cakes turns your special moments into sweet memories. Opening soon in downtown Springfield! #SprinkleHaven #ArtisanalBaking #CustomCakes
+**Post 1 - Brand Introduction (48 words)**
+🧁 Welcome to ${businessName}! Bringing ${uniqueValue.toLowerCase()} to ${location}. Our ${intentMirrorInputs.brandVoice} approach to baking creates memorable experiences for ${targetAudience}. Opening soon - follow our journey! #${businessName.replace(/\s+/g, '')} #${location.replace(/\s+/g, '')} #OrganicBaking
 
-**Post 2 - Behind the Scenes**
-👩‍🍳 Meet our founder! With 5 years of professional baking experience, she's bringing her passion for personalized celebration cakes to Springfield. Every design consultation is a collaborative journey to create your perfect cake! #MeetTheTeam #BehindTheScenes
+**Post 2 - Behind the Scenes (46 words)**
+👩‍🍳 Meet our passionate team! With years of experience in artisanal baking, we're dedicated to serving ${targetAudience} with the finest organic ingredients. Every pastry tells a story of craftsmanship and community connection. #BehindTheScenes #ArtisanalBaking #${location.replace(/\s+/g, '')}
 
-**Post 3 - Unique Value**
-✨ What makes us different? Premium artisanal ingredients + personalized design consultation = unforgettable celebrations. No chain bakery can match our attention to detail and creative collaboration! #QualityMatters #PersonalizedService
+**Post 3 - Unique Value (50 words)**
+✨ What makes us special? ${uniqueValue} combined with our ${intentMirrorInputs.brandVoice} service philosophy. Unlike ${intentMirrorInputs.competitiveContext}, we focus on creating personal connections with every customer in ${location}. Quality ingredients, passionate baking, unforgettable taste! #QualityFirst #${businessName.replace(/\s+/g, '')}
 
-**Post 4 - Community Focus**
-🏘️ Sprinkle Haven isn't just a bakery - we're your celebration partners! From birthdays to weddings, graduations to anniversaries, we're here to make every moment sweeter. Springfield, we can't wait to be part of your stories! #CommunityFirst #Celebrations
+**Post 4 - Community Focus (48 words)**
+🏘️ ${businessName} isn't just a bakery - we're your ${location} neighbors! From birthday celebrations to corporate events, we're here to make every moment sweeter for ${targetAudience}. Community-focused, locally-sourced, globally-inspired. #CommunityFirst #${location.replace(/\s+/g, '')} #LocalBusiness
 
-**Post 5 - Grand Opening Announcement**
-🎉 GRAND OPENING in 6 months! Follow our journey as we prepare to bring artisanal celebration cakes to downtown Springfield. Your sweet dreams are about to become reality! #GrandOpening #ComingSoon #SweetDreams
+**Post 5 - Opening Announcement (48 words)**
+🎉 Grand opening countdown begins! ${businessName} is almost ready to serve ${location} with ${uniqueValue.toLowerCase()}. Stay tuned for exclusive previews, opening specials, and behind-the-scenes content. Your sweet journey starts here! #GrandOpening #ComingSoon #${businessName.replace(/\s+/g, '')}
 
 ## Email Campaigns (4 emails)
 
-**Email 1 - Welcome Series**
-Subject: Welcome to the Sprinkle Haven Family! 🧁
+**Email 1 - Welcome Series (140 words)**
+Subject: Welcome to the ${businessName} Family! 🧁
 
-Dear Celebration Enthusiast,
+Dear Valued Customer,
 
-Thank you for joining the Sprinkle Haven community! We're thrilled to have you on this sweet journey with us.
+Thank you for joining our ${businessName} community! We're thrilled to share our passion for ${uniqueValue.toLowerCase()} with ${targetAudience} in ${location}.
 
-At Sprinkle Haven, we believe every celebration deserves a masterpiece. Our founder's 5 years of professional baking experience, combined with our commitment to artisanal ingredients and personalized service, sets us apart from ordinary bakeries.
+Our story began with a simple mission: creating exceptional baked goods that bring people together. Unlike ${intentMirrorInputs.competitiveContext}, we believe in personal connections, premium organic ingredients, and that ${intentMirrorInputs.brandVoice} service that makes every visit memorable.
 
-What to expect:
-- Custom cake design consultations
-- Premium artisanal ingredients
-- Personalized service for your special moments
-- Updates on our downtown Springfield opening
+What to expect from ${businessName}:
+- Daily fresh artisanal pastries and breads
+- Custom orders for special occasions
+- Community-focused events and partnerships
+- Behind-the-scenes content and baking tips
 
-Stay tuned for exclusive previews, baking tips, and celebration inspiration!
+We're working within ${resourceConstraints} to create something truly special for ${location}. Stay tuned for exclusive updates, early access to new products, and member-only events.
 
-Sweet regards,
-The Sprinkle Haven Team
+Welcome to the family!
+The ${businessName} Team
 
-**Email 2 - Educational Content**
-Subject: The Art of Custom Cake Design - A Behind-the-Scenes Look
+**Email 2 - Educational Content (135 words)**
+Subject: The Art of Organic Baking - Our ${businessName} Promise
 
 Hello [Name],
 
-Ever wondered what goes into creating the perfect celebration cake? Let us take you behind the scenes of our design process!
+Ever wondered what makes organic baking special? Let us share the ${businessName} difference with ${targetAudience} in ${location}.
 
-Our personalized consultation approach includes:
-1. Understanding your celebration story
-2. Exploring flavor preferences and dietary needs
-3. Collaborative design sketching
-4. Premium ingredient selection
-5. Artisanal crafting with attention to detail
+Our commitment to ${uniqueValue.toLowerCase()} means:
+- Sourcing premium organic flour and ingredients locally when possible
+- Traditional fermentation techniques for superior flavor and nutrition
+- Small-batch production ensuring freshness and quality
+- Seasonal menu adaptations celebrating local harvests
 
-Unlike chain bakeries that offer limited customization, we treat each cake as a unique work of art that reflects your special moment.
+Unlike mass-production approaches used by ${intentMirrorInputs.competitiveContext}, we hand-craft each item with attention to detail that ${targetAudience} deserves. Our ${intentMirrorInputs.brandVoice} approach extends from ingredient selection to customer service.
 
-Coming soon: Virtual design consultations for our Springfield community!
+Working within ${resourceConstraints}, we've designed our operations to maintain these standards while serving our growing ${location} community.
 
-**Email 3 - Community Engagement**
-Subject: Springfield, We Want to Hear from You! 🏘️
+Next week: Learn about our signature sourdough process!
 
-Dear Future Customer,
+Warmly,
+${businessName}
 
-As we prepare for our downtown Springfield opening, we want to hear about your celebration dreams!
+**Email 3 - Community Engagement (125 words)**
+Subject: ${location}, Tell Us Your Sweet Stories! 🏘️
+
+Dear ${businessName} Friend,
+
+As we prepare to serve ${targetAudience} in ${location}, we want to hear from you! Your input shapes how we deliver ${uniqueValue.toLowerCase()}.
 
 Share with us:
-- Your most memorable cake experience
-- Dream flavors you'd love to try
-- Celebration traditions in your family
-- What makes a bakery special to you
+- Your favorite baking memories and family traditions
+- Special dietary needs we should consider
+- Occasions where custom pastries would be perfect
+- What makes a bakery feel like home to you
 
-Your input helps us create the perfect Sprinkle Haven experience. Plus, early community members receive exclusive grand opening benefits!
+Every response helps us understand our ${location} community better. Unlike chain approaches, we believe in personal connections that make ${intentMirrorInputs.brandVoice} service authentic.
 
-Reply to this email or tag us on social media - we read every message!
+Early community members receive:
+- 10% off opening week orders
+- First access to seasonal specials
+- Invitations to exclusive tasting events
 
-**Email 4 - Grand Opening Announcement**
-Subject: 🎉 6 Months to Sprinkle Haven's Grand Opening!
+Reply to this email or visit our social media - we read every message!
 
-Dear Sprinkle Haven Family,
+Community-focused,
+The ${businessName} Team
 
-The countdown begins! In just 6 months, we'll open our doors in downtown Springfield, ready to make your celebrations extraordinary.
+**Email 4 - Opening Announcement (145 words)**
+Subject: 🎉 ${businessName} Opening Soon in ${location}!
 
-What we're preparing for you:
-- Full custom cake design services
-- Daily fresh artisanal treats
-- Catering for special events
-- The warmest, most welcoming bakery experience
+Dear ${businessName} Family,
 
-Early supporters receive:
-- 15% off your first custom order
-- Priority booking for grand opening week
-- Exclusive behind-the-scenes content
-- First access to our signature flavors
+The moment we've all been waiting for is almost here! ${businessName} opens in ${location} next month, ready to serve ${targetAudience} with ${uniqueValue.toLowerCase()}.
 
-Thank you for believing in our vision. We can't wait to be part of your sweetest moments!
+What awaits you:
+- Full artisanal bakery featuring daily fresh pastries
+- Custom order services for special occasions
+- Seasonal menu celebrating local ingredients
+- That ${intentMirrorInputs.brandVoice} atmosphere you've been anticipating
+
+Despite working within ${resourceConstraints}, we've created something special that honors both tradition and innovation. Every detail reflects our commitment to ${targetAudience} and our ${location} community.
+
+Opening week exclusives for our email family:
+- 15% off all purchases
+- Complimentary coffee with pastry purchase
+- Priority booking for custom orders
+- Exclusive behind-the-scenes tours
+
+Thank you for believing in our vision. We can't wait to welcome you home to ${businessName}!
 
 With gratitude and excitement,
-The Sprinkle Haven Team`;
+The ${businessName} Team`;
 
       case 'SITE_AUDIT':
-        return `# Website Audit Report: Sprinkle Haven Bakery
+        return `# Website Audit Report: ${businessName}
 
-## Current State Analysis (300-400 words)
+## Current State Analysis (320 words)
 
-Upon comprehensive review of the Sprinkle Haven Bakery website, several critical areas require immediate attention to align with the business's artisanal positioning and community-focused mission.
+The ${businessName} website requires comprehensive optimization to effectively serve ${targetAudience} in ${location} and support the goal of ${intentMirrorInputs.primaryGoal}. This audit reveals critical areas impacting user experience, conversion rates, and search visibility.
 
-**Navigation and User Experience**: The current navigation structure lacks clarity for users seeking custom cake consultations. The primary call-to-action for design consultations is buried in secondary navigation, reducing conversion potential. Users spend excessive time searching for contact information and service details.
+**User Experience & Navigation**: The current site structure fails to clearly communicate ${uniqueValue} to ${targetAudience}. Navigation lacks intuitive pathways for key actions like viewing menus, placing custom orders, or learning about organic ingredients. The ${intentMirrorInputs.brandVoice} brand personality isn't reflected in user interface design, creating disconnection between brand promise and digital experience.
 
-**Visual Design and Branding**: While the color palette aligns with bakery aesthetics, the imagery fails to showcase the artisanal quality that differentiates Sprinkle Haven from chain competitors. Product photography lacks professional polish necessary to justify premium pricing. The logo and typography need refinement to convey craftsmanship and personalized service.
+**Content Strategy Gaps**: Existing content doesn't address ${targetAudience} pain points or highlight competitive advantages over ${intentMirrorInputs.competitiveContext}. The unique positioning of ${uniqueValue.toLowerCase()} is buried rather than prominently featured. Missing content includes detailed ingredient sourcing information, behind-the-scenes baking processes, and community involvement stories that would resonate with ${targetAudience} values.
 
-**Content Strategy**: Current content focuses heavily on products rather than the personalized experience and community connection that drives customer loyalty. The "About" section inadequately communicates the founder's 5-year professional background and unique consultation approach. Service descriptions lack emotional resonance and fail to address customer pain points.
+**Technical Performance Issues**: Page load speeds exceed 4.2 seconds, significantly impacting user engagement and search rankings. Mobile responsiveness problems affect 40% of traffic, crucial given ${targetAudience} mobile usage patterns. Contact forms exhibit functionality issues, potentially losing qualified leads for custom orders.
 
-**Technical Performance**: Page load speeds exceed 4 seconds, significantly impacting user engagement and search engine rankings. Mobile responsiveness issues affect 35% of traffic, crucial for local discovery. Contact forms exhibit functionality problems, potentially losing qualified leads.
+**Local SEO Deficiencies**: The site lacks optimization for "${location} bakery" and related local searches. Google My Business integration is incomplete, missing valuable local discovery opportunities. Schema markup for business information, hours, and menu items is absent, reducing search visibility.
 
-**Local SEO and Discoverability**: The website lacks proper local SEO optimization for "downtown Springfield bakery" and related searches. Google My Business integration is incomplete, missing valuable local traffic opportunities. Social media integration requires enhancement to leverage community engagement.
+**Conversion Optimization Problems**: The ordering process involves too many steps, creating friction for ${targetAudience}. Trust signals such as organic certifications, customer testimonials, and ingredient sourcing details are underutilized. Call-to-action buttons lack visual prominence and compelling copy that reflects the ${intentMirrorInputs.brandVoice} approach.
 
-**Conversion Optimization**: The booking flow for consultations involves too many steps, creating friction for potential customers. Trust signals such as testimonials, certifications, and process explanations are underutilized. Pricing transparency issues may deter potential clients.
+**Competitive Positioning**: The website fails to differentiate from ${intentMirrorInputs.competitiveContext} effectively, missing opportunities to highlight ${uniqueValue} and community-focused approach that appeals to ${targetAudience}.
 
-## Strategic Recommendations (100-150 words)
+## Strategic Recommendations (130 words)
 
-**Immediate Actions**: Restructure navigation to prominently feature consultation booking. Implement professional product photography showcasing artisanal quality. Optimize page load speeds through image compression and code optimization. Fix mobile responsiveness issues affecting user experience.
+**Immediate Technical Fixes**: Optimize images and implement lazy loading to achieve sub-2-second load times. Resolve mobile responsiveness issues affecting ${targetAudience} user experience. Fix contact form functionality to capture leads effectively.
 
-**Content Overhaul**: Rewrite homepage copy to emphasize personalized consultation process and community connection. Develop founder story section highlighting professional experience and unique approach. Create service pages that emotionally connect with celebration moments rather than just listing offerings.
+**Content Restructure**: Rewrite homepage to prominently feature ${uniqueValue} with ${intentMirrorInputs.brandVoice} messaging targeting ${targetAudience}. Create dedicated pages for organic ingredient sourcing, custom order process, and community involvement. Develop location-specific content for ${location} SEO optimization.
 
-**Technical Improvements**: Implement local SEO optimization targeting Springfield-specific searches. Streamline consultation booking to single-page process. Add trust signals including customer testimonials, process explanations, and quality certifications.
+**User Experience Enhancement**: Streamline ordering process to single-page flow. Implement prominent calls-to-action reflecting ${intentMirrorInputs.primaryGoal}. Add trust signals including organic certifications, customer testimonials, and behind-the-scenes content.
 
-**Long-term Strategy**: Develop content marketing strategy featuring celebration inspiration and behind-the-scenes content. Implement email capture system for community building. Create social proof system showcasing completed projects and customer stories.
+**Local SEO Implementation**: Optimize for "${location} organic bakery" searches. Complete Google My Business setup with photos, hours, and menu integration. Implement schema markup for business information and menu items.
 
-These improvements will position Sprinkle Haven as the premium artisanal choice in Springfield's market while driving measurable increases in consultation bookings and customer engagement.`;
+These improvements will position ${businessName} to effectively compete against ${intentMirrorInputs.competitiveContext} while serving ${targetAudience} and achieving ${intentMirrorInputs.primaryGoal} objectives.`;
 
       default:
         return 'Content generation failed. Please try again.';
     }
   };
 
+  const getGenericContent = (type: string): string => {
+    switch (type) {
+      case 'BUSINESS_BUILDER':
+        return 'Generic business plan template with standard sections and placeholder content...';
+      case 'SOCIAL_EMAIL':
+        return 'Standard social media posts and email templates without personalization...';
+      case 'SITE_AUDIT':
+        return 'Basic website audit with generic recommendations...';
+      default:
+        return 'Generic content';
+    }
+  };
+
+  // Timeout Error Component
   if (timeoutError) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] via-[#1a237e] to-[#00B2E3] p-4">
@@ -434,7 +619,8 @@ These improvements will position Sprinkle Haven as the premium artisanal choice 
             <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-white mb-4">Generation Timed Out</h2>
             <p className="text-red-200 mb-6">
-              The deliverable generation process took longer than expected. Please try again.
+              The deliverable generation process took longer than expected. 
+              {retryAttempt > 1 && ` Attempted ${retryAttempt} times.`}
             </p>
             <Button onClick={() => window.location.reload()} className="bg-[#00CFFF] hover:bg-[#00F0FF] text-black">
               Try Again
@@ -454,7 +640,7 @@ These improvements will position Sprinkle Haven as the premium artisanal choice 
             {productType.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase())} Generation
           </h1>
           <p className="text-[#E6F6FF]/80">
-            Creating your personalized {productType.toLowerCase().replace('_', ' ')} deliverable
+            Creating personalized deliverable for {intentMirrorInputs.businessName}
           </p>
         </div>
 
@@ -464,13 +650,18 @@ These improvements will position Sprinkle Haven as the premium artisanal choice 
             <CardHeader>
               <CardTitle className="text-[#E6F6FF] flex items-center gap-3">
                 <Clock className="w-6 h-6 text-[#00CFFF] animate-spin" />
-                Generating Your Deliverable...
+                {currentStep.message}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Progress value={progress} className="mb-4" />
-              <p className="text-[#E6F6FF]/70">
-                Our AI is crafting your personalized content using advanced emotional resonance analysis...
+              <Progress value={currentStep.progress} className="mb-4" />
+              <div className="flex justify-between text-sm text-[#E6F6FF]/70 mb-2">
+                <span>Step {generationSteps.findIndex(s => s.step === currentStep.step) + 1} of {generationSteps.length}</span>
+                <span>{currentStep.progress}% Complete</span>
+              </div>
+              <p className="text-[#E6F6FF]/70 text-sm">
+                Generating with GPT-4o • Validating with Hume AI • Creating PDF via Make.com
+                {retryAttempt > 1 && ` • Retry attempt ${retryAttempt}`}
               </p>
             </CardContent>
           </Card>
@@ -479,6 +670,53 @@ These improvements will position Sprinkle Haven as the premium artisanal choice 
         {/* Generated Deliverable */}
         {deliverable && !isGenerating && (
           <div className="space-y-6">
+            {/* Emotional Resonance Score */}
+            {deliverable.emotionalResonance && (
+              <Card className="bg-gradient-to-r from-green-500/20 via-blue-500/20 to-purple-500/20 border-green-400/40">
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-green-300 mb-1">Emotional Resonance Analysis</h3>
+                      <p className="text-green-200/80 text-sm">Validated by Hume AI for optimal engagement</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-3xl font-bold text-green-400">
+                        {(deliverable.emotionalResonance.canaiScore * 100).toFixed(0)}%
+                      </div>
+                      <div className="text-sm text-green-300">CanAI Score</div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div className="bg-black/20 rounded-lg p-3">
+                      <div className="text-lg font-bold text-green-400">
+                        {deliverable.emotionalResonance.arousal.toFixed(2)}
+                      </div>
+                      <div className="text-xs text-green-200">Arousal</div>
+                    </div>
+                    <div className="bg-black/20 rounded-lg p-3">
+                      <div className="text-lg font-bold text-blue-400">
+                        {deliverable.emotionalResonance.valence.toFixed(2)}
+                      </div>
+                      <div className="text-xs text-blue-200">Valence</div>
+                    </div>
+                    <div className="bg-black/20 rounded-lg p-3">
+                      <div className="text-lg font-bold text-purple-400">
+                        {(deliverable.emotionalResonance.delta * 100).toFixed(0)}%
+                      </div>
+                      <div className="text-xs text-purple-200">Improvement</div>
+                    </div>
+                    <div className="bg-black/20 rounded-lg p-3">
+                      <div className="text-lg font-bold text-gray-400">
+                        {(deliverable.emotionalResonance.genericScore * 100).toFixed(0)}%
+                      </div>
+                      <div className="text-xs text-gray-200">Generic</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Deliverable Content */}
             <Card className="bg-white/10 border-[#00CFFF]/40">
               <CardHeader className="flex flex-row items-center justify-between">
@@ -510,32 +748,16 @@ These improvements will position Sprinkle Haven as the premium artisanal choice 
                 </div>
               </CardHeader>
               <CardContent>
-                {/* Emotional Resonance Score */}
-                {deliverable.emotionalResonance && (
-                  <div className="mb-6 p-4 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-lg border border-green-400/30">
-                    <div className="flex items-center justify-between">
-                      <span className="text-green-300 font-medium">Emotional Resonance Score</span>
-                      <span className="text-2xl font-bold text-green-400">
-                        {(deliverable.emotionalResonance.score * 100).toFixed(0)}%
-                      </span>
-                    </div>
-                    <div className="text-sm text-green-200 mt-1">
-                      Arousal: {deliverable.emotionalResonance.arousal.toFixed(2)} | 
-                      Valence: {deliverable.emotionalResonance.valence.toFixed(2)}
-                    </div>
+                <div className="bg-white/10 rounded-lg p-6">
+                  <div className="prose prose-invert max-w-none">
+                    {formatContent(deliverable.content)}
                   </div>
-                )}
-
-                {/* Content Display */}
-                <div className="bg-white/10 rounded-lg p-6 font-mono text-sm text-white whitespace-pre-wrap">
-                  {deliverable.content}
                 </div>
 
                 {/* Branding Note */}
-                <div id="branding-note" className="mt-4 p-3 bg-amber-500/20 border border-amber-500/40 rounded-lg">
+                <div id="branding-note" className="mt-6 p-4 bg-amber-500/20 border border-amber-500/40 rounded-lg">
                   <p className="text-amber-200 text-sm">
-                    <strong>Note:</strong> CanAI excludes branding elements (e.g., logos, specific brand assets). 
-                    Contact us for partnership opportunities and branded deliverables.
+                    <strong>Note:</strong> CanAI excludes branding (e.g., logos). Contact us for partners.
                   </p>
                 </div>
               </CardContent>
@@ -552,11 +774,11 @@ These improvements will position Sprinkle Haven as the premium artisanal choice 
               <CardContent>
                 <Textarea
                   id="revision-input"
-                  placeholder="Describe what you'd like to change or improve in your deliverable..."
+                  placeholder="Describe specific changes you'd like (e.g., 'Make tone bolder', 'Add more financial details', 'Focus more on sustainability')..."
                   value={revisionText}
                   onChange={(e) => setRevisionText(e.target.value)}
-                  className="mb-4 bg-white/10 border-[#00CFFF]/30 text-white"
-                  rows={4}
+                  className="mb-4 bg-white/10 border-[#00CFFF]/30 text-white placeholder:text-white/50"
+                  rows={3}
                 />
                 <Button
                   id="revision-btn"
@@ -567,7 +789,7 @@ These improvements will position Sprinkle Haven as the premium artisanal choice 
                   {isRevising ? (
                     <>
                       <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                      Processing Revision...
+                      Applying Revision...
                     </>
                   ) : (
                     <>
