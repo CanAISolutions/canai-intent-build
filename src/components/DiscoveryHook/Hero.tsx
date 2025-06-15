@@ -22,20 +22,20 @@ const Hero = ({
       <div className="flex flex-col items-center gap-3 mb-8 max-w-5xl mx-auto text-center">
         {userName && (
           <div className="animate-fade-in">
-            <h1 className="font-manrope font-bold text-2xl sm:text-3xl lg:text-4xl text-white mb-2 tracking-tight">
+            <h1 className="font-playfair font-bold text-2xl sm:text-3xl lg:text-4xl text-white mb-2 tracking-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.3)]">
               <span className="text-[#E6F6FF] opacity-90">Welcome back,</span>{" "}
-              <span className="canai-gradient-text font-extrabold">{userName}!</span>
+              <span className="bg-gradient-to-r from-[#36d1fe] to-[#00b8e6] bg-clip-text text-transparent font-extrabold drop-shadow-none">{userName}!</span>
             </h1>
           </div>
         )}
         
         <div className="animate-fade-in" style={{ animationDelay: userName ? "0.2s" : "0s" }}>
-          <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-white font-manrope tracking-tight mb-4">
+          <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-white font-playfair tracking-tight mb-4 drop-shadow-[0_2px_10px_rgba(0,0,0,0.3)]">
             Elevate Your Essence with{" "}
-            <span className="canai-gradient-text">AI-Crafted Solutions</span>
+            <span className="bg-gradient-to-r from-[#36d1fe] to-[#00b8e6] bg-clip-text text-transparent drop-shadow-none">AI-Crafted Solutions</span>
           </h1>
           
-          <p className="text-lg sm:text-xl lg:text-2xl font-manrope text-[#cce7fa] max-w-4xl mx-auto leading-relaxed opacity-90">
+          <p className="text-lg sm:text-xl lg:text-2xl font-manrope text-[#E6F6FF] max-w-4xl mx-auto leading-relaxed opacity-95">
             Transform your vision into reality with emotionally intelligent strategies that truly resonate.
           </p>
         </div>
@@ -46,13 +46,12 @@ const Hero = ({
         <Button
           id="begin-btn"
           size="lg"
+          variant="canai"
           onClick={onStart}
           className="
-            px-12 sm:px-16 py-6 text-lg sm:text-xl font-bold
-            bg-gradient-to-r from-[#36d1fe] via-[#16B9EC] to-[#00B2E3]
-            hover:from-[#4ae3ff] hover:to-[#36d1fe]
-            text-white rounded-2xl shadow-[0_0_40px_rgba(54,209,254,0.6)]
-            hover:shadow-[0_0_60px_rgba(54,209,254,0.8)] hover:scale-105
+            px-12 sm:px-16 py-6 text-xl font-bold
+            shadow-[0_0_40px_rgba(54,209,254,0.6)]
+            hover:shadow-[0_0_60px_rgba(54,209,254,0.8)] 
             transition-all duration-300 group font-manrope
             focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#36d1fe]/50
           "
@@ -64,13 +63,13 @@ const Hero = ({
         </Button>
         
         {/* Trust indicator below CTA */}
-        <div className="flex items-center gap-2 text-[#cce7fa] text-sm opacity-80">
+        <div className="flex items-center gap-2 text-[#cce7fa] text-sm opacity-90">
           <div className="flex gap-1">
             {[...Array(5)].map((_, i) => (
-              <span key={i} className="text-yellow-400">★</span>
+              <span key={i} className="text-yellow-400 drop-shadow-sm">★</span>
             ))}
           </div>
-          <span>Trusted by 500+ founders</span>
+          <span className="font-manrope">Trusted by 500+ founders</span>
         </div>
       </div>
     </section>

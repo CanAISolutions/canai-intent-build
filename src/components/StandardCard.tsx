@@ -19,14 +19,14 @@ const StandardCard: React.FC<StandardCardProps> = ({
   padding = 'lg',
   style
 }) => {
-  const baseClasses = "rounded-3xl border-2 transition-all duration-300 overflow-hidden relative text-white";
+  const baseClasses = "rounded-3xl border-2 transition-all duration-300 overflow-hidden relative";
   
   const variantClasses = {
-    default: "bg-gradient-to-br from-[#193c65]/95 via-[#1e4a73]/95 to-[#12294a]/95 border-[#36d1fe] shadow-[0_0_40px_rgba(54,209,254,0.3)] backdrop-blur-sm",
-    glass: "bg-[rgba(25,60,101,0.85)] border-[rgba(54,209,254,0.4)] backdrop-blur-md shadow-[0_0_30px_rgba(54,209,254,0.2)]",
-    product: "bg-gradient-to-br from-[#193c65]/95 via-[#1e4a73]/95 to-[#12294a]/95 border-[#36d1fe] shadow-[0_0_40px_rgba(54,209,254,0.3)] backdrop-blur-sm",
-    content: "bg-[rgba(25,60,101,0.9)] border-[rgba(54,209,254,0.4)] backdrop-blur-md shadow-[0_0_30px_rgba(54,209,254,0.2)]",
-    form: "bg-[rgba(25,60,101,0.9)] border-[rgba(54,209,254,0.5)] backdrop-blur-md shadow-[0_0_35px_rgba(54,209,254,0.25)]"
+    default: "bg-gradient-to-br from-[#193c65]/95 via-[#1e4a73]/95 to-[#12294a]/95 border-[#36d1fe] shadow-[0_0_40px_rgba(54,209,254,0.3)] backdrop-blur-sm text-white",
+    glass: "bg-[rgba(25,60,101,0.85)] border-[rgba(54,209,254,0.4)] backdrop-blur-md shadow-[0_0_30px_rgba(54,209,254,0.2)] text-white",
+    product: "bg-gradient-to-br from-[#193c65]/95 via-[#1e4a73]/95 to-[#12294a]/95 border-[#36d1fe] shadow-[0_0_40px_rgba(54,209,254,0.3)] backdrop-blur-sm text-white",
+    content: "bg-[rgba(25,60,101,0.9)] border-[rgba(54,209,254,0.4)] backdrop-blur-md shadow-[0_0_30px_rgba(54,209,254,0.2)] text-white",
+    form: "bg-[rgba(25,60,101,0.9)] border-[rgba(54,209,254,0.5)] backdrop-blur-md shadow-[0_0_35px_rgba(54,209,254,0.25)] text-white"
   };
   
   const paddingClasses = {
@@ -38,7 +38,7 @@ const StandardCard: React.FC<StandardCardProps> = ({
   };
   
   const hoverClasses = hover 
-    ? "hover:shadow-[0_0_60px_rgba(54,209,254,0.5)] hover:scale-[1.02]" 
+    ? "hover:shadow-[0_0_60px_rgba(54,209,254,0.5)] hover:scale-[1.02] hover:border-[#36d1fe]" 
     : "";
 
   return (

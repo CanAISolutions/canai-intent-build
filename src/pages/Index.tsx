@@ -18,10 +18,10 @@ const Index = () => {
         </div>
         
         <div className="space-y-4 animate-fade-in animate-delay-200" style={{ animationDelay: '0.2s' }}>
-          <BodyText className="text-xl sm:text-2xl font-light text-white enhanced-text-shadow animate-fade-in-up">
+          <BodyText className="text-xl sm:text-2xl font-light text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.3)] animate-fade-in-up">
             Welcome to the Emotional Sovereignty Platform
           </BodyText>
-          <BodyText className="text-lg sm:text-xl opacity-80 enhanced-text-shadow-subtle animate-fade-in-up animate-delay-300">
+          <BodyText className="text-lg sm:text-xl opacity-90 drop-shadow-[0_1px_4px_rgba(0,0,0,0.2)] animate-fade-in-up animate-delay-300">
             Experience the future of AI-driven business strategy, designed with 
             emotional intelligence and empathy at its core.
           </BodyText>
@@ -33,11 +33,12 @@ const Index = () => {
             size="lg" 
             variant="canai"
             className="
-              text-lg px-8 py-4 group font-manrope transition-all duration-200 
-              hover:scale-105 hover:shadow-[0_8px_25px_rgba(54,209,254,0.4)]
+              text-lg px-8 py-4 group font-manrope transition-all duration-300 
+              hover:scale-105 shadow-[0_0_30px_rgba(54,209,254,0.5)]
+              hover:shadow-[0_0_45px_rgba(54,209,254,0.7)]
               hover:-translate-y-1 focus-visible:ring-4 focus-visible:ring-[#36d1fe]/60
               focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0F1C]
-              enhanced-cta-glow active:scale-[0.98] active:translate-y-0
+              active:scale-[0.98] active:translate-y-0
             "
             aria-label="Enter CanAI Platform - Start your AI-powered business journey"
           >
@@ -47,7 +48,7 @@ const Index = () => {
         </div>
 
         <div className="pt-6 sm:pt-8 animate-fade-in animate-delay-600" style={{ animationDelay: '0.6s' }}>
-          <CaptionText className="enhanced-caption-glow">
+          <CaptionText className="drop-shadow-[0_1px_3px_rgba(0,0,0,0.2)]">
             🚀 9 Seamless Scenes • 🎯 Emotionally Intelligent • ✨ Zero Manual Touch
           </CaptionText>
         </div>
