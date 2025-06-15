@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,28 +40,46 @@ const IntentMirror = () => {
   const urlParams = new URLSearchParams(window.location.search);
   const promptId = urlParams.get('prompt_id') || 'demo-prompt-id';
 
-  // Mock data for demonstration (Sprinkle Haven Bakery example)
-  const mockIntentData: IntentMirrorData = {
-    summary: "Create a family-friendly bakery business plan for Sprinkle Haven in Denver, focusing on community engagement.",
-    confidenceScore: 0.85,
-    clarifyingQuestions: [],
-    originalData: {
-      businessName: "Sprinkle Haven Bakery",
-      targetAudience: "Families with children in Denver suburbs",
-      primaryGoal: "Build a community-centered bakery",
-      competitiveContext: "Competing with chain bakeries and local cafes",
-      brandVoice: "warm",
-      location: "Denver, Colorado",
-      uniqueValue: "Custom celebration cakes with interactive decorating workshops",
-      resourceConstraints: "Limited initial capital, small team",
-      currentStatus: "Planning phase with market research completed",
-      businessDescription: "A family-friendly neighborhood bakery specializing in custom cakes and interactive baking experiences for children and families.",
-      revenueModel: "Retail sales, custom orders, workshops",
-      planPurpose: "Secure funding and establish market presence"
+  // Enhanced mock data with dynamic confidence and clarifying questions
+  const generateMockIntentData = (confidenceLevel = 0.85): IntentMirrorData => {
+    const baseData = {
+      summary: "Create a family-friendly organic bakery business plan for Sprinkle Haven in Denver, focusing on community engagement and investor funding.",
+      originalData: {
+        businessName: "Sprinkle Haven Bakery",
+        targetAudience: "Denver families with children seeking organic, artisanal baked goods",
+        primaryGoal: "Secure $200K investor funding for bakery launch",
+        competitiveContext: "Competing with Blue Moon Bakery and chain stores like King Soopers bakery",
+        brandVoice: "warm",
+        location: "Denver, Colorado",
+        uniqueValue: "Organic, community-focused pastries with interactive family baking workshops",
+        resourceConstraints: "$50k initial budget; team of 3; 6-month timeline",
+        currentStatus: "Planning phase with market research completed",
+        businessDescription: "Artisanal neighborhood bakery specializing in organic pastries and family experiences",
+        revenueModel: "Retail sales, custom orders, baking workshops, catering events",
+        planPurpose: "Secure investor funding and establish market presence"
+      }
+    };
+
+    // Dynamic clarifying questions based on confidence
+    let clarifyingQuestions: string[] = [];
+    if (confidenceLevel < 0.8) {
+      clarifyingQuestions = [
+        "What specific funding amount are you targeting from investors?",
+        "How will you differentiate from Blue Moon Bakery specifically?",
+        "What's your projected monthly revenue for year 1?",
+        "Do you have any existing partnerships or supplier relationships?",
+        "What permits and certifications do you need for organic certification?"
+      ];
     }
+
+    return {
+      ...baseData,
+      confidenceScore: confidenceLevel,
+      clarifyingQuestions
+    };
   };
 
-  // Load intent mirror data with retry logic
+  // Load intent mirror data with retry logic (F6-E1)
   const loadIntentMirror = async (retryCount = 0) => {
     setIsLoading(true);
     
@@ -72,10 +91,24 @@ const IntentMirror = () => {
       //     'Content-Type': 'application/json',
       //     'X-Correlation-ID': generateCorrelationId()
       //   },
-      //   body: JSON.stringify({ prompt_id: promptId })
+      //   body: JSON.stringify({
+      //     businessName: "Sprinkle Haven Bakery",
+      //     targetAudience: "Denver families",
+      //     primaryGoal: "funding",
+      //     competitiveContext: "Blue Moon Bakery",
+      //     brandVoice: "warm",
+      //     resourceConstraints: "$50k budget; team of 3; 6 months",
+      //     currentStatus: "Planning phase",
+      //     businessDescription: "Artisanal bakery offering organic pastries",
+      //     revenueModel: "Sales, events",
+      //     planPurpose: "investor",
+      //     location: "Denver, CO",
+      //     uniqueValue: "Organic, community-focused pastries"
+      //   })
       // });
       
-      // Simulate API call
+      // Simulate API call with performance target <300ms
+      const startTime = Date.now();
       await new Promise(resolve => setTimeout(resolve, 250));
       
       // Mock potential failure for testing retry logic
@@ -83,22 +116,44 @@ const IntentMirror = () => {
         throw new Error('Simulated API failure');
       }
       
-      setIntentData(mockIntentData);
+      // Simulate varying confidence levels for testing
+      const mockConfidence = lowConfidenceAttempts > 0 ? 0.65 : 0.85;
+      const mockData = generateMockIntentData(mockConfidence);
+      setIntentData(mockData);
       
       // Track low confidence attempts
-      if (mockIntentData.confidenceScore < 0.8) {
+      if (mockData.confidenceScore < 0.8) {
         setLowConfidenceAttempts(prev => prev + 1);
+        
+        // TODO: Supabase logging for low confidence
+        // INSERT INTO error_logs (prompt_id, error_message, support_request, error_type)
+        // VALUES (?, 'Low confidence score: ' + mockData.confidenceScore, false, 'low_confidence');
       }
       
-      console.log('Intent mirror loaded:', { promptId, confidence: mockIntentData.confidenceScore });
+      const endTime = Date.now();
+      console.log('Intent mirror loaded:', { 
+        promptId, 
+        confidence: mockData.confidenceScore,
+        loadTime: endTime - startTime 
+      });
       
       // TODO: PostHog event tracking
-      // posthog.capture('funnel_step', { step: 'intent_mirror_viewed', confidence: mockIntentData.confidenceScore });
+      // posthog.capture('funnel_step', { 
+      //   stepName: 'intent_mirror', 
+      //   completed: true, 
+      //   confidence: mockData.confidenceScore,
+      //   loadTime: endTime - startTime
+      // });
+      
+      // TODO: Supabase logging
+      // UPDATE prompt_logs SET 
+      //   payload = payload || jsonb_build_object('intent_summary', ?, 'confidence_score', ?)
+      // WHERE id = ?;
       
     } catch (error) {
       console.error('Intent mirror load failed:', error);
       
-      // Retry logic with exponential backoff
+      // F6-E1: Retry logic with exponential backoff (3 attempts, 2^i * 1000ms delay)
       if (retryCount < 3) {
         const delay = Math.pow(2, retryCount) * 1000;
         setTimeout(() => {
@@ -111,9 +166,9 @@ const IntentMirror = () => {
           variant: "destructive"
         });
         
-        // TODO: Log to Supabase error_logs
-        // INSERT INTO error_logs (user_id, error_message, action, error_type)
-        // VALUES (auth.uid(), error.message, 'intent_mirror_load', 'api_failure');
+        // TODO: Supabase error logging
+        // INSERT INTO error_logs (user_id, prompt_id, error_message, action, error_type)
+        // VALUES (auth.uid(), ?, ?, 'intent_mirror_load', 'api_failure');
       }
     } finally {
       setIsLoading(false);
@@ -130,7 +185,7 @@ const IntentMirror = () => {
     setIsConfirming(true);
     
     try {
-      // TODO: Update Supabase prompt_logs with confirmation
+      // TODO: Supabase logging - Update prompt_logs with confirmation
       // UPDATE prompt_logs SET 
       //   payload = payload || jsonb_build_object('intent_confirmed', true, 'confidence_score', ?)
       // WHERE id = ?;
@@ -138,14 +193,18 @@ const IntentMirror = () => {
       console.log('Intent confirmed:', { promptId, confidence: intentData.confidenceScore });
       
       // TODO: PostHog tracking
-      // posthog.capture('funnel_step', { step: 'intent_confirmed', confidence: intentData.confidenceScore });
+      // posthog.capture('funnel_step', { 
+      //   stepName: 'intent_confirmed', 
+      //   confidence: intentData.confidenceScore,
+      //   completed: true
+      // });
       
       toast({
         title: "Perfect! Let's create your plan",
         description: "Moving to deliverable generation...",
       });
       
-      // Navigate to generating spinner (placeholder for now)
+      // Navigate to generating spinner
       setTimeout(() => {
         window.location.href = `/generating?prompt_id=${promptId}`;
       }, 1500);
@@ -167,13 +226,21 @@ const IntentMirror = () => {
     setShowEditModal(true);
     
     // TODO: PostHog tracking
-    // posthog.capture('field_edited', { field, confidence: intentData?.confidenceScore });
+    // posthog.capture('field_edited', { 
+    //   field: field, 
+    //   confidence: intentData?.confidenceScore 
+    // });
     
     console.log('Edit field requested:', field);
   };
 
   const handleEditConfirm = () => {
     setShowEditModal(false);
+    
+    // TODO: Supabase logging - Update prompt_logs with edit action
+    // UPDATE prompt_logs SET 
+    //   payload = payload || jsonb_build_object('edited_field', ?, 'edit_timestamp', now())
+    // WHERE id = ?;
     
     // Navigate back to detailed input with specific field focus
     window.location.href = `/detailed-input?prompt_id=${promptId}&edit_field=${editField}`;
@@ -182,9 +249,14 @@ const IntentMirror = () => {
   const handleSupportRequest = () => {
     // TODO: PostHog tracking
     // posthog.capture('support_requested', { 
+    //   reason: 'low_confidence',
     //   attempts: lowConfidenceAttempts, 
     //   confidence: intentData?.confidenceScore 
     // });
+    
+    // TODO: Supabase logging
+    // INSERT INTO error_logs (prompt_id, error_message, support_request, error_type)
+    // VALUES (?, 'Support requested after low confidence attempts', true, 'low_confidence');
     
     console.log('Support requested:', { attempts: lowConfidenceAttempts });
     
@@ -221,10 +293,11 @@ const IntentMirror = () => {
           backgroundColor: "#0A1535"
         }}
       >
-        <div className="text-center">
+        {/* F6-E1: Fallback UI on all retries failed */}
+        <div className="error-fallback text-center">
           <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-canai-light mb-2">Unable to Load Summary</h2>
-          <p className="text-white opacity-75 mb-6">There was an issue loading your business summary.</p>
+          <h2 className="text-2xl font-bold text-canai-light mb-2">Validation Failed</h2>
+          <p className="text-white opacity-75 mb-6">There was an issue validating your business summary.</p>
           <Button variant="canai" onClick={() => loadIntentMirror()}>
             Try Again
           </Button>
@@ -281,7 +354,7 @@ const IntentMirror = () => {
           </CardHeader>
           
           <CardContent className="space-y-8 px-8 pb-8">
-            {/* Enhanced Summary Text with Visual Hierarchy */}
+            {/* Enhanced Summary Text */}
             <div className="bg-gradient-to-br from-black/30 to-black/10 rounded-xl p-8 border border-canai-primary/30 hover:border-canai-primary/50 transition-all duration-300">
               <div className="flex items-start justify-between mb-4">
                 <h3 className="text-xl font-semibold text-canai-light">Your Business Plan Focus:</h3>
@@ -303,7 +376,7 @@ const IntentMirror = () => {
               </p>
             </div>
 
-            {/* Enhanced Confidence Gauge with Better Visual Feedback */}
+            {/* Enhanced Confidence Gauge */}
             <div className="bg-gradient-to-br from-black/30 to-black/10 rounded-xl p-8 border border-canai-primary/30">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold text-canai-light">Confidence Score</h3>
@@ -347,8 +420,8 @@ const IntentMirror = () => {
               </div>
             </div>
 
-            {/* Enhanced Clarifying Questions */}
-            {showLowConfidenceHelp && (
+            {/* Enhanced Clarifying Questions - Now properly implemented */}
+            {showLowConfidenceHelp && intentData.clarifyingQuestions.length > 0 && (
               <div className="bg-gradient-to-br from-amber-500/20 to-amber-600/10 border-2 border-amber-500/40 rounded-xl p-8 hover:border-amber-400/60 transition-all duration-300">
                 <div className="flex items-start gap-4">
                   <HelpCircle className="w-7 h-7 text-amber-400 mt-1 flex-shrink-0" />
@@ -357,29 +430,12 @@ const IntentMirror = () => {
                       Help us understand better:
                     </h3>
                     <div id="clarify-text" className="space-y-3 mb-6">
-                      {intentData.clarifyingQuestions.length > 0 ? (
-                        intentData.clarifyingQuestions.map((question, index) => (
-                          <div key={index} className="flex items-start gap-2">
-                            <span className="text-amber-400 font-bold">•</span>
-                            <p className="text-amber-100 text-lg">{question}</p>
-                          </div>
-                        ))
-                      ) : (
-                        <>
-                          <div className="flex items-start gap-2">
-                            <span className="text-amber-400 font-bold">•</span>
-                            <p className="text-amber-100 text-lg">Could you provide more specific details about your target market?</p>
-                          </div>
-                          <div className="flex items-start gap-2">
-                            <span className="text-amber-400 font-bold">•</span>
-                            <p className="text-amber-100 text-lg">What makes your business unique compared to competitors?</p>
-                          </div>
-                          <div className="flex items-start gap-2">
-                            <span className="text-amber-400 font-bold">•</span>
-                            <p className="text-amber-100 text-lg">What are your primary revenue goals for the first year?</p>
-                          </div>
-                        </>
-                      )}
+                      {intentData.clarifyingQuestions.map((question, index) => (
+                        <div key={index} className="flex items-start gap-2">
+                          <span className="text-amber-400 font-bold">•</span>
+                          <p className="text-amber-100 text-lg">{question}</p>
+                        </div>
+                      ))}
                     </div>
                     <Button
                       variant="outline"
@@ -429,11 +485,11 @@ const IntentMirror = () => {
               </Button>
             </div>
 
-            {/* Enhanced Field-specific Edit Buttons with Better Organization */}
+            {/* Enhanced Field-specific Edit Buttons with proper IDs */}
             <div className="bg-gradient-to-br from-black/20 to-black/5 rounded-xl p-6 border border-canai-primary/20">
               <h4 className="text-lg font-semibold text-canai-light mb-4 text-center">Quick Edit Specific Fields</h4>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {Object.entries(intentData.originalData).slice(0, 6).map(([key, value]) => (
+                {Object.entries(intentData.originalData).map(([key, value]) => (
                   <Button
                     key={key}
                     id={`edit-field-${key}`}
@@ -451,7 +507,7 @@ const IntentMirror = () => {
               </div>
             </div>
 
-            {/* Enhanced Support Link */}
+            {/* Enhanced Support Link - appears after 2 low confidence attempts */}
             {showSupportLink && (
               <div className="text-center pt-6 border-t border-canai-primary/20">
                 <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-xl p-6 border border-blue-400/30">
