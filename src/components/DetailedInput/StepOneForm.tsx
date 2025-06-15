@@ -3,6 +3,7 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { HelpCircle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { FormData } from "@/pages/DetailedInput";
@@ -44,7 +45,7 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
         {/* Business Name */}
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <Label htmlFor="businessName" className="text-canai-light font-medium">
+            <Label htmlFor="name-input" className="text-canai-light font-medium">
               Business Name *
             </Label>
             <Tooltip>
@@ -55,17 +56,17 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
                 />
               </TooltipTrigger>
               <TooltipContent className="bg-canai-blue-card border-canai-primary text-canai-light">
-                <p>The official name of your business or the name you plan to use</p>
+                <p>E.g., "Sprinkle Haven Bakery" - Your official business name (3-50 characters)</p>
               </TooltipContent>
             </Tooltip>
           </div>
           <Input
-            id="businessName"
+            id="name-input"
             value={formData.businessName}
             onChange={(e) => handleInputChange('businessName', e.target.value)}
-            placeholder="e.g., Denver Community Bakery"
+            placeholder="e.g., Sprinkle Haven Bakery"
             className="bg-canai-blue-card border-canai-primary text-canai-light placeholder:text-canai-light-blue"
-            maxLength={100}
+            maxLength={50}
           />
           {errors.businessName && (
             <p className="text-red-400 text-sm mt-1">{errors.businessName}</p>
@@ -75,7 +76,7 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
         {/* Target Audience */}
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <Label htmlFor="targetAudience" className="text-canai-light font-medium">
+            <Label htmlFor="audience-input" className="text-canai-light font-medium">
               Target Audience *
             </Label>
             <Tooltip>
@@ -86,17 +87,17 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
                 />
               </TooltipTrigger>
               <TooltipContent className="bg-canai-blue-card border-canai-primary text-canai-light">
-                <p>Who are your ideal customers? Be specific about demographics, interests, and needs.</p>
+                <p>E.g., "Denver families with young children who value organic, artisanal baked goods"</p>
               </TooltipContent>
             </Tooltip>
           </div>
           <Textarea
-            id="targetAudience"
+            id="audience-input"
             value={formData.targetAudience}
             onChange={(e) => handleInputChange('targetAudience', e.target.value)}
-            placeholder="e.g., Busy Denver families with young children who value organic, locally-sourced baked goods and community connection"
+            placeholder="e.g., Denver families with young children who value organic, artisanal baked goods"
             className="bg-canai-blue-card border-canai-primary text-canai-light placeholder:text-canai-light-blue min-h-[80px]"
-            maxLength={500}
+            maxLength={200}
           />
           {errors.targetAudience && (
             <p className="text-red-400 text-sm mt-1">{errors.targetAudience}</p>
@@ -106,7 +107,7 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
         {/* Primary Goal */}
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <Label htmlFor="primaryGoal" className="text-canai-light font-medium">
+            <Label htmlFor="goal-select" className="text-canai-light font-medium">
               Primary Goal *
             </Label>
             <Tooltip>
@@ -117,18 +118,20 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
                 />
               </TooltipTrigger>
               <TooltipContent className="bg-canai-blue-card border-canai-primary text-canai-light">
-                <p>What's the main objective you want to achieve with this business plan?</p>
+                <p>What's your main objective for this business plan?</p>
               </TooltipContent>
             </Tooltip>
           </div>
-          <Input
-            id="primaryGoal"
-            value={formData.primaryGoal}
-            onChange={(e) => handleInputChange('primaryGoal', e.target.value)}
-            placeholder="e.g., Secure $50k funding to open first location within 6 months"
-            className="bg-canai-blue-card border-canai-primary text-canai-light placeholder:text-canai-light-blue"
-            maxLength={200}
-          />
+          <Select value={formData.primaryGoal} onValueChange={(value) => handleInputChange('primaryGoal', value)}>
+            <SelectTrigger id="goal-select" className="bg-canai-blue-card border-canai-primary text-canai-light">
+              <SelectValue placeholder="Select your primary goal" />
+            </SelectTrigger>
+            <SelectContent className="bg-canai-blue-card border-canai-primary">
+              <SelectItem value="funding" className="text-canai-light hover:bg-canai-primary/20">Secure Funding</SelectItem>
+              <SelectItem value="growth" className="text-canai-light hover:bg-canai-primary/20">Business Growth</SelectItem>
+              <SelectItem value="operations" className="text-canai-light hover:bg-canai-primary/20">Operational Planning</SelectItem>
+            </SelectContent>
+          </Select>
           {errors.primaryGoal && (
             <p className="text-red-400 text-sm mt-1">{errors.primaryGoal}</p>
           )}
@@ -137,7 +140,7 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
         {/* Competitive Context */}
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <Label htmlFor="competitiveContext" className="text-canai-light font-medium">
+            <Label htmlFor="context-input" className="text-canai-light font-medium">
               Competitive Context
             </Label>
             <Tooltip>
@@ -148,24 +151,24 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
                 />
               </TooltipTrigger>
               <TooltipContent className="bg-canai-blue-card border-canai-primary text-canai-light">
-                <p>Who are your main competitors and how will you differentiate?</p>
+                <p>E.g., "Blue Moon Bakery dominates downtown, but lacks organic options"</p>
               </TooltipContent>
             </Tooltip>
           </div>
-          <Textarea
-            id="competitiveContext"
+          <Input
+            id="context-input"
             value={formData.competitiveContext}
             onChange={(e) => handleInputChange('competitiveContext', e.target.value)}
-            placeholder="e.g., King Soopers dominates grocery bakery, but lacks artisanal quality and community focus"
-            className="bg-canai-blue-card border-canai-primary text-canai-light placeholder:text-canai-light-blue min-h-[80px]"
-            maxLength={400}
+            placeholder="e.g., Blue Moon Bakery dominates downtown, but lacks organic options"
+            className="bg-canai-blue-card border-canai-primary text-canai-light placeholder:text-canai-light-blue"
+            maxLength={100}
           />
         </div>
 
         {/* Brand Voice */}
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <Label htmlFor="brandVoice" className="text-canai-light font-medium">
+            <Label htmlFor="voice-select" className="text-canai-light font-medium">
               Brand Voice
             </Label>
             <Tooltip>
@@ -176,24 +179,30 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
                 />
               </TooltipTrigger>
               <TooltipContent className="bg-canai-blue-card border-canai-primary text-canai-light">
-                <p>How do you want your brand to sound? (e.g., warm, professional, playful, authoritative)</p>
+                <p>How should your brand communicate? "Warm" works great for community bakeries</p>
               </TooltipContent>
             </Tooltip>
           </div>
-          <Input
-            id="brandVoice"
-            value={formData.brandVoice}
-            onChange={(e) => handleInputChange('brandVoice', e.target.value)}
-            placeholder="e.g., Warm, community-focused, and authentically passionate about quality"
-            className="bg-canai-blue-card border-canai-primary text-canai-light placeholder:text-canai-light-blue"
-            maxLength={150}
-          />
+          <Select value={formData.brandVoice} onValueChange={(value) => handleInputChange('brandVoice', value)}>
+            <SelectTrigger id="voice-select" className="bg-canai-blue-card border-canai-primary text-canai-light">
+              <SelectValue placeholder="Select brand voice" />
+            </SelectTrigger>
+            <SelectContent className="bg-canai-blue-card border-canai-primary">
+              <SelectItem value="warm" className="text-canai-light hover:bg-canai-primary/20">Warm</SelectItem>
+              <SelectItem value="bold" className="text-canai-light hover:bg-canai-primary/20">Bold</SelectItem>
+              <SelectItem value="optimistic" className="text-canai-light hover:bg-canai-primary/20">Optimistic</SelectItem>
+              <SelectItem value="professional" className="text-canai-light hover:bg-canai-primary/20">Professional</SelectItem>
+              <SelectItem value="playful" className="text-canai-light hover:bg-canai-primary/20">Playful</SelectItem>
+              <SelectItem value="inspirational" className="text-canai-light hover:bg-canai-primary/20">Inspirational</SelectItem>
+              <SelectItem value="custom" className="text-canai-light hover:bg-canai-primary/20">Custom</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Location */}
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <Label htmlFor="location" className="text-canai-light font-medium">
+            <Label htmlFor="location-input" className="text-canai-light font-medium">
               Location *
             </Label>
             <Tooltip>
@@ -204,15 +213,15 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
                 />
               </TooltipTrigger>
               <TooltipContent className="bg-canai-blue-card border-canai-primary text-canai-light">
-                <p>Where is your business located or where do you plan to operate?</p>
+                <p>E.g., "Denver, CO" - Where your business operates or will operate</p>
               </TooltipContent>
             </Tooltip>
           </div>
           <Input
-            id="location"
+            id="location-input"
             value={formData.location}
             onChange={(e) => handleInputChange('location', e.target.value)}
-            placeholder="e.g., Highland neighborhood, Denver, CO"
+            placeholder="e.g., Denver, CO"
             className="bg-canai-blue-card border-canai-primary text-canai-light placeholder:text-canai-light-blue"
             maxLength={100}
           />
@@ -224,8 +233,8 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
         {/* Unique Value */}
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <Label htmlFor="uniqueValue" className="text-canai-light font-medium">
-              Unique Value Proposition
+            <Label htmlFor="unique-value-input" className="text-canai-light font-medium">
+              Unique Value Proposition *
             </Label>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -235,18 +244,21 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
                 />
               </TooltipTrigger>
               <TooltipContent className="bg-canai-blue-card border-canai-primary text-canai-light">
-                <p>What makes your business special? What unique value do you provide?</p>
+                <p>E.g., "Organic, community-focused pastries with locally-sourced ingredients"</p>
               </TooltipContent>
             </Tooltip>
           </div>
           <Textarea
-            id="uniqueValue"
+            id="unique-value-input"
             value={formData.uniqueValue}
             onChange={(e) => handleInputChange('uniqueValue', e.target.value)}
-            placeholder="e.g., Only bakery in Denver offering custom celebration cakes made with locally-sourced ingredients and community storytelling"
+            placeholder="e.g., Organic, community-focused pastries with locally-sourced ingredients"
             className="bg-canai-blue-card border-canai-primary text-canai-light placeholder:text-canai-light-blue min-h-[80px]"
-            maxLength={400}
+            maxLength={200}
           />
+          {errors.uniqueValue && (
+            <p className="text-red-400 text-sm mt-1">{errors.uniqueValue}</p>
+          )}
         </div>
       </div>
     </TooltipProvider>
