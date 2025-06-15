@@ -7,6 +7,7 @@ import { Loader2, RefreshCw, Sparkles, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import StandardCard from "@/components/StandardCard";
 import StandardBackground from "@/components/StandardBackground";
+import PageHeader from "@/components/PageHeader";
 import { PageTitle, SectionTitle, BodyText, CaptionText } from "@/components/StandardTypography";
 
 // Types for spark data
@@ -156,7 +157,9 @@ const SparkLayer: React.FC<SparkLayerProps> = ({
 
   return (
     <StandardBackground>
-      <div className="container mx-auto px-4 py-16 max-w-6xl">
+      <PageHeader showBackButton={true} logoSize="sm" showTagline={false} />
+      
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
         <div className="text-center mb-16 animate-fade-in">
           <div className="flex items-center justify-center gap-3 mb-6">
@@ -165,12 +168,12 @@ const SparkLayer: React.FC<SparkLayerProps> = ({
             <Sparkles className="w-8 h-8 text-[#36d1fe] animate-pulse" />
           </div>
           
-          <BodyText className="text-xl mb-4 max-w-2xl mx-auto">
+          <BodyText className="text-xl mb-6 max-w-2xl mx-auto">
             Which spark feels most like you?
           </BodyText>
           
           <StandardCard variant="glass" padding="md" className="inline-block">
-            <CaptionText className="text-[#36d1fe] font-semibold">
+            <CaptionText className="text-[#36d1fe] font-semibold mb-0">
               💡 Take 30 seconds to feel which direction resonates with your vision
             </CaptionText>
           </StandardCard>
@@ -180,7 +183,7 @@ const SparkLayer: React.FC<SparkLayerProps> = ({
         {isLoading && (
           <div className="flex items-center justify-center gap-3 mb-12 animate-fade-in">
             <Loader2 className="w-6 h-6 text-[#36d1fe] animate-spin" />
-            <BodyText className="text-lg">Generating your sparks...</BodyText>
+            <BodyText className="text-lg mb-0">Generating your sparks...</BodyText>
           </div>
         )}
 
@@ -188,40 +191,46 @@ const SparkLayer: React.FC<SparkLayerProps> = ({
         {!isLoading && sparks.length > 0 && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
             {sparks.map((spark, index) => (
-              <StandardCard
+              <div 
                 key={spark.id}
-                variant="product"
-                className={`hover:scale-[1.02] transition-all duration-300 cursor-pointer animate-fade-in ${
-                  selectedSpark === spark.id ? 'ring-4 ring-[#36d1fe]/50' : ''
-                }`}
+                className="animate-fade-in"
                 style={{ animationDelay: `${index * 200}ms` }}
               >
-                <div className="text-center mb-6">
-                  <SectionTitle className="text-[#36d1fe] text-xl mb-4 font-manrope">
-                    {spark.title}
-                  </SectionTitle>
-                  <BodyText className="text-lg leading-relaxed mb-6">
-                    {spark.tagline}
-                  </BodyText>
-                  
-                  <div className="mb-6">
-                    <span className="text-3xl font-bold text-[#36d1fe] font-manrope">
-                      {getProductPrice(spark.productTrack)}
-                    </span>
+                <StandardCard
+                  variant="product"
+                  className={`hover:scale-[1.02] transition-all duration-300 cursor-pointer h-full ${
+                    selectedSpark === spark.id ? 'ring-4 ring-[#36d1fe]/50' : ''
+                  }`}
+                >
+                  <div className="text-center h-full flex flex-col justify-between">
+                    <div>
+                      <SectionTitle className="text-[#36d1fe] text-xl mb-4 font-manrope leading-tight">
+                        {spark.title}
+                      </SectionTitle>
+                      <BodyText className="text-lg leading-relaxed mb-6">
+                        {spark.tagline}
+                      </BodyText>
+                      
+                      <div className="mb-6">
+                        <span className="text-3xl font-bold text-[#36d1fe] font-manrope">
+                          {getProductPrice(spark.productTrack)}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <Button
+                      variant="default"
+                      size="lg"
+                      className="w-full py-4 text-lg font-semibold bg-[#36d1fe] hover:bg-[#00f0ff] text-white border-0"
+                      onClick={() => handleSparkSelection(spark)}
+                      disabled={isLoading}
+                    >
+                      <span>Select and Purchase</span>
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
                   </div>
-                  
-                  <Button
-                    variant="canai"
-                    size="lg"
-                    className="w-full py-4 text-lg font-semibold"
-                    onClick={() => handleSparkSelection(spark)}
-                    disabled={isLoading}
-                  >
-                    <span>Select and Purchase</span>
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
-                </div>
-              </StandardCard>
+                </StandardCard>
+              </div>
             ))}
           </div>
         )}
@@ -230,10 +239,10 @@ const SparkLayer: React.FC<SparkLayerProps> = ({
         {!isLoading && (
           <StandardCard variant="form" className="mb-12 animate-fade-in">
             <div className="text-center mb-6">
-              <SectionTitle className="text-lg mb-2">
+              <SectionTitle className="text-lg mb-2 text-white">
                 Not feeling the spark?
               </SectionTitle>
-              <CaptionText>
+              <CaptionText className="text-[#cce7fa] mb-0">
                 {regenerateCount >= maxRegenerations 
                   ? "Maximum regenerations reached"
                   : `${maxRegenerations - regenerateCount} regenerations remaining`
@@ -247,7 +256,7 @@ const SparkLayer: React.FC<SparkLayerProps> = ({
                   placeholder="Tell us what's off about these sparks (e.g., 'I'd prefer a bolder tone')"
                   value={feedback}
                   onChange={(e) => setFeedback(e.target.value)}
-                  className="mb-6 bg-[rgba(25,60,101,0.4)] border-[#36d1fe]/30 text-[#E6F6FF] backdrop-blur-sm"
+                  className="mb-6 bg-[rgba(25,60,101,0.4)] border-[#36d1fe]/30 text-[#E6F6FF] placeholder:text-[#cce7fa]/70 backdrop-blur-sm"
                   rows={3}
                 />
                 
@@ -280,7 +289,7 @@ const SparkLayer: React.FC<SparkLayerProps> = ({
             
             {showGenericComparison && (
               <StandardCard variant="glass" padding="md" className="max-w-2xl mx-auto">
-                <CaptionText>
+                <CaptionText className="mb-0">
                   🤖 <strong>Generic AI:</strong> "Start a bakery business"<br/>
                   ✨ <strong>CanAI:</strong> "Unite Denver families with a cozy bakery experience"
                 </CaptionText>

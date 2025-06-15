@@ -8,6 +8,7 @@ interface StandardCardProps {
   variant?: 'default' | 'glass' | 'product' | 'content' | 'form';
   hover?: boolean;
   padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
+  style?: React.CSSProperties;
 }
 
 const StandardCard: React.FC<StandardCardProps> = ({
@@ -15,7 +16,8 @@ const StandardCard: React.FC<StandardCardProps> = ({
   className = "",
   variant = 'default',
   hover = true,
-  padding = 'lg'
+  padding = 'lg',
+  style
 }) => {
   const baseClasses = "rounded-3xl border-2 transition-all duration-300";
   
@@ -40,13 +42,16 @@ const StandardCard: React.FC<StandardCardProps> = ({
     : "";
 
   return (
-    <div className={cn(
-      baseClasses,
-      variantClasses[variant],
-      paddingClasses[padding],
-      hoverClasses,
-      className
-    )}>
+    <div 
+      className={cn(
+        baseClasses,
+        variantClasses[variant],
+        paddingClasses[padding],
+        hoverClasses,
+        className
+      )}
+      style={style}
+    >
       {children}
     </div>
   );

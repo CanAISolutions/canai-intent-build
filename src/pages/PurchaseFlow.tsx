@@ -7,6 +7,7 @@ import CheckoutModal from "@/components/PurchaseFlow/CheckoutModal";
 import ConfirmationSection from "@/components/PurchaseFlow/ConfirmationSection";
 import StandardBackground from "@/components/StandardBackground";
 import StandardCard from "@/components/StandardCard";
+import PageHeader from "@/components/PageHeader";
 import { PageTitle, BodyText, CaptionText } from "@/components/StandardTypography";
 
 // Product types for type safety
@@ -144,27 +145,16 @@ const PurchaseFlow = () => {
 
   return (
     <StandardBackground>
-      <div className="container mx-auto px-4 py-16 max-w-6xl">
+      <PageHeader showBackButton={true} logoSize="sm" showTagline={false} />
+      
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
         <div className="mb-12 animate-fade-in">
-          <div className="flex items-center justify-between mb-8">
-            <Button 
-              variant="ghost" 
-              onClick={() => window.history.back()}
-              className="text-[#cce7fa] hover:text-[#36d1fe] border-2 border-[#36d1fe] bg-[rgba(25,60,101,0.4)] hover:bg-[#36d1fe]/20 backdrop-blur-sm"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Sparks
-            </Button>
-            
-            <PageTitle className="text-center mb-0 animate-text-glow">
+          <div className="text-center mb-8">
+            <PageTitle className="text-center mb-4 animate-text-glow">
               Complete Your Purchase
             </PageTitle>
             
-            <div className="w-32" /> {/* Spacer for centering */}
-          </div>
-          
-          <div className="text-center">
             <BodyText className="text-xl max-w-2xl mx-auto">
               Choose your perfect solution and get started in minutes
             </BodyText>
@@ -172,7 +162,7 @@ const PurchaseFlow = () => {
         </div>
 
         {/* Pricing Table */}
-        <div className="mb-12 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+        <div className="mb-12 animate-fade-in">
           <PricingTable
             products={PRODUCTS}
             selectedProduct={selectedProduct}
@@ -182,24 +172,26 @@ const PurchaseFlow = () => {
         </div>
 
         {/* Footer Links */}
-        <StandardCard variant="glass" padding="md" className="text-center animate-fade-in" style={{ animationDelay: '0.4s' }}>
-          <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
-            <button
-              onClick={handleRefundPolicy}
-              className="text-[#cce7fa] hover:text-[#36d1fe] transition-colors underline"
-            >
-              30-Day Refund Policy
-            </button>
-            <span className="text-[#cce7fa]">•</span>
-            <CaptionText className="opacity-80 mb-0">
-              One-time payment • No subscription
-            </CaptionText>
-            <span className="text-[#cce7fa]">•</span>
-            <CaptionText className="opacity-80 mb-0">
-              Secure checkout with Stripe
-            </CaptionText>
-          </div>
-        </StandardCard>
+        <div className="animate-fade-in">
+          <StandardCard variant="glass" padding="md" className="text-center">
+            <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
+              <button
+                onClick={handleRefundPolicy}
+                className="text-[#cce7fa] hover:text-[#36d1fe] transition-colors underline"
+              >
+                30-Day Refund Policy
+              </button>
+              <span className="text-[#cce7fa]">•</span>
+              <CaptionText className="opacity-80 mb-0">
+                One-time payment • No subscription
+              </CaptionText>
+              <span className="text-[#cce7fa]">•</span>
+              <CaptionText className="opacity-80 mb-0">
+                Secure checkout with Stripe
+              </CaptionText>
+            </div>
+          </StandardCard>
+        </div>
 
         {/* Checkout Modal */}
         <CheckoutModal

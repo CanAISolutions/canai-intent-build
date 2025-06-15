@@ -10,6 +10,7 @@ import RefinedFeedbackForm from "@/components/SparkSplit/RefinedFeedbackForm";
 import SparkleIcon from "@/components/SparkSplit/SparkleIcon";
 import StandardBackground from "@/components/StandardBackground";
 import StandardCard from "@/components/StandardCard";
+import PageHeader from "@/components/PageHeader";
 import { PageTitle, BodyText } from "@/components/StandardTypography";
 
 // Circuit breaker for negative engagement tracking
@@ -252,7 +253,8 @@ const SparkSplit: React.FC = () => {
   if (loading) {
     return (
       <StandardBackground>
-        <div className="container mx-auto px-4 py-16 max-w-6xl">
+        <PageHeader showBackButton={true} logoSize="sm" showTagline={false} />
+        <div className="container mx-auto px-4 py-8 max-w-6xl">
           <StandardCard variant="form">
             <div className="animate-pulse space-y-12">
               <div className="h-12 bg-gradient-to-r from-[#36d1fe]/30 to-[#00B2E3]/30 rounded-2xl w-2/3 mx-auto"></div>
@@ -271,7 +273,8 @@ const SparkSplit: React.FC = () => {
   if (error) {
     return (
       <StandardBackground>
-        <div className="container mx-auto px-4 py-16 max-w-6xl">
+        <PageHeader showBackButton={true} logoSize="sm" showTagline={false} />
+        <div className="container mx-auto px-4 py-8 max-w-6xl">
           <F8EdgeFallback message={error} />
         </div>
       </StandardBackground>
@@ -280,7 +283,9 @@ const SparkSplit: React.FC = () => {
 
   return (
     <StandardBackground>
-      <div className="container mx-auto px-4 py-16 max-w-6xl">
+      <PageHeader showBackButton={true} logoSize="sm" showTagline={false} />
+      
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
         <StandardCard variant="form">
           <div className="space-y-14">
             {/* Header */}
