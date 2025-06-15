@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -253,42 +252,57 @@ function DiscoveryFunnel() {
     }
   };
 
-  // Branding: DiscoveryHook style
+  // Branding: DiscoveryHook style - MODERNIZED
   return (
     <div
-      className="min-h-screen w-full flex flex-col items-center justify-center"
+      className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-radial from-[#101f33] via-[#12294a] to-[#052947] animate-fade-in"
       style={{
-        background: "radial-gradient(ellipse at 55% 24%, #152647 0%, #091023 65%, #052947 100%)",
-        backgroundColor: "#0A1535",
         fontFamily: "Manrope, Arial, sans-serif",
       }}
     >
-      <div className="w-full max-w-md px-3 py-8 rounded-2xl bg-[#172b47ee] shadow-[0_0_36px_0_#00cfff38] border border-[#22bcfa33]">
-        <h1 className="font-serif text-2xl md:text-3xl font-bold text-canai-light text-center mb-5" style={{fontFamily: "Playfair Display, serif"}}>Start Your Journey</h1>
-        <div className="flex items-center mb-4">
-          <span className="text-canai-cyan font-bold text-lg" id="progress-bar">
-            Step {step}/2
+      {/* Modern glassmorphism card with neon border and shadow */}
+      <div
+        className="w-full max-w-md px-4 py-10 rounded-3xl bg-glass-modal shadow-strong border-2 border-canai-cyan 
+        ring-2 ring-[#00f0ff44] backdrop-blur-xl animate-scale-in"
+        style={{
+          boxShadow: '0 0 60px 0 #00CFFF33, 0 2px 32px 0 #193c65bb',
+        }}
+      >
+        {/* Animated/fading headline */}
+        <h1
+          className="font-playfair font-bold text-3xl text-center mb-7 text-canai-light drop-shadow-xl animate-text-glow"
+        >
+          Start Your Journey
+        </h1>
+        {/* Progress bar with neon, rounded look */}
+        <div className="flex items-center mb-6 gap-2">
+          <span className="text-canai-cyan font-bold text-base md:text-lg" id="progress-bar">
+            Step <span className="text-xl font-black">{step}</span>/2
           </span>
-          <div className="flex-1 h-2 ml-4 bg-[#294663] rounded">
+          <div className="flex-1 h-2 ml-2 bg-[#19334a] rounded-full overflow-hidden">
             <div
-              style={{ width: step === 1 ? "44%" : "99%", transition: "width 0.3s", background: "linear-gradient(90deg,#00cfff,#41e3fd)" }}
-              className="h-2 rounded bg-canai-cyan"
+              style={{
+                width: step === 1 ? "44%" : "100%",
+                background: "linear-gradient(90deg,#00f0ff 0%,#00CFFF 100%)",
+                boxShadow: "0 0 15px #00F0FF69"
+              }}
+              className="h-2 rounded-full transition-all duration-300"
               id="progress-bar-fill"
             />
           </div>
         </div>
         {/* --- STEP 1 --- */}
-        <form onSubmit={handleSubmit} autoComplete="off">
-          <div className={cn("flex flex-col", step !== 1 && "hidden")}>
-            <label htmlFor="business-type" className="font-semibold">
+        <form onSubmit={handleSubmit} autoComplete="off" className="space-y-5">
+          <div className={cn("flex flex-col gap-4", step !== 1 && "hidden")}>
+            <label htmlFor="business-type" className="font-semibold text-canai-cyan text-base flex items-center gap-1">
               Business Type
               <button
                 type="button"
-                className="tooltip ml-1"
+                className="ml-1 focus:outline-none text-canai-light"
                 tabIndex={0}
                 aria-label="Show tooltip"
                 title={getTooltip("type-tooltip")}
-                style={{ outline: "none" }}
+                style={{ fontWeight: 700 }}
               >?
                 <span className="tooltip-text">{getTooltip("type-tooltip")}</span>
               </button>
@@ -299,7 +313,7 @@ function DiscoveryFunnel() {
               value={step1.businessType}
               onChange={handleStep1Change}
               required
-              className="mb-1"
+              className="w-full bg-[#142748e4] border border-canai-cyan rounded-xl px-4 py-3 text-base font-medium text-canai-light focus:ring-2 focus:ring-canai-cyan transition-all shadow-strong"
               autoComplete="off"
             >
               <option value="">Select type...</option>
@@ -311,7 +325,7 @@ function DiscoveryFunnel() {
             </select>
             {step1.businessType === "other" && (
               <div>
-                <label htmlFor="other-type" className="font-semibold">Other Type</label>
+                <label htmlFor="other-type" className="font-semibold text-canai-cyan">Other Type</label>
                 <input
                   type="text"
                   id="other-type"
@@ -319,19 +333,20 @@ function DiscoveryFunnel() {
                   maxLength={100}
                   value={step1.otherType}
                   onChange={handleStep1Change}
+                  className="w-full bg-[#142748e4] border border-canai-cyan rounded-xl px-4 py-3 text-base font-medium text-canai-light focus:ring-2 focus:ring-canai-cyan transition"
                   autoComplete="off"
                 />
               </div>
             )}
-            <label htmlFor="challenge-input" className="font-semibold">
+            <label htmlFor="challenge-input" className="font-semibold text-canai-cyan flex items-center gap-1">
               Main Challenge
               <button
                 type="button"
-                className="tooltip ml-1"
+                className="ml-1 focus:outline-none text-canai-light"
                 tabIndex={0}
                 aria-label="Show tooltip"
                 title={getTooltip("challenge-tooltip")}
-                style={{ outline: "none" }}
+                style={{ fontWeight: 700 }}
               >?
                 <span className="tooltip-text">{getTooltip("challenge-tooltip")}</span>
               </button>
@@ -345,14 +360,15 @@ function DiscoveryFunnel() {
               onChange={handleStep1Change}
               required
               placeholder="E.g. Need funding for bakery"
+              className="w-full bg-[#142748e4] border border-canai-cyan rounded-xl px-4 py-3 text-base font-medium text-canai-light placeholder:text-canai-light/70 focus:ring-2 focus:ring-canai-cyan transition"
               autoComplete="off"
             />
-            <div className="flex items-center mt-3 space-x-3">
+            <div className="flex items-center mt-5 space-x-3 justify-between">
               <Button
                 type="button"
                 variant="outline"
                 id="help-quiz"
-                className="btn-outline"
+                className="canai-btn-glow btn-outline px-6 py-2 rounded-lg text-canai-cyan font-semibold border-canai-cyan shadow-strong text-base hover:scale-105 transition-all"
                 ref={quizButtonRef}
                 onClick={handleQuizOpen}
               >
@@ -361,7 +377,8 @@ function DiscoveryFunnel() {
               <Button
                 type="button"
                 id="to-step-2"
-                className="btn-canai"
+                variant="canai"
+                className="btn-canai px-10 py-3 rounded-lg animate-glow-pop drop-shadow-xl hover:scale-105 ring-canai-primary"
                 onClick={handleNext}
                 disabled={loading}
               >
@@ -371,16 +388,16 @@ function DiscoveryFunnel() {
             </div>
           </div>
           {/* --- STEP 2 --- */}
-          <div className={cn("flex flex-col", step !== 2 && "hidden")}>
-            <label htmlFor="tone-select" className="font-semibold">
+          <div className={cn("flex flex-col gap-4", step !== 2 && "hidden")}>
+            <label htmlFor="tone-select" className="font-semibold text-canai-cyan flex items-center gap-1">
               Preferred Tone
               <button
                 type="button"
-                className="tooltip ml-1"
+                className="ml-1 focus:outline-none text-canai-light"
                 tabIndex={0}
                 aria-label="Show tooltip"
                 title={getTooltip("tone-tooltip")}
-                style={{ outline: "none" }}
+                style={{ fontWeight: 700 }}
               >?
                 <span className="tooltip-text">{getTooltip("tone-tooltip")}</span>
               </button>
@@ -391,7 +408,7 @@ function DiscoveryFunnel() {
               value={step2.preferredTone}
               onChange={handleStep2Change}
               required
-              className="mb-1"
+              className="w-full bg-[#142748e4] border border-canai-cyan rounded-xl px-4 py-3 text-base font-medium text-canai-light focus:ring-2 focus:ring-canai-cyan transition shadow-strong"
             >
               <option value="professional">Professional</option>
               <option value="warm">Warm</option>
@@ -403,7 +420,7 @@ function DiscoveryFunnel() {
             </select>
             {step2.preferredTone === "custom" && (
               <div>
-                <label htmlFor="custom-tone" className="font-semibold">Custom Tone</label>
+                <label htmlFor="custom-tone" className="font-semibold text-canai-cyan">Custom Tone</label>
                 <input
                   type="text"
                   id="custom-tone"
@@ -411,19 +428,20 @@ function DiscoveryFunnel() {
                   maxLength={50}
                   value={step2.customTone}
                   onChange={handleStep2Change}
+                  className="w-full bg-[#142748e4] border border-canai-cyan rounded-xl px-4 py-3 text-base font-medium text-canai-light focus:ring-2 focus:ring-canai-cyan transition"
                   autoComplete="off"
                 />
               </div>
             )}
-            <label htmlFor="outcome-select" className="font-semibold">
+            <label htmlFor="outcome-select" className="font-semibold text-canai-cyan flex items-center gap-1">
               Desired Outcome
               <button
                 type="button"
-                className="tooltip ml-1"
+                className="ml-1 focus:outline-none text-canai-light"
                 tabIndex={0}
                 aria-label="Show tooltip"
                 title={getTooltip("outcome-tooltip")}
-                style={{ outline: "none" }}
+                style={{ fontWeight: 700 }}
               >?
                 <span className="tooltip-text">{getTooltip("outcome-tooltip")}</span>
               </button>
@@ -434,7 +452,7 @@ function DiscoveryFunnel() {
               value={step2.desiredOutcome}
               onChange={handleStep2Change}
               required
-              className="mb-1"
+              className="w-full bg-[#142748e4] border border-canai-cyan rounded-xl px-4 py-3 text-base font-medium text-canai-light focus:ring-2 focus:ring-canai-cyan transition shadow-strong"
             >
               <option value="">Select outcome...</option>
               <option value="secure funding">Secure Funding</option>
@@ -442,9 +460,9 @@ function DiscoveryFunnel() {
               <option value="improve operations">Improve Operations</option>
               <option value="boost online presence">Boost Online Presence</option>
             </select>
-            <div className="flex items-center mt-3 space-x-3">
-              <Button type="button" variant="outline" onClick={handleBack} className="btn-outline">Back</Button>
-              <Button type="submit" className="btn-canai" id="submit-funnel" disabled={loading}>
+            <div className="flex items-center mt-5 space-x-3 justify-between">
+              <Button type="button" variant="outline" onClick={handleBack} className="canai-btn-glow btn-outline px-6 py-2 rounded-lg text-canai-cyan font-semibold border-canai-cyan shadow-strong text-base hover:scale-105 transition-all">Back</Button>
+              <Button type="submit" variant="canai" className="btn-canai px-10 py-3 rounded-lg animate-glow-pop drop-shadow-xl hover:scale-105 ring-canai-primary" id="submit-funnel" disabled={loading}>
                 {loading ? <Loader2 className="animate-spin mr-2" /> : null}
                 Submit
               </Button>
@@ -452,43 +470,43 @@ function DiscoveryFunnel() {
           </div>
           {/* Feedback, trust score, contradiction, error */}
           {feedback && (
-            <div id="feedback-text" className="feedback-message mt-4">{feedback}</div>
+            <div id="feedback-text" className="feedback-message mt-4 font-medium text-base text-canai-cyan animate-fade-in">{feedback}</div>
           )}
           {(trustScore !== undefined && trustScore < 50) && (
-            <div id="trust-score-row" className="trust-score-row">
-              Trust Score: <span id="trust-score" className="trust-score-low">{trustScore}%</span>
+            <div id="trust-score-row" className="trust-score-row text-base text-orange-400 mt-2">
+              Trust Score: <span id="trust-score" className="trust-score-low font-bold animate-countup-glow">{trustScore}%</span>
               <span id="trust-score-tip"> {trustTip && ` Try: '${trustTip}'`}</span>
             </div>
           )}
           {contradiction && (
-            <div id="contradiction-prompt" className="contradiction-prompt mt-2">{contradiction}</div>
+            <div id="contradiction-prompt" className="contradiction-prompt mt-2 text-orange-400 font-bold animate-shake">{contradiction}</div>
           )}
           {error && (
-            <div className="error-fallback mt-2" id="validation-error">{error}</div>
+            <div className="error-fallback mt-2 text-red-500 font-semibold animate-shake" id="validation-error">{error}</div>
           )}
         </form>
       </div>
-      {/* --- QUIZ MODAL --- */}
+      {/* --- QUIZ MODAL (untouched, already modern) --- */}
       {quizOpen && (
         <div
-          className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center"
+          className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center animate-fade-in"
           role="dialog"
           aria-modal="true"
           tabIndex={-1}
         >
-          <div className="bg-[#182e4d] rounded-xl shadow-xl p-8 text-center max-w-xs w-[325px]" style={{boxShadow:'0 0 32px #00f0ff33'}}>
-            <h2 className="text-lg font-bold mb-3">Help Me Decide</h2>
-            <div id="quiz-challenge" className="mb-5">
-              <div className="mb-2 font-medium">Biggest challenge?</div>
+          <div className="bg-glass-modal rounded-2xl shadow-strong p-8 text-center max-w-xs w-[325px]" style={{ boxShadow: '0 0 32px #00f0ff33' }}>
+            <h2 className="text-xl font-bold text-canai-cyan mb-4 font-playfair animate-text-glow">Help Me Decide</h2>
+            <div id="quiz-challenge" className="mb-6">
+              <div className="mb-3 font-semibold text-canai-light/90">Biggest challenge?</div>
               {quizOptions.map((q) => (
                 <button
                   key={q.value}
                   type="button"
                   className={cn(
-                    "quiz-option w-full border px-3 py-2 rounded-lg my-1 text-left transition",
+                    "quiz-option w-full border px-3 py-3 rounded-xl my-1 text-left font-medium transition text-canai-light bg-[#12294ae7] hover:bg-canai-cyan/10 focus:ring-2 focus:ring-canai-cyan",
                     quizSelected === q.value
-                      ? "border-canai-cyan bg-[#193c65] text-canai-cyan font-semibold"
-                      : "border-[#36d1fe77] bg-[#111c2e]"
+                      ? "border-canai-cyan bg-[#163251] text-canai-cyan font-semibold ring-2 ring-canai-cyan"
+                      : "border-[#36d1fe44]"
                   )}
                   onClick={() => handleQuizSelect(q.value)}
                   aria-selected={quizSelected === q.value}
@@ -498,10 +516,10 @@ function DiscoveryFunnel() {
               ))}
             </div>
             <div className="flex flex-col gap-3">
-              <Button className="btn-canai" id="quiz-submit" onClick={handleQuizSubmit} disabled={!quizSelected}>
+              <Button className="btn-canai canai-btn-glow px-7 py-3 rounded-xl text-lg animate-glow-pop" id="quiz-submit" onClick={handleQuizSubmit} disabled={!quizSelected}>
                 Submit Quiz
               </Button>
-              <Button variant="outline" id="quiz-close" className="btn-outline" onClick={handleQuizClose}>
+              <Button variant="outline" id="quiz-close" className="canai-btn-glow btn-outline px-7 py-3 rounded-xl text-canai-cyan border-canai-cyan border-2 text-lg" onClick={handleQuizClose}>
                 Cancel
               </Button>
             </div>
@@ -512,4 +530,3 @@ function DiscoveryFunnel() {
   );
 }
 export default DiscoveryFunnel;
-
