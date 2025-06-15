@@ -13,6 +13,7 @@ import DetailedInput from "./pages/DetailedInput";
 import IntentMirror from "./pages/IntentMirror";
 import SparkLayer from "./pages/SparkLayer";
 import PurchaseFlow from "./pages/PurchaseFlow";
+import DeliverableGeneration from "./pages/DeliverableGeneration";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/intent-mirror" element={<IntentMirror />} />
           <Route path="/spark-layer" element={<SparkLayer />} />
           <Route path="/purchase" element={<PurchaseFlow />} />
+          <Route path="/deliverable" element={<DeliverableGeneration />} />
           <Route path="/checkout" element={<div>Checkout - Coming Soon</div>} />
           <Route path="/generating" element={<div>Generating - Coming Soon</div>} />
           <Route path="/spark-split" element={<div>SparkSplit - Coming Soon</div>} />
