@@ -142,18 +142,18 @@ A bakery can be a profitable business with proper planning and execution.`);
     initializeSparkSplit();
   }, []);
 
-  const handleFeedbackSubmit = async (formData: { rating: number; comment: string }) => {
+  const handleFeedbackSubmit = async (rating: number, comment: string) => {
     try {
-      trackFeedbackSubmission('spark_split', formData.rating);
+      trackFeedbackSubmission('spark_split', rating);
       
       await submitFeedback({
-        rating: formData.rating,
-        comment: formData.comment,
+        rating,
+        comment,
         trust_delta: trustDelta,
         emotional_resonance: emotionalResonance
       });
 
-      console.log('[SparkSplit] Feedback submitted:', formData);
+      console.log('[SparkSplit] Feedback submitted:', { rating, comment });
       
       // Navigate to feedback page after submission
       setTimeout(() => {
@@ -215,7 +215,7 @@ A bakery can be a profitable business with proper planning and execution.`);
 
         {/* Trust Delta Display */}
         <div className="mb-8">
-          <TrustDeltaDisplay />
+          <TrustDeltaDisplay delta={trustDelta} />
         </div>
 
         {/* Comparison Container */}

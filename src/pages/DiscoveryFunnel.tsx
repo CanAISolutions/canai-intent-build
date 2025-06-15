@@ -61,7 +61,7 @@ const DiscoveryFunnel = () => {
       if (validation.valid) {
         const newTrustScore = Math.min(trustScore + 15, 100);
         setTrustScore(newTrustScore);
-        trackTrustScoreUpdate(newTrustScore, field);
+        trackTrustScoreUpdate(newTrustScore, { field });
       }
     } catch (error) {
       console.error('[Discovery Funnel] Validation failed:', error);

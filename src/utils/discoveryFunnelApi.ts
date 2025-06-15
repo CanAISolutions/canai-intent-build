@@ -6,6 +6,7 @@
 import { generateCorrelationId } from './tracing';
 
 export interface ValidationRequest {
+  field: string;
   value: string;
   context: Record<string, any>;
 }
@@ -31,25 +32,25 @@ export interface InitialPromptResponse {
   error?: string;
 }
 
-// Validate user input
+// Validate user input and provide trust score feedback
 export const validateInput = async (request: ValidationRequest): Promise<ValidationResponse> => {
   try {
     console.log('[Discovery Funnel API] Validating input:', request);
     
     // Mock validation logic
-    const isValid = request.value.length > 0;
-    const trustIncrease = isValid ? 15 : 0;
+    const isValid = request.value.length > 3;
+    const trustScore = isValid ? Math.min(75 + request.value.length, 100) : 25;
     
     return {
       valid: isValid,
-      feedback: isValid ? 'Input looks good!' : 'Please provide more details',
-      trustScore: trustIncrease
+      feedback: isValid ? 'Great input!' : 'Please provide more detail',
+      trustScore
     };
   } catch (error) {
     console.error('[Discovery Funnel API] Validation failed:', error);
     return {
       valid: false,
-      feedback: 'Validation error occurred',
+      feedback: 'Validation failed',
       trustScore: 0
     };
   }
@@ -60,17 +61,12 @@ export const submitInitialPrompt = async (request: InitialPromptRequest): Promis
   try {
     console.log('[Discovery Funnel API] Submitting initial prompt:', request);
     
-    // Store in localStorage for development
-    localStorage.setItem('canai_initial_prompt', JSON.stringify({
-      ...request,
-      id: generateCorrelationId(),
-      timestamp: new Date().toISOString()
-    }));
+    // Mock submission
+    const promptId = `prompt_${generateCorrelationId()}`;
     
-    // TODO: Replace with actual API call
     return {
       success: true,
-      promptId: generateCorrelationId()
+      promptId
     };
   } catch (error) {
     console.error('[Discovery Funnel API] Submission failed:', error);

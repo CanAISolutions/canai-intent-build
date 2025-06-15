@@ -13,7 +13,21 @@ export const POSTHOG_EVENTS = {
   SPARKS_REGENERATED: 'sparks_regenerated',
   SPARK_SPLIT_VIEW: 'spark_split_view',
   FEEDBACK_SUBMISSION: 'feedback_submission',
-  FORM_STEP: 'form_step'
+  FORM_STEP: 'form_step',
+  CTA_CLICKED: 'cta_clicked',
+  RESET_PASSWORD_CLICKED: 'reset_password_clicked',
+  PRODUCT_CLICKED: 'product_clicked',
+  PRICING_VIEW: 'pricing_view',
+  PREVIEW_VIEW: 'preview_view',
+  INTENT_MIRROR_CONFIRMED: 'intent_mirror_confirmed',
+  INTENT_MIRROR_EDITED: 'intent_mirror_edited',
+  INTENT_MIRROR_LOADED: 'intent_mirror_loaded',
+  SUPPORT_REQUESTED: 'support_requested',
+  DELIVERABLE_GENERATED: 'deliverable_generated',
+  REVISION_REQUESTED: 'revision_requested',
+  DELIVERABLE_REGENERATED: 'deliverable_regenerated',
+  PDF_DOWNLOAD: 'pdf_download',
+  EMOTIONAL_RESONANCE: 'emotional_resonance'
 } as const;
 
 // Mock PostHog implementation for development
@@ -117,6 +131,70 @@ export const trackFormStep = (stepName: string, properties?: Record<string, any>
   });
 };
 
+// Product click tracking
+export const trackProductClick = (productId: string, productName: string, properties?: Record<string, any>) => {
+  trackEvent(POSTHOG_EVENTS.PRODUCT_CLICKED, {
+    product_id: productId,
+    product_name: productName,
+    ...properties
+  });
+};
+
+// Pricing view tracking
+export const trackPricingView = (source: string, properties?: Record<string, any>) => {
+  trackEvent(POSTHOG_EVENTS.PRICING_VIEW, {
+    source,
+    ...properties
+  });
+};
+
+// Preview view tracking
+export const trackPreviewView = (source: string, properties?: Record<string, any>) => {
+  trackEvent(POSTHOG_EVENTS.PREVIEW_VIEW, {
+    source,
+    ...properties
+  });
+};
+
+// Intent mirror tracking
+export const trackIntentMirrorConfirmed = (properties?: Record<string, any>) => {
+  trackEvent(POSTHOG_EVENTS.INTENT_MIRROR_CONFIRMED, properties);
+};
+
+export const trackIntentMirrorEdited = (properties?: Record<string, any>) => {
+  trackEvent(POSTHOG_EVENTS.INTENT_MIRROR_EDITED, properties);
+};
+
+export const trackIntentMirrorLoaded = (properties?: Record<string, any>) => {
+  trackEvent(POSTHOG_EVENTS.INTENT_MIRROR_LOADED, properties);
+};
+
+// Support request tracking
+export const trackSupportRequested = (properties?: Record<string, any>) => {
+  trackEvent(POSTHOG_EVENTS.SUPPORT_REQUESTED, properties);
+};
+
+// Deliverable tracking
+export const trackDeliverableGenerated = (properties?: Record<string, any>) => {
+  trackEvent(POSTHOG_EVENTS.DELIVERABLE_GENERATED, properties);
+};
+
+export const trackRevisionRequested = (properties?: Record<string, any>) => {
+  trackEvent(POSTHOG_EVENTS.REVISION_REQUESTED, properties);
+};
+
+export const trackDeliverableRegenerated = (properties?: Record<string, any>) => {
+  trackEvent(POSTHOG_EVENTS.DELIVERABLE_REGENERATED, properties);
+};
+
+export const trackPDFDownload = (properties?: Record<string, any>) => {
+  trackEvent(POSTHOG_EVENTS.PDF_DOWNLOAD, properties);
+};
+
+export const trackEmotionalResonance = (properties?: Record<string, any>) => {
+  trackEvent(POSTHOG_EVENTS.EMOTIONAL_RESONANCE, properties);
+};
+
 // Performance tracking
 export const trackPerformance = (action: string, duration: number, properties?: Record<string, any>) => {
   trackEvent('performance_metric', {
@@ -135,3 +213,6 @@ export const trackError = (error: Error, context?: Record<string, any>) => {
     ...context
   });
 };
+
+// Re-export logInteraction from api module
+export { logInteraction } from './api';
