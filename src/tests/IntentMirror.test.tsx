@@ -1,6 +1,8 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/dom';
+import '@testing-library/jest-dom';
 import IntentMirror from '../pages/IntentMirror';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -57,11 +59,11 @@ describe('IntentMirror (F6-tests)', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId('summary-text') || screen.getByText(/Create a family-friendly bakery/)).toBeInTheDocument();
+      expect(screen.getByText(/Create a family-friendly bakery/)).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId('confidence-gauge') || screen.getByRole('progressbar')).toBeInTheDocument();
-    expect(screen.getByText(/85%|Confidence Score/)).toBeInTheDocument();
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.getByText(/85%/)).toBeInTheDocument();
   });
 
   it('shows clarifying questions when confidence < 0.8', async () => {
@@ -81,7 +83,7 @@ describe('IntentMirror (F6-tests)', () => {
 
     // Note: In real implementation, this would show clarifying questions
     // For now, we test the UI structure exists
-    const clarifySection = screen.queryByTestId('clarify-text');
+    const clarifySection = screen.queryByText(/Help us understand better/);
     if (clarifySection) {
       expect(clarifySection).toBeInTheDocument();
     }
@@ -95,10 +97,10 @@ describe('IntentMirror (F6-tests)', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId('confirm-btn') || screen.getByText(/Looks Perfect/)).toBeInTheDocument();
+      expect(screen.getByText(/Looks Perfect/)).toBeInTheDocument();
     });
 
-    const confirmButton = screen.getByTestId('confirm-btn') || screen.getByText(/Looks Perfect/);
+    const confirmButton = screen.getByText(/Looks Perfect/);
     fireEvent.click(confirmButton);
 
     await waitFor(() => {
@@ -114,10 +116,10 @@ describe('IntentMirror (F6-tests)', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId('edit-btn') || screen.getByText(/Edit Details/)).toBeInTheDocument();
+      expect(screen.getByText(/Edit Details/)).toBeInTheDocument();
     });
 
-    const editButton = screen.getByTestId('edit-btn') || screen.getByText(/Edit Details/);
+    const editButton = screen.getByText(/Edit Details/);
     fireEvent.click(editButton);
 
     // Should open edit modal
@@ -138,7 +140,7 @@ describe('IntentMirror (F6-tests)', () => {
     });
 
     // Check for business name edit button
-    const businessNameEdit = screen.queryByTestId('edit-field-businessName');
+    const businessNameEdit = screen.queryByText(/Business Name/);
     if (businessNameEdit) {
       expect(businessNameEdit).toBeInTheDocument();
     }
@@ -156,7 +158,7 @@ describe('IntentMirror (F6-tests)', () => {
     });
 
     // In a real scenario with low confidence, support link would appear
-    const supportLink = screen.queryByTestId('support-link');
+    const supportLink = screen.queryByText(/Get help from our team/);
     if (supportLink) {
       expect(supportLink).toBeInTheDocument();
       fireEvent.click(supportLink);
