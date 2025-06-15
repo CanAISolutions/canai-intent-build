@@ -85,7 +85,7 @@ const FeedbackPage: React.FC = () => {
         body: JSON.stringify({ prompt_id, rating, comment, sentiment }),
       });
       if (!res.ok) throw new Error("Submission failed");
-      toast({ description: "Feedback received." });
+      toast("Feedback received.");
       if (rating < 3) {
         window.posthog?.capture("poor_rating", { rating, prompt_id });
         await fetch("/v1/log-error", {
@@ -104,7 +104,7 @@ const FeedbackPage: React.FC = () => {
         rating,
       });
     } catch (err) {
-      toast({ description: "Could not send feedback.", variant: "destructive" });
+      toast("Could not send feedback.");
     }
   };
 
@@ -118,7 +118,7 @@ const FeedbackPage: React.FC = () => {
       body: JSON.stringify({ email, referred_by_prompt: prompt_id }),
     });
     window.posthog?.capture("refer_submitted", { email });
-    toast({ description: `Your unique link: ${uniqueLink}` });
+    toast(`Your unique link: ${uniqueLink}`);
     setEmail("");
     setReferModalOpen(false);
   };
@@ -132,7 +132,7 @@ const FeedbackPage: React.FC = () => {
       body: JSON.stringify({ prompt_id }),
     });
     window.posthog?.capture("rls_data_purged", { prompt_id });
-    toast({ description: "Per your request, your feedback and session data have been deleted." });
+    toast("Per your request, your feedback and session data have been deleted.");
   };
 
   // Social share handlers
