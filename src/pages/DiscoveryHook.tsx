@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect } from "react";
 import StandardBackground from "@/components/StandardBackground";
-import Hero from "@/components/DiscoveryHook/Hero";
-import TrustIndicatorsSection from "@/components/DiscoveryHook/TrustIndicatorsSection";
+import EnhancedHero from "@/components/DiscoveryHook/EnhancedHero";
+import PsychologicalTrustIndicators from "@/components/DiscoveryHook/PsychologicalTrustIndicators";
 import ProductCardsSection from "@/components/DiscoveryHook/ProductCardsSection";
-import SecondaryCTAs from "@/components/DiscoveryHook/SecondaryCTAs";
+import EnhancedSecondaryCTAs from "@/components/DiscoveryHook/EnhancedSecondaryCTAs";
 import PricingModal from "@/components/PricingModal";
 import PreviewModal from "@/components/PreviewModal";
 import MemberstackLoginButton from "@/components/DiscoveryHook/MemberstackLoginButton";
@@ -156,21 +156,21 @@ const DiscoveryHook = () => {
         className="flex-1 w-full flex flex-col items-center justify-center"
         aria-label="CanAI Emotional Sovereignty Platform Landing"
       >
-        {/* HERO */}
-        <Hero
+        {/* Enhanced HERO */}
+        <EnhancedHero
           userName={isLoggedIn ? userName : undefined}
           onStart={handleStart}
         />
         
-        {/* Trust Indicators */}
-        <TrustIndicatorsSection />
+        {/* Psychological Trust Indicators */}
+        <PsychologicalTrustIndicators />
         
         {/* Product Cards */}
         <div className="flex flex-col w-full items-center px-2 sm:px-0">
           <ProductCardsSection />
           
-          {/* Secondary CTAs */}
-          <SecondaryCTAs
+          {/* Enhanced Secondary CTAs */}
+          <EnhancedSecondaryCTAs
             onOpenPricing={handlePricingOpen}
             onOpenPreview={handlePreviewOpen}
           />
