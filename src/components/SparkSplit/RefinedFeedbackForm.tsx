@@ -23,79 +23,85 @@ const RefinedFeedbackForm: React.FC<RefinedFeedbackFormProps> = ({
   isSubmitting = false
 }) => {
   return (
-    <div className="bg-[#172b47] rounded-xl border border-[#36d1fe66] p-6">
-      <form onSubmit={onSubmit} className="space-y-6">
+    <div className="bg-gradient-to-br from-[#172b47] to-[#1E314F] rounded-2xl border border-[#36d1fe66] p-8 shadow-2xl">
+      <form onSubmit={onSubmit} className="space-y-8">
         <div>
-          <h3 className="text-lg font-semibold text-canai-light mb-4" id="feedback-heading">
+          <h3 className="text-2xl font-bold text-[#E6F6FF] mb-3" id="feedback-heading">
             Which output feels more like you?
           </h3>
-          <p className="text-sm text-gray-400 mb-4">
+          <p className="text-base text-[#E6F6FF] opacity-80 mb-6">
             Your honest feedback helps us understand what resonates with you.
           </p>
           <RadioGroup
             value={selection}
             onValueChange={onSelection}
-            className="space-y-3"
+            className="space-y-4"
             aria-labelledby="feedback-heading"
           >
-            <div className="flex items-center space-x-3 p-4 rounded-lg hover:bg-[#1E314F] transition-colors border border-transparent hover:border-[#36d1fe33] focus-within:border-[#00CFFF] focus-within:ring-1 focus-within:ring-[#00CFFF]">
-              <RadioGroupItem 
-                value="canai" 
-                id="choice-canai"
-                className="border-[#00CFFF] text-[#00CFFF] focus:ring-[#00CFFF] focus:ring-offset-[#172b47]"
-              />
-              <Label 
-                htmlFor="choice-canai" 
-                className="text-[#00CFFF] font-medium cursor-pointer flex-1"
-              >
-                CanAI Output
-                <span className="block text-xs text-gray-400 font-normal mt-1">
-                  Personalized for your vision
-                </span>
-              </Label>
+            <div className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-[#00CFFF]/10 to-transparent border border-[#00CFFF]/30 p-6 transition-all duration-300 hover:border-[#00CFFF]/60 hover:shadow-lg hover:shadow-[#00CFFF]/20 focus-within:border-[#00CFFF] focus-within:ring-2 focus-within:ring-[#00CFFF]/30">
+              <div className="flex items-center space-x-4">
+                <RadioGroupItem 
+                  value="canai" 
+                  id="choice-canai"
+                  className="border-[#00CFFF] text-[#00CFFF] focus:ring-[#00CFFF] focus:ring-offset-[#172b47] w-5 h-5"
+                />
+                <Label 
+                  htmlFor="choice-canai" 
+                  className="text-[#00CFFF] font-semibold cursor-pointer flex-1 text-lg"
+                >
+                  CanAI Output
+                  <span className="block text-sm text-[#E6F6FF] opacity-80 font-normal mt-1">
+                    Personalized for your vision
+                  </span>
+                </Label>
+              </div>
             </div>
 
-            <div className="flex items-center space-x-3 p-4 rounded-lg hover:bg-[#1E314F] transition-colors border border-transparent hover:border-[#36d1fe33] focus-within:border-[#00CFFF] focus-within:ring-1 focus-within:ring-[#00CFFF]">
-              <RadioGroupItem 
-                value="generic" 
-                id="choice-generic"
-                className="border-gray-400 text-gray-400 focus:ring-gray-400 focus:ring-offset-[#172b47]"
-              />
-              <Label 
-                htmlFor="choice-generic" 
-                className="text-gray-300 font-medium cursor-pointer flex-1"
-              >
-                Generic Output
-                <span className="block text-xs text-gray-400 font-normal mt-1">
-                  Standard AI response
-                </span>
-              </Label>
+            <div className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-gray-500/10 to-transparent border border-gray-400/30 p-6 transition-all duration-300 hover:border-gray-400/60 hover:shadow-lg hover:shadow-gray-400/20 focus-within:border-gray-400 focus-within:ring-2 focus-within:ring-gray-400/30">
+              <div className="flex items-center space-x-4">
+                <RadioGroupItem 
+                  value="generic" 
+                  id="choice-generic"
+                  className="border-gray-400 text-gray-400 focus:ring-gray-400 focus:ring-offset-[#172b47] w-5 h-5"
+                />
+                <Label 
+                  htmlFor="choice-generic" 
+                  className="text-gray-300 font-semibold cursor-pointer flex-1 text-lg"
+                >
+                  Generic Output
+                  <span className="block text-sm text-[#E6F6FF] opacity-80 font-normal mt-1">
+                    Standard AI response
+                  </span>
+                </Label>
+              </div>
             </div>
 
-            <div className="flex items-center space-x-3 p-4 rounded-lg hover:bg-[#1E314F] transition-colors border border-transparent hover:border-[#36d1fe33] focus-within:border-[#00CFFF] focus-within:ring-1 focus-within:ring-[#00CFFF]">
-              <RadioGroupItem 
-                value="neither" 
-                id="choice-neither"
-                className="border-orange-400 text-orange-400 focus:ring-orange-400 focus:ring-offset-[#172b47]"
-              />
-              <Label 
-                htmlFor="choice-neither" 
-                className="text-orange-300 font-medium cursor-pointer flex-1"
-              >
-                Neither feels right
-                <span className="block text-xs text-gray-400 font-normal mt-1">
-                  Both outputs need improvement
-                </span>
-              </Label>
+            <div className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-400/30 p-6 transition-all duration-300 hover:border-orange-400/60 hover:shadow-lg hover:shadow-orange-400/20 focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-400/30">
+              <div className="flex items-center space-x-4">
+                <RadioGroupItem 
+                  value="neither" 
+                  id="choice-neither"
+                  className="border-orange-400 text-orange-400 focus:ring-orange-400 focus:ring-offset-[#172b47] w-5 h-5"
+                />
+                <Label 
+                  htmlFor="choice-neither" 
+                  className="text-orange-300 font-semibold cursor-pointer flex-1 text-lg"
+                >
+                  Neither feels right
+                  <span className="block text-sm text-[#E6F6FF] opacity-80 font-normal mt-1">
+                    Both outputs need improvement
+                  </span>
+                </Label>
+              </div>
             </div>
           </RadioGroup>
         </div>
 
         {(selection === 'generic' || selection === 'neither') && (
-          <div className="space-y-3">
+          <div className="space-y-4 animate-fade-in">
             <Label 
               htmlFor="feedback-text" 
-              className="text-sm font-medium text-canai-light block"
+              className="text-lg font-semibold text-[#E6F6FF] block"
             >
               {selection === 'generic' 
                 ? 'What made the generic output feel better?' 
@@ -110,13 +116,13 @@ const RefinedFeedbackForm: React.FC<RefinedFeedbackFormProps> = ({
                 ? 'Tell us what resonated with you about the generic version...'
                 : 'Help us understand what both outputs are missing...'
               }
-              className="min-h-[120px] bg-[#1E314F] border-[#36d1fe66] text-canai-light placeholder:text-gray-400 focus:border-[#00CFFF] focus:ring-[#00CFFF] resize-none"
+              className="min-h-[140px] bg-[#1E314F]/50 border-[#36d1fe66] text-[#E6F6FF] placeholder:text-[#E6F6FF]/50 focus:border-[#00CFFF] focus:ring-[#00CFFF] resize-none rounded-xl text-base p-4"
               required
               aria-describedby={selection === 'generic' ? 'generic-help' : 'neither-help'}
             />
             <p 
               id={selection === 'generic' ? 'generic-help' : 'neither-help'}
-              className="text-xs text-gray-400"
+              className="text-sm text-[#E6F6FF] opacity-70"
             >
               Your feedback helps us improve our AI to better match your vision.
             </p>
@@ -125,14 +131,13 @@ const RefinedFeedbackForm: React.FC<RefinedFeedbackFormProps> = ({
 
         <Button
           type="submit"
-          variant="canai"
           disabled={!selection || isSubmitting || ((selection === 'generic' || selection === 'neither') && !feedback.trim())}
-          className="w-full py-3 text-base focus:ring-2 focus:ring-[#00CFFF] focus:ring-offset-2 focus:ring-offset-[#172b47]"
+          className="w-full py-4 text-lg font-semibold bg-gradient-to-r from-[#00CFFF] to-[#00B2E3] hover:from-[#00B2E3] hover:to-[#0099CC] text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 focus:ring-2 focus:ring-[#00CFFF] focus:ring-offset-2 focus:ring-offset-[#172b47] disabled:opacity-50 disabled:cursor-not-allowed"
           aria-describedby="submit-help"
         >
           {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
         </Button>
-        <p id="submit-help" className="text-xs text-gray-400 text-center">
+        <p id="submit-help" className="text-sm text-[#E6F6FF] opacity-70 text-center">
           Your preferences are saved securely and help improve our AI.
         </p>
       </form>

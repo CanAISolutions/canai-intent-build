@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { diffHighlight } from './utils';
 
 type RefinedComparisonContainerProps = {
   canaiOutput: string;
@@ -12,28 +11,28 @@ const RefinedComparisonContainer: React.FC<RefinedComparisonContainerProps> = ({
   genericOutput
 }) => {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" id="comparison-container">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8" id="comparison-container">
       {/* CanAI Output */}
       <div className="flex flex-col h-full">
-        <div className="bg-gradient-to-br from-[#1E314F] to-[#2A4A6B] rounded-xl border-2 border-[#00CFFF] shadow-xl flex-1 flex flex-col min-h-[400px]">
-          <div className="px-6 py-4 border-b border-[#36d1fe66]">
-            <h3 className="text-lg font-bold text-[#00CFFF] flex items-center gap-2">
-              <span className="w-3 h-3 bg-[#00CFFF] rounded-full"></span>
+        <div className="bg-gradient-to-br from-[#1E314F] to-[#2A4A6B] rounded-2xl border-2 border-[#00CFFF] shadow-2xl flex-1 flex flex-col min-h-[500px] overflow-hidden">
+          <div className="px-8 py-6 border-b border-[#36d1fe33] bg-gradient-to-r from-[#00CFFF]/10 to-transparent">
+            <h3 className="text-xl font-bold text-[#00CFFF] flex items-center gap-3 mb-2">
+              <div className="w-4 h-4 bg-[#00CFFF] rounded-full shadow-lg shadow-[#00CFFF]/50"></div>
               CanAI Output
             </h3>
-            <p className="text-xs text-canai-light mt-1">Personalized for your vision</p>
+            <p className="text-sm text-[#E6F6FF] opacity-90">Personalized for your vision</p>
           </div>
-          <div className="p-6 flex-1 overflow-hidden">
+          <div className="p-8 flex-1 overflow-hidden">
             <div 
-              className="text-sm leading-relaxed text-canai-light h-full overflow-y-auto break-words"
+              className="text-base leading-relaxed text-[#E6F6FF] h-full overflow-y-auto prose prose-invert max-w-none"
               style={{ 
                 whiteSpace: 'pre-wrap',
                 wordWrap: 'break-word',
                 overflowWrap: 'break-word',
-                hyphens: 'auto'
+                lineHeight: '1.7'
               }}
             >
-              {diffHighlight(canaiOutput, genericOutput)}
+              {canaiOutput}
             </div>
           </div>
         </div>
@@ -41,25 +40,25 @@ const RefinedComparisonContainer: React.FC<RefinedComparisonContainerProps> = ({
 
       {/* Generic Output */}
       <div className="flex flex-col h-full">
-        <div className="bg-gradient-to-br from-[#22335C] to-[#334567] rounded-xl border-2 border-[#666] shadow-xl flex-1 flex flex-col min-h-[400px]">
-          <div className="px-6 py-4 border-b border-[#666]">
-            <h3 className="text-lg font-bold text-gray-300 flex items-center gap-2">
-              <span className="w-3 h-3 bg-gray-400 rounded-full"></span>
+        <div className="bg-gradient-to-br from-[#2C3E50] to-[#34495E] rounded-2xl border-2 border-[#95A5A6] shadow-xl flex-1 flex flex-col min-h-[500px] overflow-hidden">
+          <div className="px-8 py-6 border-b border-[#95A5A6]/30 bg-gradient-to-r from-[#95A5A6]/10 to-transparent">
+            <h3 className="text-xl font-bold text-[#BDC3C7] flex items-center gap-3 mb-2">
+              <div className="w-4 h-4 bg-[#95A5A6] rounded-full"></div>
               Generic Output
             </h3>
-            <p className="text-xs text-gray-400 mt-1">Standard AI response</p>
+            <p className="text-sm text-[#95A5A6] opacity-90">Standard AI response</p>
           </div>
-          <div className="p-6 flex-1 overflow-hidden">
+          <div className="p-8 flex-1 overflow-hidden">
             <div 
-              className="text-sm leading-relaxed text-gray-300 h-full overflow-y-auto break-words"
+              className="text-base leading-relaxed text-[#ECF0F1] h-full overflow-y-auto prose prose-invert max-w-none"
               style={{ 
                 whiteSpace: 'pre-wrap',
                 wordWrap: 'break-word',
                 overflowWrap: 'break-word',
-                hyphens: 'auto'
+                lineHeight: '1.7'
               }}
             >
-              {diffHighlight(genericOutput, canaiOutput)}
+              {genericOutput}
             </div>
           </div>
         </div>

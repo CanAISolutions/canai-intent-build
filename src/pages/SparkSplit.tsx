@@ -259,15 +259,15 @@ const SparkSplit: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] to-[#00B2E3] py-8 px-4">
-        <div className="mx-auto w-full max-w-7xl bg-[#172b47e0] rounded-2xl shadow-strong backdrop-blur-xl border border-canai-primary p-6 md:p-12">
-          <div className="animate-pulse space-y-8">
-            <div className="h-8 bg-gray-700 rounded w-1/3"></div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="h-64 bg-gray-700 rounded-xl"></div>
-              <div className="h-64 bg-gray-700 rounded-xl"></div>
+      <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] to-[#00B2E3] py-12 px-6">
+        <div className="mx-auto w-full max-w-7xl bg-gradient-to-br from-[#172b47]/95 to-[#1E314F]/95 rounded-3xl shadow-2xl backdrop-blur-xl border border-[#36d1fe66] p-8 md:p-16">
+          <div className="animate-pulse space-y-12">
+            <div className="h-12 bg-gradient-to-r from-[#36d1fe]/30 to-[#00B2E3]/30 rounded-2xl w-2/3 mx-auto"></div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="h-80 bg-gradient-to-br from-[#36d1fe]/20 to-[#00B2E3]/20 rounded-3xl"></div>
+              <div className="h-80 bg-gradient-to-br from-gray-600/20 to-gray-500/20 rounded-3xl"></div>
             </div>
-            <div className="h-32 bg-gray-700 rounded-xl"></div>
+            <div className="h-48 bg-gradient-to-r from-[#36d1fe]/20 to-[#00B2E3]/20 rounded-3xl"></div>
           </div>
         </div>
       </div>
@@ -276,7 +276,7 @@ const SparkSplit: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] to-[#00B2E3] py-8 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] to-[#00B2E3] py-12 px-6">
         <div className="mx-auto w-full max-w-7xl">
           <F8EdgeFallback message={error} />
         </div>
@@ -285,28 +285,28 @@ const SparkSplit: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] to-[#00B2E3] py-8 px-4">
-      <div className="mx-auto w-full max-w-7xl bg-[#172b47e0] rounded-2xl shadow-strong backdrop-blur-xl border border-canai-primary p-6 md:p-12">
-        <div className="space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] to-[#00B2E3] py-12 px-6">
+      <div className="mx-auto w-full max-w-7xl bg-gradient-to-br from-[#172b47]/95 to-[#1E314F]/95 rounded-3xl shadow-2xl backdrop-blur-xl border border-[#36d1fe66] p-8 md:p-16">
+        <div className="space-y-12">
           {/* Header */}
-          <div className="text-center">
-            <h1 className="text-3xl md:text-4xl font-bold canai-gradient-text mb-4">
+          <div className="text-center space-y-4">
+            <h1 className="text-4xl md:text-5xl font-bold canai-gradient-text mb-6 leading-tight">
               Compare Your Personalized Plan
             </h1>
-            <p className="text-canai-light text-lg max-w-3xl mx-auto">
+            <p className="text-[#E6F6FF] text-xl max-w-4xl mx-auto leading-relaxed opacity-90">
               See how CanAI's personalized approach compares to generic AI outputs for your business vision
             </p>
           </div>
 
           {/* Main comparison layout */}
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-12">
             {/* Left sidebar - Context Summary */}
-            <div className="xl:col-span-1">
+            <div className="xl:col-span-1 space-y-8">
               <ProjectContextSummary />
             </div>
 
             {/* Main content area */}
-            <div className="xl:col-span-3 space-y-8">
+            <div className="xl:col-span-3 space-y-12">
               {/* Comparison containers */}
               {canaiOutput && genericOutput && (
                 <RefinedComparisonContainer
@@ -317,13 +317,13 @@ const SparkSplit: React.FC = () => {
 
               {/* Circuit breaker fallback - CanAI only */}
               {canaiOutput && !genericOutput && negativeEngagementCount >= CIRCUIT_BREAKER_THRESHOLD && (
-                <div className="bg-gradient-to-br from-[#1E314F] to-[#2A4A6B] rounded-xl border-2 border-[#00CFFF] shadow-xl p-8">
-                  <h3 className="text-xl font-bold text-[#00CFFF] mb-4">Your Personalized Plan</h3>
-                  <div className="text-base leading-relaxed text-canai-light prose prose-invert max-w-none break-words" style={{ whiteSpace: 'pre-wrap' }}>
+                <div className="bg-gradient-to-br from-[#1E314F] to-[#2A4A6B] rounded-3xl border-2 border-[#00CFFF] shadow-2xl p-12">
+                  <h3 className="text-2xl font-bold text-[#00CFFF] mb-6">Your Personalized Plan</h3>
+                  <div className="text-lg leading-relaxed text-[#E6F6FF] prose prose-invert max-w-none break-words" style={{ whiteSpace: 'pre-wrap' }}>
                     {canaiOutput}
                   </div>
-                  <div className="mt-6 p-4 bg-blue-900/30 rounded-lg border border-blue-400">
-                    <p className="text-sm text-blue-200">
+                  <div className="mt-8 p-6 bg-blue-900/30 rounded-2xl border border-blue-400/50">
+                    <p className="text-blue-200 text-base">
                       📊 Based on user feedback, we're focusing on delivering your personalized plan. 
                       Generic comparison temporarily unavailable.
                     </p>
@@ -333,8 +333,8 @@ const SparkSplit: React.FC = () => {
 
               {/* Emotional Compass and Trust Delta */}
               {emotionalResonance && trustDelta !== null && (
-                <div className="bg-[#172b47] rounded-xl border border-[#36d1fe66] p-8">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div className="bg-gradient-to-br from-[#172b47] to-[#1E314F] rounded-3xl border border-[#36d1fe66] p-12 shadow-2xl">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                     <EmotionalCompass 
                       scores={emotionalResonance.compassScores}
                       title="CanAI Emotional Resonance"
@@ -347,8 +347,8 @@ const SparkSplit: React.FC = () => {
                   
                   {/* Hume AI validation warning */}
                   {emotionalResonance.isFlagged && (
-                    <div className="mt-6 p-4 bg-yellow-900/30 rounded-lg border border-yellow-400">
-                      <p className="text-yellow-200 text-sm">
+                    <div className="mt-8 p-6 bg-yellow-900/30 rounded-2xl border border-yellow-400/50">
+                      <p className="text-yellow-200 text-base">
                         ⚠️ Emotional resonance scores are below quality thresholds and flagged for review.
                       </p>
                     </div>
@@ -384,7 +384,7 @@ const SparkSplit: React.FC = () => {
           */}
 
           {/* Footer note */}
-          <div className="text-center text-xs text-canai-light pt-8 border-t border-[#36d1fe33]">
+          <div className="text-center text-sm text-[#E6F6FF] pt-12 border-t border-[#36d1fe33] opacity-75">
             CanAI excludes branding elements. Contact us for design partnership opportunities.
           </div>
         </div>
