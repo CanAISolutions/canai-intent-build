@@ -4,8 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ErrorBoundary } from "react-error-boundary";
-import ErrorBoundaryFallback from "@/components/enhanced/ErrorBoundaryFallback";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import DiscoveryHook from "./pages/DiscoveryHook";
 import Samples from "./pages/Samples";
@@ -30,7 +29,7 @@ const queryClient = new QueryClient({
 });
 
 const App = () => (
-  <ErrorBoundary FallbackComponent={ErrorBoundaryFallback}>
+  <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
