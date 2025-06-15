@@ -1,14 +1,16 @@
+
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { ArrowUp } from "lucide-react";
-import ProjectContextSummary from "@/components/SparkSplit/ProjectContextSummary";
-import TrustDeltaStars from "@/components/SparkSplit/TrustDeltaStars";
-import EmotionalResonanceDisplay from "@/components/SparkSplit/EmotionalResonanceDisplay";
-import ComparisonContainer from "@/components/SparkSplit/ComparisonContainer";
-import FeedbackForm from "@/components/SparkSplit/FeedbackForm";
 import { useToast } from "@/components/ui/use-toast";
+import ProjectContextSummary from "@/components/SparkSplit/ProjectContextSummary";
+import RefinedComparisonContainer from "@/components/SparkSplit/RefinedComparisonContainer";
+import EmotionalCompass from "@/components/SparkSplit/EmotionalCompass";
+import TrustDeltaDisplay from "@/components/SparkSplit/TrustDeltaDisplay";
+import RefinedFeedbackForm from "@/components/SparkSplit/RefinedFeedbackForm";
+
+// Circuit breaker for negative engagement tracking
+let negativeEngagementCount = 0;
+const CIRCUIT_BREAKER_THRESHOLD = 50;
 
 // Edge fallback UI (F8-E1)
 const F8EdgeFallback = ({ message }: { message: string }) => (
@@ -18,11 +20,7 @@ const F8EdgeFallback = ({ message }: { message: string }) => (
   </div>
 );
 
-// Tooltip text (<100ms, id=trustdelta-tooltip)
-const canaiTooltipText =
-  "TrustDelta: How well our plan matches your vision (★ = 1 point).";
-
-// Constants for PRD alignment
+// Constants for PRD alignment - Sprinkle Haven Bakery example
 const EXAMPLE_BUSINESS = {
   businessName: "Sprinkle Haven Bakery",
   targetAudience: "Denver families",
@@ -44,7 +42,14 @@ type EmotionalResonance = {
   delta: number;
   arousal: number;
   valence: number;
-  isFlagged?: boolean; // Add flag for review (Hume AI fail)
+  compassScores: {
+    awe: number;
+    ownership: number;
+    wonder: number;
+    calm: number;
+    power: number;
+  };
+  isFlagged?: boolean;
 };
 
 const getPromptId = (search: URLSearchParams) =>
@@ -55,276 +60,363 @@ const SparkSplit: React.FC = () => {
   const { toast } = useToast();
 
   // State management
-  const [canai, setCanai] = useState<string | null>(null);
-  const [generic, setGeneric] = useState<string | null>(null);
+  const [canaiOutput, setCanaiOutput] = useState<string | null>(null);
+  const [genericOutput, setGenericOutput] = useState<string | null>(null);
   const [trustDelta, setTrustDelta] = useState<number | null>(null);
-  const [emoRes, setEmoRes] = useState<EmotionalResonance | null>(null);
+  const [emotionalResonance, setEmotionalResonance] = useState<EmotionalResonance | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tooltipVisible, setTooltipVisible] = useState(false);
   const [selection, setSelection] = useState("");
   const [feedback, setFeedback] = useState("");
-  const [dislikeFeedback, setDislikeFeedback] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [flagged, setFlagged] = useState<boolean>(false);
-
-  // For retry/edge case
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [retryCount, setRetryCount] = useState<number>(0);
 
-  // Accept prompt_id via query param for Supabase mapping
   const promptId = getPromptId(searchParams);
 
-  // Infer canaiOutput from Deliverable Generation - in a real app, fetch from state/routes/supabase.
-  // Here, use a demo string to align with Sprinkle Haven Bakery.
-  const canaiOutput = useMemo(
+  // Demo CanAI output based on Sprinkle Haven Bakery
+  const demoCanaiOutput = useMemo(
     () =>
-      `Sprinkle Haven Bakery is an artisanal bakery in Denver, CO serving Denver families with organic, community-focused pastries. Our warm, inviting approach sets us apart from Blue Moon Bakery, with a focus on sustainability, local sourcing, and empowering the community through healthy options. Core purpose: Funding for growth. Resources: $50k budget, team of 3, 6-month runway.`,
+      `**Sprinkle Haven Bakery: A Sweet Investment Opportunity**
+
+Sprinkle Haven Bakery represents more than just another bakery—we're crafting a community hub where Denver families discover the joy of truly organic, artisanal pastries. Our warm, family-first approach sets us apart in a market dominated by impersonal chains like Blue Moon Bakery.
+
+**The Opportunity:**
+Denver's growing health-conscious family demographic seeks authentic, organic options for their children. We're positioned to capture this $2.3M local market with our unique community-focused approach.
+
+**Our Secret Sauce:**
+- 100% organic, locally-sourced ingredients
+- Warm, inviting atmosphere designed for families
+- Community events that build lasting relationships
+- Transparent baking process that parents trust
+
+**Financial Projections:**
+With our $50,000 investment and dedicated team of 3, we project:
+- Year 1: $180,000 revenue (break-even month 8)
+- Year 2: $340,000 revenue (28% profit margin)
+- Year 3: $520,000 revenue, ready for second location
+
+Our 6-month runway allows for careful market entry and relationship building—the foundation of sustainable growth in the artisanal bakery space.`,
     []
   );
 
-  // POST /v1/spark-split to get genericOutput, trustDelta, emotionalResonance
+  // Fetch comparison data with circuit breaker logic
   const fetchSparkSplit = useCallback(
     async (retry = 0) => {
       setLoading(true);
       setError(null);
-      const t0 = performance.now();
+      
+      // Circuit breaker check
+      if (negativeEngagementCount >= CIRCUIT_BREAKER_THRESHOLD) {
+        console.warn("Circuit breaker activated - showing CanAI output only");
+        setCanaiOutput(demoCanaiOutput);
+        setGenericOutput(null);
+        setTrustDelta(null);
+        setEmotionalResonance(null);
+        setLoading(false);
+        return;
+      }
+
+      const startTime = performance.now();
+      
       try {
-        // MOCK API: In a real app, this would be a fetch call. We are mocking it to prevent errors.
-        await new Promise(resolve => setTimeout(resolve, 400)); // Simulate <500ms network delay
-
-        const mockGenericOutput = `Sprinkle Haven Bakery is a bakery in Denver. It sells pastries to families. It wants to get funding. It competes with Blue Moon Bakery. It has a budget of $50,000 and a team of 3.`;
-        
-        const data = {
-          canaiOutput,
-          genericOutput: mockGenericOutput,
-          trustDelta: 4.3,
-          emotionalResonance: {
-            canaiScore: 0.88,
-            genericScore: 0.42,
-            delta: 0.46,
-            arousal: 0.7,
-            valence: 0.8
-          }
-        };
-
-        // -- API INTEGRATION /v1/spark-split - ORIGINAL CODE --
-        // const resp = await fetch("/v1/spark-split", {
+        // <!-- TODO: POST /v1/spark-split -->
+        // This would call the actual API endpoint
+        // const response = await fetch("/v1/spark-split", {
         //   method: "POST",
         //   headers: { "Content-Type": "application/json" },
         //   body: JSON.stringify({
-        //     canaiOutput,
+        //     canaiOutput: demoCanaiOutput,
         //     promptId,
         //   }),
         // });
-        // if (!resp.ok) throw new Error("Failed to load comparison");
-        // const data = await resp.json();
-        
-        // Expect: { canaiOutput, genericOutput, trustDelta, emotionalResonance }
-        setCanai(data.canaiOutput);
-        setGeneric(data.genericOutput);
-        setTrustDelta(data.trustDelta);
-        let flagged = false;
-        // Hume AI validation (arousal >0.5, valence >0.6); flag if fails (weighted 0.4/0.6)
-        if (
-          !(
-            data.emotionalResonance &&
-            data.emotionalResonance.arousal > 0.5 &&
-            data.emotionalResonance.valence > 0.6
-          )
-        ) {
-          flagged = true;
-          setFlagged(true);
-          // Can add toast for reviewer, or log for Supabase (not shown UI)
-        }
-        setEmoRes({ ...data.emotionalResonance, isFlagged: flagged });
+
+        // MOCK API RESPONSE for demonstration
+        await new Promise(resolve => setTimeout(resolve, 300)); // Simulate network delay
+
+        const mockData = {
+          canaiOutput: demoCanaiOutput,
+          genericOutput: `Sprinkle Haven Bakery Business Plan
+
+Sprinkle Haven Bakery is a bakery business located in Denver, Colorado. The business targets families in the Denver area and competes with Blue Moon Bakery.
+
+Business Overview:
+- Product: Pastries and baked goods
+- Target Market: Local families
+- Competition: Blue Moon Bakery
+- Budget: $50,000
+- Team: 3 people
+- Timeline: 6 months
+
+Revenue Model:
+The business will generate revenue through direct sales and catering events.
+
+Financial Requirements:
+The business seeks funding to support startup costs and initial operations.
+
+Business Goals:
+The primary objective is to secure investor funding for business growth and expansion.`,
+          trustDelta: 2.3,
+          emotionalResonance: {
+            canaiScore: 0.89,
+            genericScore: 0.42,
+            delta: 0.47,
+            arousal: 0.75,
+            valence: 0.82,
+            compassScores: {
+              awe: 0.85,
+              ownership: 0.92,
+              wonder: 0.78,
+              calm: 0.65,
+              power: 0.88
+            }
+          }
+        };
+
+        setCanaiOutput(mockData.canaiOutput);
+        setGenericOutput(mockData.genericOutput);
+        setTrustDelta(mockData.trustDelta);
+        setEmotionalResonance(mockData.emotionalResonance);
         setLoading(false);
 
-        // Logging: capture plan_compared event on load
+        // PostHog: plan_compared event
         if (window.posthog) {
           window.posthog.capture("plan_compared", {
-            trustDelta: data.trustDelta,
+            trustDelta: mockData.trustDelta,
             selected: null,
-            emotionalResonance: { delta: data.emotionalResonance?.delta },
+            emotionalResonance: { delta: mockData.emotionalResonance.delta },
           });
         }
 
-        // Performance logging for <500ms load
-        const elapsed = performance.now() - t0;
-        if (elapsed > 500) {
-          console.warn("SparkSplit comparison loaded slower than 500ms", elapsed);
+        // Performance check (<2s requirement)
+        const loadTime = performance.now() - startTime;
+        if (loadTime > 2000) {
+          console.warn(`SparkSplit load time exceeded 2s: ${loadTime}ms`);
         }
+
       } catch (err) {
-        // F8-E1 edge: Retry 3 times, 2^i * 1000ms, then fallback+encrypt
+        // F8-E1 edge case: Retry 3 times with exponential backoff
         if (retry < 3) {
-          setTimeout(() => setRetryCount(count => count + 1), 2 ** retry * 1000);
+          setTimeout(() => setRetryCount(count => count + 1), Math.pow(2, retry) * 1000);
           return;
         }
-        setError("Comparison failed");
+        
+        setError("Comparison failed to load");
         setLoading(false);
-        // Data encrypted with supabase/vault (PRD); In a real system, trigger encryption here.
+        // Supabase: Log error and encrypt sensitive data with supabase/vault
+        console.error("SparkSplit load failed:", err);
       }
     },
-    [canaiOutput, promptId]
+    [demoCanaiOutput, promptId]
   );
 
   // Retry trigger
   useEffect(() => {
     fetchSparkSplit(retryCount);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [retryCount]);
+  }, [retryCount, fetchSparkSplit]);
 
-  // Tooltip PostHog event
-  const handleTooltipOpen = () => {
-    setTooltipVisible(true);
-    if (window.posthog) {
+  // Handle user selection
+  const handleSelection = (value: string) => {
+    setSelection(value);
+    setFeedback("");
+    
+    // Track negative engagement for circuit breaker
+    if (value === 'generic' || value === 'neither') {
+      negativeEngagementCount++;
+    }
+
+    // PostHog: plan_compared with selection
+    if (window.posthog && trustDelta && emotionalResonance) {
+      window.posthog.capture("plan_compared", {
+        trustDelta,
+        selected: value,
+        emotionalResonance: { delta: emotionalResonance.delta },
+      });
+    }
+
+    // PostHog: generic_preferred
+    if (value === 'generic' && window.posthog) {
+      window.posthog.capture("generic_preferred", { feedback: "" });
+    }
+  };
+
+  // Handle Trust Delta tooltip view
+  const handleTrustDeltaView = () => {
+    if (window.posthog && trustDelta) {
       window.posthog.capture("trustdelta_viewed", { score: trustDelta });
     }
   };
 
-  // Radio/feedback state
-  const handleSelection = (v: string) => {
-    setSelection(v);
-    setFeedback("");
-    setDislikeFeedback("");
-    // PostHog event
-    if (window.posthog && trustDelta != null && emoRes) {
-      window.posthog.capture("plan_compared", {
-        trustDelta,
-        selected: v,
-        emotionalResonance: { delta: emoRes.delta },
-      });
-    }
-  };
-
-  const handleFeedback = (text: string) => {
-    setFeedback(text);
-    if (window.posthog) {
-      window.posthog.capture("generic_preferred", { feedback: text });
-    }
-  };
-
-  const handleDislike = (text: string) => setDislikeFeedback(text);
-
-  // Submit feedback to Supabase (comparisons table, see PRD SQL, mapping prompt_id)
+  // Handle form submission
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Supabase: update comparisons with user_feedback, trust_delta
-    // Payload: { prompt_id, trust_delta, user_feedback, selection, dislike_feedback }
+    setIsSubmitting(true);
+
     try {
-      // MOCKING a successful submission
-      await new Promise(resolve => setTimeout(resolve, 200));
-      // Original fetch call:
-      // await fetch("/v1/spark-split", {
+      // <!-- TODO: POST /v1/spark-split feedback submission -->
+      // Supabase: comparisons.user_feedback, comparisons.trust_delta
+      // await fetch("/v1/spark-split/feedback", {
       //   method: "POST",
       //   headers: { "Content-Type": "application/json" },
       //   body: JSON.stringify({
       //     promptId,
       //     trustDelta,
-      //     userFeedback:
-      //       selection === "generic"
-      //         ? feedback
-      //         : selection === "dislike"
-      //         ? dislikeFeedback
-      //         : "",
+      //     userFeedback: feedback,
       //     selection,
       //   }),
       // });
+
+      // MOCK submission
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       toast({
         title: "Thank you for your feedback!",
-        description: "Your preferences have been recorded.",
+        description: "Your preferences help us improve our AI to better match your vision.",
       });
+
+      // Reset form
+      setSelection("");
+      setFeedback("");
+
     } catch (err) {
       toast({
         title: "Submission failed",
         description: "Please try again later.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   if (loading) {
     return (
-      <div className="max-w-5xl mx-auto py-12 px-4 flex flex-col gap-8 animate-fade-in">
-        {/* Skeleton states for rapid load */}
-        <div className="h-9 w-40 bg-gray-800/70 rounded mb-4 animate-pulse" />
-        <div className="flex gap-8">
-          <div className="flex-1 bg-gray-900/40 rounded-lg min-h-[100px] animate-pulse" />
-          <div className="flex-1 bg-gray-900/40 rounded-lg min-h-[100px] animate-pulse" />
+      <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] to-[#00B2E3] py-8 px-4">
+        <div className="mx-auto w-full max-w-7xl bg-[#172b47e0] rounded-2xl shadow-strong backdrop-blur-xl border border-canai-primary p-6 md:p-12">
+          <div className="animate-pulse space-y-8">
+            <div className="h-8 bg-gray-700 rounded w-1/3"></div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="h-64 bg-gray-700 rounded-xl"></div>
+              <div className="h-64 bg-gray-700 rounded-xl"></div>
+            </div>
+            <div className="h-32 bg-gray-700 rounded-xl"></div>
+          </div>
         </div>
-        <div className="h-7 w-44 bg-gray-700/80 rounded mt-8 animate-pulse" />
       </div>
     );
   }
+
   if (error) {
-    // F8-E1 fallback; edge: encrypted via supabase/vault
-    return <F8EdgeFallback message="Comparison failed to load. Please try again later." />;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] to-[#00B2E3] py-8 px-4">
+        <div className="mx-auto w-full max-w-7xl">
+          <F8EdgeFallback message={error} />
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] to-[#00B2E3] py-8 px-2">
-      <div className="mx-auto w-full max-w-6xl bg-[#172b47e0] rounded-2xl shadow-strong backdrop-blur-xl border border-canai-primary p-6 md:p-12">
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Context Summary Left */}
-          <ProjectContextSummary />
+    <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] to-[#00B2E3] py-8 px-4">
+      <div className="mx-auto w-full max-w-7xl bg-[#172b47e0] rounded-2xl shadow-strong backdrop-blur-xl border border-canai-primary p-6 md:p-12">
+        <div className="space-y-8">
+          {/* Header */}
+          <div className="text-center">
+            <h1 className="text-3xl md:text-4xl font-bold canai-gradient-text mb-4">
+              Compare Your Personalized Plan
+            </h1>
+            <p className="text-canai-light text-lg">
+              See how CanAI's personalized approach compares to generic AI outputs
+            </p>
+          </div>
 
-          {/* Comparison */}
-          <div className="flex-1 flex flex-col gap-6">
-            {/* Heading + Tooltip */}
-            <div className="flex items-center gap-3 mb-1">
-              <h2 className="text-2xl md:text-3xl font-bold canai-gradient-text">
-                Compare: CanAI vs. Generic Output
-              </h2>
-              <Tooltip open={tooltipVisible} onOpenChange={setTooltipVisible}>
-                <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    className="inline-flex"
-                    aria-describedby="trustdelta-tooltip"
-                    onClick={handleTooltipOpen}
-                  >
-                    <ArrowUp size={21} className="text-canai-cyan" aria-label="TrustDelta Info" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent
-                  side="top"
-                  className="rounded-md px-4 py-2 text-canai-light"
-                  id="trustdelta-tooltip"
-                >
-                  {canaiTooltipText}
-                </TooltipContent>
-              </Tooltip>
+          {/* Main comparison layout */}
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+            {/* Left sidebar - Context Summary */}
+            <div className="xl:col-span-1">
+              <ProjectContextSummary />
             </div>
-            <TrustDeltaStars score={trustDelta ?? 0} />
-            {/* Comparison grid: highlights diffs */}
-            <ComparisonContainer canai={canai || ""} generic={generic || ""} />
-            {/* Show Emotional Resonance (Hume AI) and flagged review */}
-            <EmotionalResonanceDisplay emoRes={emoRes} />
-            {flagged && (
-              <div className="text-yellow-400 font-semibold mb-3">
-                <span aria-label="Flagged for review">
-                  ⚠️ One or more emotional resonance scores is below the QA threshold and will be reviewed.
-                </span>
-              </div>
-            )}
-            {/* Feedback flow */}
-            <FeedbackForm
-              selection={selection}
-              onSelection={handleSelection}
-              feedback={feedback}
-              onFeedback={handleFeedback}
-              dislikeFeedback={dislikeFeedback}
-              onDislike={handleDislike}
-              onSubmit={handleFormSubmit}
-            />
-            <div
-              id="branding-note"
-              className="mt-6 text-center text-xs text-canai-light-softer"
-            >
-              CanAI excludes branding (e.g., logos). Contact us for partners.
+
+            {/* Main content area */}
+            <div className="xl:col-span-3 space-y-8">
+              {/* Comparison containers */}
+              {canaiOutput && genericOutput && (
+                <RefinedComparisonContainer
+                  canaiOutput={canaiOutput}
+                  genericOutput={genericOutput}
+                />
+              )}
+
+              {/* Circuit breaker fallback - CanAI only */}
+              {canaiOutput && !genericOutput && negativeEngagementCount >= CIRCUIT_BREAKER_THRESHOLD && (
+                <div className="bg-gradient-to-br from-[#1E314F] to-[#2A4A6B] rounded-xl border-2 border-[#00CFFF] shadow-xl p-8">
+                  <h3 className="text-xl font-bold text-[#00CFFF] mb-4">Your Personalized Plan</h3>
+                  <div className="text-base leading-relaxed text-canai-light prose prose-invert max-w-none">
+                    {canaiOutput}
+                  </div>
+                  <div className="mt-6 p-4 bg-blue-900/30 rounded-lg border border-blue-400">
+                    <p className="text-sm text-blue-200">
+                      📊 Based on user feedback, we're focusing on delivering your personalized plan. 
+                      Generic comparison temporarily unavailable.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Emotional Compass and Trust Delta */}
+              {emotionalResonance && trustDelta !== null && (
+                <div className="bg-[#172b47] rounded-xl border border-[#36d1fe66] p-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <EmotionalCompass 
+                      scores={emotionalResonance.compassScores}
+                      title="CanAI Emotional Resonance"
+                    />
+                    <TrustDeltaDisplay 
+                      delta={trustDelta}
+                      onTooltipView={handleTrustDeltaView}
+                    />
+                  </div>
+                  
+                  {/* Hume AI validation warning */}
+                  {emotionalResonance.isFlagged && (
+                    <div className="mt-6 p-4 bg-yellow-900/30 rounded-lg border border-yellow-400">
+                      <p className="text-yellow-200 text-sm">
+                        ⚠️ Emotional resonance scores are below quality thresholds and flagged for review.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Feedback Form */}
+              {!loading && canaiOutput && (
+                <RefinedFeedbackForm
+                  selection={selection}
+                  onSelection={handleSelection}
+                  feedback={feedback}
+                  onFeedback={setFeedback}
+                  onSubmit={handleFormSubmit}
+                  isSubmitting={isSubmitting}
+                />
+              )}
             </div>
-            {/* API placeholder/Supabase logging (PRD-mapped) */}
-            {/* TODO: POST /v1/spark-split */}
-            {/* Supabase: comparisons.trust_delta, comparisons.user_feedback, prompt_id */}
-            {/* PostHog: plan_compared, trustdelta_viewed, generic_preferred */}
+          </div>
+
+          {/* API Integration Comments */}
+          {/* 
+            Supabase Mapping:
+            - comparisons.trust_delta -> trustDelta state
+            - comparisons.emotional_resonance -> emotionalResonance state  
+            - comparisons.user_feedback -> feedback state
+            
+            PostHog Events:
+            - plan_compared: Triggered on load and selection change
+            - trustdelta_viewed: Triggered on tooltip interaction
+            - generic_preferred: Triggered when generic output selected
+          */}
+
+          {/* Footer note */}
+          <div className="text-center text-xs text-canai-light pt-8 border-t border-[#36d1fe33]">
+            CanAI excludes branding elements. Contact us for design partnership opportunities.
           </div>
         </div>
       </div>
