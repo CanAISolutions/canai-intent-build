@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -548,38 +547,45 @@ const IntentMirror = () => {
 
       {/* Enhanced Edit Confirmation Modal */}
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-        <DialogContent className="bg-canai-blue-card border-2 border-canai-primary/30 text-canai-light max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-canai-light text-center">
+        <DialogContent className="bg-canai-blue-card border-2 border-canai-primary/30 text-canai-light max-w-md mx-auto">
+          <DialogHeader className="text-center space-y-4">
+            <DialogTitle className="text-2xl font-bold text-canai-light">
               Edit Your Details
             </DialogTitle>
           </DialogHeader>
-          <div className="py-6">
-            <div className="text-center mb-6">
-              <Edit2 className="w-12 h-12 text-canai-primary mx-auto mb-4" />
-              <p className="text-white text-lg mb-2">
-                You'll return to the detailed input form to update your{" "}
-                <span className="font-semibold text-canai-primary">
-                  {editField.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                </span>{" "}
-                information.
-              </p>
-              <p className="text-canai-light opacity-75 text-sm">
-                Your progress will be saved automatically as you make changes.
-              </p>
+          
+          <div className="space-y-6 p-6">
+            <div className="text-center space-y-4">
+              <div className="mx-auto w-16 h-16 bg-canai-primary/20 rounded-full flex items-center justify-center">
+                <Edit2 className="w-8 h-8 text-canai-primary" />
+              </div>
+              
+              <div className="space-y-2">
+                <p className="text-white text-lg font-medium">
+                  You'll return to the detailed input form to update your{" "}
+                  <span className="font-bold text-canai-primary">
+                    {editField.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                  </span>{" "}
+                  information.
+                </p>
+                <p className="text-canai-light opacity-75 text-sm">
+                  Your progress will be saved automatically as you make changes.
+                </p>
+              </div>
             </div>
-            <div className="flex gap-3">
+            
+            <div className="flex flex-col gap-3">
               <Button
                 variant="canai"
                 onClick={handleEditConfirm}
-                className="flex-1"
+                className="w-full py-3"
               >
                 Continue to Edit
               </Button>
               <Button
                 variant="outline"
                 onClick={() => setShowEditModal(false)}
-                className="bg-transparent border-canai-primary text-canai-light hover:bg-canai-primary/20"
+                className="w-full bg-transparent border-canai-primary text-canai-light hover:bg-canai-primary/20 py-3"
               >
                 Cancel
               </Button>
