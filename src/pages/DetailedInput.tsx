@@ -10,6 +10,9 @@ import PageHeader from "@/components/PageHeader";
 import StepOneForm from "@/components/DetailedInput/StepOneForm";
 import StepTwoForm from "@/components/DetailedInput/StepTwoForm";
 import AutoSaveIndicator from "@/components/DetailedInput/AutoSaveIndicator";
+import { trackEvent, trackFunnelStep, POSTHOG_EVENTS } from "@/utils/analytics";
+import { insertSessionLog } from "@/utils/supabase";
+import { logSessionToMakecom } from "@/utils/makecom";
 
 export interface FormData {
   // Step 1 fields
@@ -74,12 +77,39 @@ const DetailedInput = () => {
       setIsAutoSaving(true);
       
       try {
-        // TODO: API Integration - POST /v1/save-progress
-        await new Promise(resolve => setTimeout(resolve, 150));
-        
-        if (Math.random() > 0.9 && retryCount === 0) {
-          throw new Error('Simulated save failure');
-        }
+        // Track input_saved event
+        const completedFields = Object.values(formData).filter(value => value.trim()).length;
+        trackEvent(POSTHOG_EVENTS.FUNNEL_STEP, {
+          stepName: 'detailed_input_autosave',
+          completed: true,
+          fields_completed: completedFields,
+          step: currentStep,
+          prompt_id: promptId
+        });
+
+        // Save to Supabase via session logs
+        await insertSessionLog({
+          user_id: undefined, // Anonymous user
+          interaction_type: 'detailed_input_autosave',
+          interaction_details: {
+            prompt_id: promptId,
+            step: currentStep,
+            form_data: formData,
+            fields_completed: completedFields,
+            completion_percentage: Math.round((completedFields / 12) * 100)
+          }
+        });
+
+        // Trigger Make.com workflow for additional processing
+        await logSessionToMakecom({
+          user_id: undefined,
+          interaction_type: 'detailed_input_autosave',
+          interaction_details: {
+            prompt_id: promptId,
+            payload: formData,
+            step: currentStep
+          }
+        });
         
         setLastSaved(new Date());
         setSaveAttempts(0);
@@ -101,6 +131,14 @@ const DetailedInput = () => {
             description: "Your progress couldn't be saved after multiple attempts. Please try again.",
             variant: "destructive"
           });
+
+          // Track failed save
+          trackEvent(POSTHOG_EVENTS.FUNNEL_STEP, {
+            stepName: 'detailed_input_save_failed',
+            completed: false,
+            dropoffReason: 'autosave_failure',
+            retry_count: retryCount
+          });
         }
       } finally {
         setIsAutoSaving(false);
@@ -113,6 +151,14 @@ const DetailedInput = () => {
     const interval = setInterval(() => autoSave(), 10000);
     return () => clearInterval(interval);
   }, [autoSave]);
+
+  // Track page view and funnel step
+  useEffect(() => {
+    trackFunnelStep('detailed_input_page_viewed', {
+      step: currentStep,
+      prompt_id: promptId
+    });
+  }, [currentStep, promptId]);
 
   // Validation functions
   const validateStep1 = (): boolean => {
@@ -169,20 +215,57 @@ const DetailedInput = () => {
   const handleNext = () => {
     if (validateStep1()) {
       setCurrentStep(2);
+      trackFunnelStep('detailed_input_step_2', {
+        step: 2,
+        prompt_id: promptId,
+        step1_completion: 'success'
+      });
       console.log('Moving to step 2');
+    } else {
+      trackEvent(POSTHOG_EVENTS.FUNNEL_STEP, {
+        stepName: 'detailed_input_step_1_validation_failed',
+        completed: false,
+        dropoffReason: 'validation_errors'
+      });
     }
   };
 
   const handlePrevious = () => {
     setCurrentStep(1);
     setErrors({});
+    trackFunnelStep('detailed_input_step_1_return', {
+      step: 1,
+      prompt_id: promptId
+    });
   };
 
   const handleSubmit = async () => {
-    if (!validateStep2()) return;
+    if (!validateStep2()) {
+      trackEvent(POSTHOG_EVENTS.FUNNEL_STEP, {
+        stepName: 'detailed_input_step_2_validation_failed',
+        completed: false,
+        dropoffReason: 'validation_errors'
+      });
+      return;
+    }
     
     try {
       await autoSave();
+
+      // Track successful completion
+      const completedFields = Object.values(formData).filter(value => value.trim()).length;
+      trackFunnelStep('detailed_input_completed', {
+        step: 2,
+        prompt_id: promptId,
+        fields_completed: completedFields,
+        completion_percentage: Math.round((completedFields / 12) * 100),
+        form_data_summary: {
+          has_business_name: !!formData.businessName,
+          has_description: !!formData.businessDescription,
+          has_target_audience: !!formData.targetAudience,
+          has_location: !!formData.location
+        }
+      });
       
       console.log('Form submitted successfully:', formData);
       
@@ -197,6 +280,14 @@ const DetailedInput = () => {
       
     } catch (error) {
       console.error('Submission failed:', error);
+      
+      trackEvent(POSTHOG_EVENTS.FUNNEL_STEP, {
+        stepName: 'detailed_input_submission_failed',
+        completed: false,
+        dropoffReason: 'submission_error',
+        error_message: error instanceof Error ? error.message : 'Unknown error'
+      });
+      
       toast({
         title: "Submission failed",
         description: "Please try again or contact support.",

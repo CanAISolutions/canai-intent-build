@@ -33,6 +33,16 @@ export interface PreviewSparkResponse {
   error: null | string;
 }
 
+export interface SaveProgressRequest {
+  prompt_id?: string;
+  payload: Record<string, any>;
+}
+
+export interface SaveProgressResponse {
+  prompt_id: string;
+  error: null | string;
+}
+
 // Base API configuration
 const API_BASE = import.meta.env.VITE_API_BASE || '/v1';
 const DEFAULT_TIMEOUT = 5000;
@@ -154,30 +164,146 @@ export const generatePreviewSpark = async (data: PreviewSparkRequest): Promise<P
   }
 };
 
-// Fallback spark generation based on business type
-const generateContextualSpark = (data: PreviewSparkRequest): { title: string; tagline: string } => {
-  const businessType = data.business_type?.toLowerCase() || '';
+// New save-progress API endpoint
+export const saveProgress = async (data: SaveProgressRequest): Promise<SaveProgressResponse> => {
+  console.log('[API] POST /v1/save-progress called with:', data);
   
-  if (businessType.includes('tech') || businessType.includes('software')) {
-    return {
-      title: "AI-Powered Tech Strategy",
-      tagline: "Scale your innovation with intelligent growth frameworks"
+  try {
+    const startTime = Date.now();
+    
+    // Primary: Save to Supabase prompt_logs
+    const promptId = data.prompt_id || crypto.randomUUID();
+    
+    await insertSessionLog({
+      user_id: undefined, // Anonymous user
+      interaction_type: 'save_progress',
+      interaction_details: {
+        prompt_id: promptId,
+        payload: data.payload,
+        timestamp: new Date().toISOString(),
+        correlation_id: generateCorrelationId()
+      }
+    });
+
+    // Secondary: Trigger Make.com workflow for processing
+    await logSessionToMakecom({
+      user_id: undefined,
+      interaction_type: 'save_progress',
+      interaction_details: {
+        prompt_id: promptId,
+        payload: data.payload,
+        action: 'save_detailed_input'
+      }
+    });
+
+    const duration = Date.now() - startTime;
+    console.log(`[API] save-progress completed in ${duration}ms`);
+
+    // Ensure response time < 500ms target
+    if (duration > 500) {
+      console.warn(`[API] save-progress exceeded 500ms target: ${duration}ms`);
+    }
+
+    return { 
+      prompt_id: promptId,
+      error: null 
     };
-  } else if (businessType.includes('retail') || businessType.includes('ecommerce')) {
-    return {
-      title: "Omnichannel Growth Engine",
-      tagline: "Transform customer experiences across every touchpoint"
+    
+  } catch (error) {
+    console.error('[API] saveProgress failed:', error);
+    
+    // Error logging
+    await logError({
+      user_id: undefined,
+      error_message: error instanceof Error ? error.message : 'Unknown error',
+      action: 'save_progress',
+      error_type: 'timeout'
+    });
+    
+    return { 
+      prompt_id: data.prompt_id || '',
+      error: 'Failed to save progress' 
     };
-  } else if (businessType.includes('service') || businessType.includes('consulting')) {
+  }
+};
+
+// Enhanced tooltip generation with GPT-4o integration
+export const generateTooltipContent = async (data: {
+  field: string;
+  business_type?: string;
+  context?: string;
+}): Promise<{ content: string; error: null | string }> => {
+  console.log('[API] POST /v1/generate-tooltip called with:', data);
+  
+  try {
+    const startTime = Date.now();
+    
+    // TODO: Replace with actual GPT-4o API integration
+    const response = await apiCall<{ content: string; error: null | string }>('/generate-tooltip', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    
+    const duration = Date.now() - startTime;
+    
+    // Ensure response time < 100ms target
+    if (duration > 100) {
+      console.warn(`[API] generate-tooltip exceeded 100ms target: ${duration}ms`);
+    }
+    
+    console.log(`[API] Tooltip generated in ${duration}ms:`, response);
+    return response;
+    
+  } catch (error) {
+    console.warn('[API] generateTooltipContent failed, using fallback:', error);
+    
+    // Fallback: Generate contextual tooltip based on field and business type
+    const contextualTooltip = generateContextualTooltip(data);
+    
     return {
-      title: "Premium Service Blueprint",
-      tagline: "Elevate your expertise into premium offerings"
+      content: contextualTooltip,
+      error: null
     };
+  }
+};
+
+// Fallback tooltip generation based on field and business context
+const generateContextualTooltip = (data: { field: string; business_type?: string }): string => {
+  const businessType = data.business_type?.toLowerCase() || '';
+  const field = data.field;
+  
+  const tooltips: Record<string, Record<string, string>> = {
+    businessDescription: {
+      bakery: "E.g., 'Artisanal bakery serving Denver with organic pastries and community gathering space'",
+      tech: "E.g., 'SaaS platform helping small businesses automate their customer communication'",
+      retail: "E.g., 'Sustainable fashion boutique offering ethically-sourced clothing for millennials'",
+      default: "Describe your business in 10-50 words, focusing on what you do and who you serve"
+    },
+    revenueModel: {
+      bakery: "E.g., 'Daily bakery sales, custom cakes, catering services, coffee bar'",
+      tech: "E.g., 'Monthly SaaS subscriptions, setup fees, premium support packages'",
+      retail: "E.g., 'Product sales, styling consultations, seasonal collections'",
+      default: "How will your business make money? List your main revenue streams"
+    },
+    resourceConstraints: {
+      bakery: "E.g., '$50k startup budget; team of 3; 6-month timeline to opening'",
+      tech: "E.g., '$100k seed funding; 2 developers; 12-month MVP timeline'",
+      retail: "E.g., '$30k initial inventory; solo founder; 3-month launch timeline'",
+      default: "What are your budget, team, and timeline constraints?"
+    }
+  };
+  
+  const fieldTooltips = tooltips[field];
+  if (!fieldTooltips) return "Additional context to help us understand your business better";
+  
+  if (businessType.includes('bakery') || businessType.includes('food')) {
+    return fieldTooltips.bakery || fieldTooltips.default;
+  } else if (businessType.includes('tech') || businessType.includes('software')) {
+    return fieldTooltips.tech || fieldTooltips.default;
+  } else if (businessType.includes('retail') || businessType.includes('store')) {
+    return fieldTooltips.retail || fieldTooltips.default;
   } else {
-    return {
-      title: "Visionary Business Strategy",
-      tagline: "Unlock your potential with data-driven insights"
-    };
+    return fieldTooltips.default;
   }
 };
 

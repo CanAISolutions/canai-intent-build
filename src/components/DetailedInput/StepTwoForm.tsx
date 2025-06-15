@@ -1,12 +1,13 @@
-
-import React from "react";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, Loader2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { FormData } from "@/pages/DetailedInput";
+import { generateTooltipContent } from "@/utils/api";
+import { trackEvent, POSTHOG_EVENTS } from "@/utils/analytics";
 
 interface StepTwoFormProps {
   formData: FormData;
@@ -15,6 +16,9 @@ interface StepTwoFormProps {
 }
 
 const StepTwoForm: React.FC<StepTwoFormProps> = ({ formData, setFormData, errors }) => {
+  const [tooltipLoading, setTooltipLoading] = useState<string | null>(null);
+  const [enhancedTooltips, setEnhancedTooltips] = useState<Record<string, string>>({});
+
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData({
       ...formData,
@@ -22,12 +26,69 @@ const StepTwoForm: React.FC<StepTwoFormProps> = ({ formData, setFormData, errors
     });
   };
 
-  const handleTooltipClick = (field: string) => {
+  const handleTooltipClick = async (field: string) => {
     console.log('Tooltip viewed:', field);
+    
+    // Track tooltip interaction
+    trackEvent(POSTHOG_EVENTS.FUNNEL_STEP, {
+      stepName: 'tooltip_viewed',
+      completed: true,
+      tooltip_field: field,
+      business_type: formData.businessName ? 'defined' : 'undefined'
+    });
+
+    // Generate enhanced tooltip if not already cached
+    if (!enhancedTooltips[field]) {
+      setTooltipLoading(field);
+      
+      try {
+        const startTime = Date.now();
+        const tooltipResponse = await generateTooltipContent({
+          field,
+          business_type: formData.businessName || 'general',
+          context: formData.businessDescription || ''
+        });
+        
+        const duration = Date.now() - startTime;
+        console.log(`[Tooltip] Generated for ${field} in ${duration}ms`);
+        
+        if (tooltipResponse.content) {
+          setEnhancedTooltips(prev => ({
+            ...prev,
+            [field]: tooltipResponse.content
+          }));
+        }
+        
+        // Track tooltip generation performance
+        trackEvent(POSTHOG_EVENTS.FUNNEL_STEP, {
+          stepName: 'tooltip_generated',
+          completed: true,
+          tooltip_field: field,
+          generation_time_ms: duration,
+          meets_performance_target: duration < 100
+        });
+        
+      } catch (error) {
+        console.error('[Tooltip] Generation failed:', error);
+        
+        trackEvent(POSTHOG_EVENTS.FUNNEL_STEP, {
+          stepName: 'tooltip_generation_failed',
+          completed: false,
+          tooltip_field: field,
+          error: error instanceof Error ? error.message : 'Unknown error'
+        });
+      } finally {
+        setTooltipLoading(null);
+      }
+    }
   };
 
   const countWords = (text: string) => {
     return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  };
+
+  const getTooltipContent = (field: string, defaultContent: string) => {
+    return enhancedTooltips[field] || defaultContent;
   };
 
   return (
@@ -41,14 +102,22 @@ const StepTwoForm: React.FC<StepTwoFormProps> = ({ formData, setFormData, errors
             </Label>
             <Tooltip>
               <TooltipTrigger asChild>
-                <HelpCircle 
-                  id="desc-tooltip"
-                  className="w-5 h-5 text-canai-primary cursor-help hover:text-canai-cyan transition-colors duration-200"
-                  onClick={() => handleTooltipClick('businessDescription')}
-                />
+                <div className="flex items-center">
+                  {tooltipLoading === 'businessDescription' ? (
+                    <Loader2 className="w-5 h-5 text-canai-primary animate-spin" />
+                  ) : (
+                    <HelpCircle 
+                      id="desc-tooltip"
+                      className="w-5 h-5 text-canai-primary cursor-help hover:text-canai-cyan transition-colors duration-200"
+                      onClick={() => handleTooltipClick('businessDescription')}
+                    />
+                  )}
+                </div>
               </TooltipTrigger>
               <TooltipContent className="bg-canai-deep border-canai-primary/50 text-canai-light max-w-xs p-3 rounded-lg shadow-lg">
-                <p className="text-sm">E.g., "Artisanal bakery serving Denver with organic pastries and community gathering space"</p>
+                <p className="text-sm">
+                  {getTooltipContent('businessDescription', "E.g., \"Artisanal bakery serving Denver with organic pastries and community gathering space\"")}
+                </p>
               </TooltipContent>
             </Tooltip>
           </div>
@@ -113,14 +182,22 @@ const StepTwoForm: React.FC<StepTwoFormProps> = ({ formData, setFormData, errors
               </Label>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <HelpCircle 
-                    id="constraints-tooltip"
-                    className="w-5 h-5 text-canai-primary cursor-help hover:text-canai-cyan transition-colors duration-200"
-                    onClick={() => handleTooltipClick('resourceConstraints')}
-                  />
+                  <div className="flex items-center">
+                    {tooltipLoading === 'resourceConstraints' ? (
+                      <Loader2 className="w-5 h-5 text-canai-primary animate-spin" />
+                    ) : (
+                      <HelpCircle 
+                        id="constraints-tooltip"
+                        className="w-5 h-5 text-canai-primary cursor-help hover:text-canai-cyan transition-colors duration-200"
+                        onClick={() => handleTooltipClick('resourceConstraints')}
+                      />
+                    )}
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent className="bg-canai-deep border-canai-primary/50 text-canai-light max-w-xs p-3 rounded-lg shadow-lg">
-                  <p className="text-sm">E.g., "$50k budget; team of 3; 6 months timeline"</p>
+                  <p className="text-sm">
+                    {getTooltipContent('resourceConstraints', "E.g., \"$50k budget; team of 3; 6 months timeline\"")}
+                  </p>
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -171,14 +248,22 @@ const StepTwoForm: React.FC<StepTwoFormProps> = ({ formData, setFormData, errors
             </Label>
             <Tooltip>
               <TooltipTrigger asChild>
-                <HelpCircle 
-                  id="revenue-tooltip"
-                  className="w-5 h-5 text-canai-primary cursor-help hover:text-canai-cyan transition-colors duration-200"
-                  onClick={() => handleTooltipClick('revenueModel')}
-                />
+                <div className="flex items-center">
+                  {tooltipLoading === 'revenueModel' ? (
+                    <Loader2 className="w-5 h-5 text-canai-primary animate-spin" />
+                  ) : (
+                    <HelpCircle 
+                      id="revenue-tooltip"
+                      className="w-5 h-5 text-canai-primary cursor-help hover:text-canai-cyan transition-colors duration-200"
+                      onClick={() => handleTooltipClick('revenueModel')}
+                    />
+                  )}
+                </div>
               </TooltipTrigger>
               <TooltipContent className="bg-canai-deep border-canai-primary/50 text-canai-light max-w-xs p-3 rounded-lg shadow-lg">
-                <p className="text-sm">E.g., "Bakery sales, events, catering services"</p>
+                <p className="text-sm">
+                  {getTooltipContent('revenueModel', "E.g., \"Bakery sales, events, catering services\"")}
+                </p>
               </TooltipContent>
             </Tooltip>
           </div>

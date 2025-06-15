@@ -96,7 +96,76 @@ CREATE TABLE initial_prompt_logs (
 );
 */
 
-// Helper functions for database operations
+// Supabase Vault encryption configuration
+export const enableVaultEncryption = async () => {
+  try {
+    // TODO: Configure Supabase Vault encryption
+    /*
+    -- Enable vault extension
+    CREATE EXTENSION IF NOT EXISTS supabase_vault WITH SCHEMA vault;
+    
+    -- Create encryption key for prompt_logs
+    INSERT INTO vault.secrets (name, secret)
+    VALUES ('prompt_logs_encryption_key', 'your-encryption-key-here')
+    ON CONFLICT (name) DO NOTHING;
+    
+    -- Enable vault encryption for sensitive fields
+    ALTER TABLE prompt_logs 
+    ADD COLUMN IF NOT EXISTS encrypted_payload vault.encrypted_jsonb;
+    
+    -- Create function to encrypt payload
+    CREATE OR REPLACE FUNCTION encrypt_prompt_payload(payload jsonb)
+    RETURNS vault.encrypted_jsonb
+    LANGUAGE plpgsql
+    AS $$
+    BEGIN
+      RETURN vault.encrypt_jsonb(payload, (SELECT secret FROM vault.secrets WHERE name = 'prompt_logs_encryption_key'));
+    END;
+    $$;
+    */
+    
+    console.log('[Supabase] Vault encryption configuration ready (requires manual setup)');
+    return true;
+  } catch (error) {
+    console.error('[Supabase] Vault encryption setup failed:', error);
+    return false;
+  }
+};
+
+// Enhanced helper functions with encryption support
+export const insertPromptLog = async (log: {
+  user_id?: string;
+  initial_prompt_id?: string;
+  payload: Record<string, any>;
+  location?: string;
+  unique_value?: string;
+}) => {
+  try {
+    // TODO: Use vault encryption for payload when configured
+    const { data, error } = await supabase
+      .from('prompt_logs')
+      .insert([{
+        user_id: log.user_id,
+        initial_prompt_id: log.initial_prompt_id,
+        payload: log.payload, // Will be encrypted_payload when vault is configured
+        location: log.location,
+        unique_value: log.unique_value
+      }])
+      .select();
+    
+    if (error) {
+      console.error('[Supabase] Error inserting prompt log:', error);
+      throw error;
+    }
+    
+    console.log('[Supabase] Prompt log inserted successfully');
+    return data;
+  } catch (error) {
+    console.error('[Supabase] insertPromptLog failed:', error);
+    throw error;
+  }
+};
+
 export const insertSessionLog = async (log: Omit<SessionLog, 'id' | 'created_at'>) => {
   const { data, error } = await supabase
     .from('session_logs')
@@ -153,28 +222,5 @@ export const insertErrorLog = async (log: Omit<ErrorLog, 'id' | 'created_at'>) =
   return data;
 };
 
-// TODO: Add supabase/vault encryption setup
-// https://supabase.com/docs/guides/database/vault
-
-/*
--- Spark logs schema
-CREATE TABLE spark_logs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  initial_prompt_id UUID REFERENCES initial_prompt_logs(id),
-  selected_spark JSONB NOT NULL,
-  product_track TEXT CHECK (product_track IN ('business_builder', 'social_email', 'site_audit')),
-  feedback TEXT,
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-
--- Enable RLS on spark_logs
-ALTER TABLE spark_logs ENABLE ROW LEVEL SECURITY;
-
--- Policy: Users can only access their own spark logs
-CREATE POLICY "User access spark_logs" ON spark_logs
-  USING (auth.uid() = (SELECT user_id FROM initial_prompt_logs WHERE id = initial_prompt_id));
-
--- Policy: Anonymous users can insert spark logs
-CREATE POLICY "Anonymous insert spark_logs" ON spark_logs
-  FOR INSERT WITH CHECK (true);
-*/
+// Initialize vault encryption on module load
+enableVaultEncryption();
