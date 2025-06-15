@@ -1,3 +1,4 @@
+
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -7,6 +8,9 @@ import EmotionalCompass from "@/components/SparkSplit/EmotionalCompass";
 import TrustDeltaDisplay from "@/components/SparkSplit/TrustDeltaDisplay";
 import RefinedFeedbackForm from "@/components/SparkSplit/RefinedFeedbackForm";
 import SparkleIcon from "@/components/SparkSplit/SparkleIcon";
+import StandardBackground from "@/components/StandardBackground";
+import StandardCard from "@/components/StandardCard";
+import { PageTitle, BodyText } from "@/components/StandardTypography";
 
 // Circuit breaker for negative engagement tracking
 let negativeEngagementCount = 0;
@@ -14,10 +18,10 @@ const CIRCUIT_BREAKER_THRESHOLD = 50;
 
 // Edge fallback UI (F8-E1)
 const F8EdgeFallback = ({ message }: { message: string }) => (
-  <div className="flex flex-col items-center justify-center min-h-[250px] error-fallback text-center bg-canai-deep border border-red-400 p-8 rounded-xl mt-8">
+  <StandardCard variant="form" className="text-center border-red-400/50">
     <div className="text-xl mb-3 font-semibold text-red-400">{message}</div>
-    <div className="text-canai-light">Sensitive data has been encrypted with supabase/vault.</div>
-  </div>
+    <div className="text-[#E6F6FF]">Sensitive data has been encrypted with supabase/vault.</div>
+  </StandardCard>
 );
 
 // Constants for PRD alignment - Sprinkle Haven Bakery example
@@ -122,7 +126,7 @@ const SparkSplit: React.FC = () => {
       const startTime = performance.now();
       
       try {
-        // <!-- TODO: POST /v1/spark-split -->
+        // TODO: POST /v1/spark-split
         await new Promise(resolve => setTimeout(resolve, 300));
 
         const mockData = {
@@ -222,20 +226,7 @@ const SparkSplit: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // <!-- TODO: POST /v1/spark-split feedback submission -->
-      // Supabase: comparisons.user_feedback, comparisons.trust_delta
-      // await fetch("/v1/spark-split/feedback", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({
-      //     promptId,
-      //     trustDelta,
-      //     userFeedback: feedback,
-      //     selection,
-      //   }),
-      // });
-
-      // MOCK submission
+      // TODO: POST /v1/spark-split feedback submission
       await new Promise(resolve => setTimeout(resolve, 500));
 
       toast({
@@ -260,119 +251,131 @@ const SparkSplit: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] to-[#00B2E3] py-12 px-6">
-        <div className="mx-auto w-full max-w-7xl bg-gradient-to-br from-[#172b47]/95 to-[#1E314F]/95 rounded-3xl shadow-2xl backdrop-blur-xl border border-[#36d1fe66] p-8 md:p-16">
-          <div className="animate-pulse space-y-12">
-            <div className="h-12 bg-gradient-to-r from-[#36d1fe]/30 to-[#00B2E3]/30 rounded-2xl w-2/3 mx-auto"></div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="h-80 bg-gradient-to-br from-[#36d1fe]/20 to-[#00B2E3]/20 rounded-3xl"></div>
-              <div className="h-80 bg-gradient-to-br from-gray-600/20 to-gray-500/20 rounded-3xl"></div>
+      <StandardBackground>
+        <div className="container mx-auto px-4 py-16 max-w-6xl">
+          <StandardCard variant="form">
+            <div className="animate-pulse space-y-12">
+              <div className="h-12 bg-gradient-to-r from-[#36d1fe]/30 to-[#00B2E3]/30 rounded-2xl w-2/3 mx-auto"></div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="h-80 bg-gradient-to-br from-[#36d1fe]/20 to-[#00B2E3]/20 rounded-3xl"></div>
+                <div className="h-80 bg-gradient-to-br from-gray-600/20 to-gray-500/20 rounded-3xl"></div>
+              </div>
+              <div className="h-48 bg-gradient-to-r from-[#36d1fe]/20 to-[#00B2E3]/20 rounded-3xl"></div>
             </div>
-            <div className="h-48 bg-gradient-to-r from-[#36d1fe]/20 to-[#00B2E3]/20 rounded-3xl"></div>
-          </div>
+          </StandardCard>
         </div>
-      </div>
+      </StandardBackground>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] to-[#00B2E3] py-12 px-6">
-        <div className="mx-auto w-full max-w-7xl">
+      <StandardBackground>
+        <div className="container mx-auto px-4 py-16 max-w-6xl">
           <F8EdgeFallback message={error} />
         </div>
-      </div>
+      </StandardBackground>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] to-[#00B2E3] py-14 px-4 md:px-10 shadow-strong">
-      <div className="mx-auto w-full max-w-7xl bg-gradient-to-br from-[#172b47f0] to-[#1E314F]/90 rounded-3xl shadow-2xl backdrop-blur-xl border border-[#36d1fe66] p-4 md:p-11">
-        <div className="space-y-14">
-          {/* Header */}
-          <div className="text-center space-y-4 animate-fade-in">
-            <h1 className="font-playfair text-4xl md:text-5xl font-bold canai-gradient-text drop-shadow-xl mb-4 leading-tight animate-text-glow">
-              Side-by-Side Plan Comparison
-            </h1>
-            <p className="text-canai-light text-xl max-w-4xl mx-auto leading-relaxed opacity-90 font-manrope">
-              Discover how <span className="font-semibold text-canai-cyan">CanAI’s personalized magic</span> stacks up against the average AI suggestion for your business.
-            </p>
-          </div>
-          {/* Main comparison layout */}
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-10 relative">
-            {/* Left sidebar - Context Summary */}
-            <div className="xl:col-span-1 space-y-8">
-              <ProjectContextSummary />
+    <StandardBackground>
+      <div className="container mx-auto px-4 py-16 max-w-6xl">
+        <StandardCard variant="form">
+          <div className="space-y-14">
+            {/* Header */}
+            <div className="text-center space-y-4 animate-fade-in">
+              <PageTitle className="animate-text-glow mb-4">
+                Side-by-Side Plan Comparison
+              </PageTitle>
+              <BodyText className="text-xl max-w-4xl mx-auto leading-relaxed">
+                Discover how <span className="font-semibold text-[#36d1fe]">CanAI's personalized magic</span> stacks up against the average AI suggestion for your business.
+              </BodyText>
             </div>
-            {/* Main content area */}
-            <div className="xl:col-span-3 space-y-14">
-              {/* Comparison containers */}
-              {canaiOutput && genericOutput && (
-                <RefinedComparisonContainer
-                  canaiOutput={canaiOutput}
-                  genericOutput={genericOutput}
-                />
-              )}
-              {/* Circuit breaker fallback - CanAI only */}
-              {canaiOutput && !genericOutput && negativeEngagementCount >= CIRCUIT_BREAKER_THRESHOLD && (
-                <div className="bg-gradient-to-br from-[#1E314F] to-[#2A4A6B] rounded-3xl border-2 border-[#00CFFF] shadow-2xl p-12">
-                  <h3 className="text-2xl font-bold text-[#00CFFF] mb-6">Your Personalized Plan</h3>
-                  <div className="text-lg leading-relaxed text-[#E6F6FF] prose prose-invert max-w-none break-words" style={{ whiteSpace: 'pre-wrap' }}>
-                    {canaiOutput}
-                  </div>
-                  <div className="mt-8 p-6 bg-blue-900/30 rounded-2xl border border-blue-400/50">
-                    <p className="text-blue-200 text-base">
-                      📊 Based on user feedback, we're focusing on delivering your personalized plan. 
-                      Generic comparison temporarily unavailable.
-                    </p>
-                  </div>
-                </div>
-              )}
-              {/* Emotional Compass & Trust Delta */}
-              {emotionalResonance && trustDelta !== null && (
-                <div className="bg-gradient-to-br from-[#172b47ea] to-[#1E314F] rounded-3xl border border-[#36d1fe66] p-12 shadow-2xl flex flex-col md:flex-row md:items-center gap-10 md:gap-0 animate-fade-in">
-                  <div className="flex-1 flex flex-col items-center justify-center">
-                    <div className="md:mb-0 mb-8">
-                      <EmotionalCompass 
-                        scores={emotionalResonance.compassScores}
-                        title="CanAI Emotional Resonance"
-                      />
+
+            {/* Main comparison layout */}
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-10 relative">
+              {/* Left sidebar - Context Summary */}
+              <div className="xl:col-span-1 space-y-8">
+                <ProjectContextSummary />
+              </div>
+
+              {/* Main content area */}
+              <div className="xl:col-span-3 space-y-14">
+                {/* Comparison containers */}
+                {canaiOutput && genericOutput && (
+                  <RefinedComparisonContainer
+                    canaiOutput={canaiOutput}
+                    genericOutput={genericOutput}
+                  />
+                )}
+
+                {/* Circuit breaker fallback - CanAI only */}
+                {canaiOutput && !genericOutput && negativeEngagementCount >= CIRCUIT_BREAKER_THRESHOLD && (
+                  <StandardCard variant="product">
+                    <h3 className="text-2xl font-bold text-[#36d1fe] mb-6">Your Personalized Plan</h3>
+                    <div className="text-lg leading-relaxed text-[#E6F6FF] prose prose-invert max-w-none break-words" style={{ whiteSpace: 'pre-wrap' }}>
+                      {canaiOutput}
                     </div>
+                    <StandardCard variant="glass" padding="md" className="mt-8">
+                      <BodyText className="mb-0">
+                        📊 Based on user feedback, we're focusing on delivering your personalized plan. 
+                        Generic comparison temporarily unavailable.
+                      </BodyText>
+                    </StandardCard>
+                  </StandardCard>
+                )}
+
+                {/* Emotional Compass & Trust Delta */}
+                {emotionalResonance && trustDelta !== null && (
+                  <StandardCard variant="content" className="animate-fade-in">
+                    <div className="flex flex-col md:flex-row md:items-center gap-10 md:gap-0">
+                      <div className="flex-1 flex flex-col items-center justify-center">
+                        <div className="md:mb-0 mb-8">
+                          <EmotionalCompass 
+                            scores={emotionalResonance.compassScores}
+                            title="CanAI Emotional Resonance"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex-1 flex flex-col items-center justify-center">
+                        <TrustDeltaDisplay 
+                          delta={trustDelta}
+                          onTooltipView={handleTrustDeltaView}
+                        />
+                      </div>
+                    </div>
+                  </StandardCard>
+                )}
+
+                {/* Feedback Form */}
+                {!loading && canaiOutput && (
+                  <RefinedFeedbackForm
+                    selection={selection}
+                    onSelection={handleSelection}
+                    feedback={feedback}
+                    onFeedback={setFeedback}
+                    onSubmit={handleFormSubmit}
+                    isSubmitting={isSubmitting}
+                  />
+                )}
+
+                {/* Footer: Social Proof / Divider */}
+                <div className="pt-12 border-t border-[#36d1fe]/30 flex flex-col items-center gap-2">
+                  <div className="font-playfair text-[#36d1fe] text-lg animate-countup-glow font-semibold tracking-wider">
+                    <SparkleIcon className="scale-110 mr-1" />
+                    500+ founders trust CanAI to compare & refine their plans
                   </div>
-                  <div className="flex-1 flex flex-col items-center justify-center">
-                    <TrustDeltaDisplay 
-                      delta={trustDelta}
-                      onTooltipView={handleTrustDeltaView}
-                    />
+                  <div className="text-[#cce7fa] text-xs opacity-70 text-center">
+                    CanAI excludes branding elements. Contact us for design partnership opportunities.
                   </div>
-                </div>
-              )}
-              {/* Feedback Form */}
-              {!loading && canaiOutput && (
-                <RefinedFeedbackForm
-                  selection={selection}
-                  onSelection={handleSelection}
-                  feedback={feedback}
-                  onFeedback={setFeedback}
-                  onSubmit={handleFormSubmit}
-                  isSubmitting={isSubmitting}
-                />
-              )}
-              {/* Footer: Social Proof / Divider */}
-              <div className="pt-12 border-t border-[#36d1fe33] flex flex-col items-center gap-2">
-                <div className="font-playfair text-canai-cyan text-lg animate-countup-glow font-semibold tracking-wider">
-                  <SparkleIcon className="scale-110 mr-1" />
-                  500+ founders trust CanAI to compare & refine their plans
-                </div>
-                <div className="text-canai-light text-xs opacity-70 text-center">
-                  CanAI excludes branding elements. Contact us for design partnership opportunities.
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </StandardCard>
       </div>
-    </div>
+    </StandardBackground>
   );
 };
 
