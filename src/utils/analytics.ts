@@ -32,6 +32,12 @@ export const POSTHOG_EVENTS = {
   INTENT_MIRROR_EDITED: 'intent_mirror_edited',
   SUPPORT_REQUESTED: 'support_requested',
   FIELD_EDITED: 'field_edited',
+  // Form Events
+  FORM_STEP: 'form_step',
+  TRUST_SCORE_UPDATE: 'trust_score_update',
+  // SparkSplit Events
+  SPARK_SPLIT_VIEW: 'spark_split_view',
+  FEEDBACK_SUBMISSION: 'feedback_submission',
 } as const;
 
 // PostHog configuration
@@ -195,6 +201,40 @@ export const trackFunnelStep = (step: string, details?: Record<string, any>) => 
   trackEvent(POSTHOG_EVENTS.FUNNEL_STEP, {
     funnel_step: step,
     completed: true,
+    step_timestamp: new Date().toISOString(),
+    ...details,
+  });
+};
+
+export const trackTrustScoreUpdate = (score: number, field: string) => {
+  trackEvent(POSTHOG_EVENTS.TRUST_SCORE_UPDATE, {
+    trust_score: score,
+    field,
+    step_timestamp: new Date().toISOString(),
+  });
+};
+
+export const trackFormStep = (step: string, details?: Record<string, any>) => {
+  trackEvent(POSTHOG_EVENTS.FORM_STEP, {
+    form_step: step,
+    completed: true,
+    step_timestamp: new Date().toISOString(),
+    ...details,
+  });
+};
+
+export const trackSparkSplitView = (viewType: string, details?: Record<string, any>) => {
+  trackEvent(POSTHOG_EVENTS.SPARK_SPLIT_VIEW, {
+    view_type: viewType,
+    step_timestamp: new Date().toISOString(),
+    ...details,
+  });
+};
+
+export const trackFeedbackSubmission = (source: string, rating: number, details?: Record<string, any>) => {
+  trackEvent(POSTHOG_EVENTS.FEEDBACK_SUBMISSION, {
+    source,
+    rating,
     step_timestamp: new Date().toISOString(),
     ...details,
   });
