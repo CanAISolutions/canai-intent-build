@@ -55,7 +55,7 @@ export const CardTitle: React.FC<TypographyProps> = ({ children, className, styl
 export const BodyText: React.FC<TypographyProps> = ({ children, className, style, id }) => (
   <p 
     className={cn(
-      "text-base md:text-lg text-[#cce7fa] font-manrope leading-relaxed",
+      "text-base md:text-lg text-white font-manrope leading-relaxed",
       className
     )}
     style={style}
@@ -69,7 +69,7 @@ export const BodyText: React.FC<TypographyProps> = ({ children, className, style
 export const CaptionText: React.FC<TypographyProps> = ({ children, className, style, id }) => (
   <p 
     className={cn(
-      "text-sm text-[#cce7fa] font-manrope opacity-80",
+      "text-sm text-white/80 font-manrope",
       className
     )}
     style={style}
