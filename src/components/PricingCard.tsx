@@ -37,12 +37,12 @@ const PricingCard: React.FC<PricingCardProps> = ({
     <span className="text-4xl font-extrabold text-white mb-2 drop-shadow-lg font-manrope">
       {price}
     </span>
-    <div className="text-xl text-[#E6F6FF] font-semibold mb-6 font-manrope">
+    <div className="text-xl text-white font-semibold mb-6 font-manrope">
       {title}
     </div>
     <ul className="mb-6 space-y-3 w-full text-left">
       {features.map((feature, i) => (
-        <li key={i} className="flex items-center gap-3 text-[#cce7fa] text-base font-manrope">
+        <li key={i} className="flex items-center gap-3 text-[#E6F6FF] text-base font-manrope">
           <span className="inline-block w-2 h-2 rounded-full bg-[#36d1fe] shadow-[0_0_8px_#36d1fe]" />
           <span>{feature}</span>
         </li>

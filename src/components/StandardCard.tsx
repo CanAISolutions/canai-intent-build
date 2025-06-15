@@ -19,14 +19,14 @@ const StandardCard: React.FC<StandardCardProps> = ({
   padding = 'lg',
   style
 }) => {
-  const baseClasses = "rounded-3xl border-2 transition-all duration-300 overflow-hidden relative";
+  const baseClasses = "rounded-3xl border-2 transition-all duration-300 overflow-hidden relative text-white";
   
   const variantClasses = {
-    default: "bg-gradient-to-br from-[#193c65] via-[#1e4a73] to-[#12294a] border-[#36d1fe] shadow-[0_0_40px_rgba(54,209,254,0.3)]",
-    glass: "bg-[rgba(25,60,101,0.4)] border-[rgba(54,209,254,0.2)] backdrop-blur-sm",
-    product: "bg-gradient-to-br from-[#193c65] via-[#1e4a73] to-[#12294a] border-[#36d1fe] shadow-[0_0_40px_rgba(54,209,254,0.3)]",
-    content: "bg-[rgba(25,60,101,0.6)] border-[rgba(54,209,254,0.3)] backdrop-blur-sm shadow-[0_0_30px_rgba(54,209,254,0.2)]",
-    form: "bg-[rgba(25,60,101,0.7)] border-[rgba(54,209,254,0.4)] backdrop-blur-md shadow-[0_0_35px_rgba(54,209,254,0.25)]"
+    default: "bg-gradient-to-br from-[#193c65]/95 via-[#1e4a73]/95 to-[#12294a]/95 border-[#36d1fe] shadow-[0_0_40px_rgba(54,209,254,0.3)] backdrop-blur-sm",
+    glass: "bg-[rgba(25,60,101,0.85)] border-[rgba(54,209,254,0.4)] backdrop-blur-md shadow-[0_0_30px_rgba(54,209,254,0.2)]",
+    product: "bg-gradient-to-br from-[#193c65]/95 via-[#1e4a73]/95 to-[#12294a]/95 border-[#36d1fe] shadow-[0_0_40px_rgba(54,209,254,0.3)] backdrop-blur-sm",
+    content: "bg-[rgba(25,60,101,0.9)] border-[rgba(54,209,254,0.4)] backdrop-blur-md shadow-[0_0_30px_rgba(54,209,254,0.2)]",
+    form: "bg-[rgba(25,60,101,0.9)] border-[rgba(54,209,254,0.5)] backdrop-blur-md shadow-[0_0_35px_rgba(54,209,254,0.25)]"
   };
   
   const paddingClasses = {
@@ -52,7 +52,7 @@ const StandardCard: React.FC<StandardCardProps> = ({
       )}
       style={style}
     >
-      <div className="w-full h-full break-words overflow-hidden word-wrap">
+      <div className="w-full h-full break-words overflow-hidden word-wrap text-white">
         {children}
       </div>
     </div>

@@ -69,7 +69,7 @@ export const BodyText: React.FC<TypographyProps> = ({ children, className, style
 export const CaptionText: React.FC<TypographyProps> = ({ children, className, style, id }) => (
   <p 
     className={cn(
-      "text-sm text-white/80 font-manrope",
+      "text-sm text-[#E6F6FF] font-manrope",
       className
     )}
     style={style}

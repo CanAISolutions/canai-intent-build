@@ -23,29 +23,29 @@ const PricingTable: React.FC<PricingTableProps> = ({
       {products.map((product) => (
         <Card
           key={product.id}
-          className={`canai-pricing-card relative transition-all duration-300 cursor-pointer ${
+          className={`relative transition-all duration-300 cursor-pointer bg-gradient-to-br from-[#193c65]/90 to-[#1e314f]/90 border-2 backdrop-blur-sm ${
             selectedProduct === product.id
-              ? 'ring-4 ring-canai-primary scale-105 animate-glow-pop'
-              : 'hover:scale-102'
-          } ${product.highlighted ? 'border-canai-primary' : ''}`}
+              ? 'ring-4 ring-[#36d1fe] scale-105 animate-glow-pop border-[#36d1fe]'
+              : 'border-[#36d1fe]/40 hover:border-[#36d1fe]/60 hover:scale-102'
+          }`}
           onClick={() => onProductSelect(product.id)}
         >
           {product.highlighted && (
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <span className="bg-gradient-to-r from-canai-primary to-canai-cyan px-4 py-1 rounded-full text-sm font-bold text-white">
+              <span className="bg-gradient-to-r from-[#36d1fe] to-[#00b8e6] px-4 py-1 rounded-full text-sm font-bold text-white shadow-lg">
                 Most Popular
               </span>
             </div>
           )}
 
           <CardHeader className="text-center pb-6">
-            <CardTitle className="text-canai-card-title text-xl font-bold mb-2">
-              {product.name.toUpperCase()}
+            <CardTitle className="text-[#36d1fe] text-xl font-bold mb-2 font-manrope uppercase tracking-wider">
+              {product.name}
             </CardTitle>
-            <div className="text-4xl font-extrabold text-canai-primary mb-2">
+            <div className="text-4xl font-extrabold text-white mb-2 font-manrope drop-shadow-lg">
               ${product.price}
             </div>
-            <p className="text-canai-light-blue text-sm">
+            <p className="text-[#E6F6FF] text-sm font-manrope leading-relaxed">
               {product.description}
             </p>
           </CardHeader>
@@ -54,8 +54,8 @@ const PricingTable: React.FC<PricingTableProps> = ({
             <ul className="space-y-3 mb-6">
               {product.features.map((feature, index) => (
                 <li key={index} className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-canai-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-canai-light text-sm">{feature}</span>
+                  <Check className="w-5 h-5 text-[#36d1fe] mt-0.5 flex-shrink-0" />
+                  <span className="text-[#cce7fa] text-sm font-manrope">{feature}</span>
                 </li>
               ))}
             </ul>

@@ -43,7 +43,7 @@
 .btn-canai {
   background: linear-gradient(135deg, #36d1fe 0%, #07c3fb 100%);
   border: none;
-  color: #fff;
+  color: #fff !important;
   font-family: var(--font-family-primary);
   font-weight: bold;
   font-size: 1.07rem;
@@ -57,65 +57,82 @@
 .canai-btn-gradient:hover {
   filter: drop-shadow(0 0 32px #36d1fecc);
   transform: scale(1.05);
+  color: #fff !important;
 }
 
 /* Card Styles */
 .canai-product-card {
-  background: rgba(20, 54, 87, 0.75);
+  background: rgba(25, 60, 101, 0.9) !important;
   border-radius: 24px;
-  border: 2px solid transparent;
+  border: 2px solid #36d1fe;
   background-clip: padding-box;
-  box-shadow: 0 0 10px rgba(54, 209, 254, 0.6);
+  box-shadow: 0 0 20px rgba(54, 209, 254, 0.4);
   transition: transform 0.3s, box-shadow 0.3s;
+  backdrop-filter: blur(12px);
 }
 
 .canai-product-card:hover {
   transform: scale(1.05);
   box-shadow: 0 0 32px rgba(54,209,254,0.8);
-  border-image: linear-gradient(135deg, #36d1fe, #07c3fb) 1;
+  border-color: #36d1fe;
 }
 
 .canai-product-card,
 .canai-pricing-card {
-  background: var(--canai-blue-card) !important;
-  border: 2.5px solid var(--canai-primary-blue);
-  box-shadow: 0 2px 30px 7px #12294a55;
+  background: rgba(25, 60, 101, 0.9) !important;
+  border: 2.5px solid #36d1fe;
+  box-shadow: 0 2px 30px 7px rgba(18, 41, 74, 0.6);
   backdrop-filter: blur(14px) saturate(128%);
-  color: var(--canai-light-text)!important;
+  color: #E6F6FF !important;
 }
 
-/* Text Colors in Cards */
+/* Text Colors in Cards - High Contrast */
+.canai-product-card .text-canai-primary,
+.canai-pricing-card .text-canai-primary,
+.canai-product-card *,
+.canai-pricing-card * {
+  color: #E6F6FF !important;
+}
+
 .canai-product-card .text-canai-primary,
 .canai-pricing-card .text-canai-primary {
   color: #36d1fe !important;
-  text-shadow: 0 2px 10px #36d1fe33;
+  text-shadow: 0 2px 10px rgba(54, 209, 254, 0.3);
 }
 
 .canai-product-card .text-canai-card-title,
 .canai-pricing-card .text-canai-card-title {
-  color: #E6F6FF !important;
+  color: #FFFFFF !important;
   font-weight: bold !important;
-  text-shadow: 0 2px 16px #36d1fe22;
+  text-shadow: 0 2px 16px rgba(54, 209, 254, 0.2);
 }
 
 .canai-product-card .text-canai-light,
 .canai-pricing-card .text-canai-light,
 .canai-product-card .text-canai-light-blue,
 .canai-pricing-card .text-canai-light-blue {
-  color: var(--canai-light-text-softer) !important;
+  color: #E6F6FF !important;
+}
+
+/* Feature text should be clearly visible */
+.canai-product-card li,
+.canai-pricing-card li,
+.canai-product-card p,
+.canai-pricing-card p {
+  color: #E6F6FF !important;
 }
 
 /* Icons and Features */
 .canai-card-icon svg,
 .canai-pricing-feature-dot {
-  color: #e1f3ff !important;
-  fill: #e1f3ff!important;
-  filter: drop-shadow(0 0 10px #36d1fe33);
+  color: #36d1fe !important;
+  fill: #36d1fe !important;
+  filter: drop-shadow(0 0 10px rgba(54, 209, 254, 0.3));
 }
 
 .canai-feature-dot {
   background: #36d1fe !important;
-  box-shadow: 0 0 8px #36d1fe55;
+  box-shadow: 0 0 8px rgba(54, 209, 254, 0.5);
 }
 
 /* Enhanced Button Styles */
@@ -123,45 +140,67 @@
 .canai-btn-glow,
 .canai-btn-gradient {
   background: linear-gradient(135deg, #193c65 60%, #1e314f 100%) !important;
-  color: #E6F6FF !important;
-  text-shadow: 0 1px 8px #193c65bb;
+  color: #FFFFFF !important;
+  text-shadow: 0 1px 8px rgba(25, 60, 101, 0.7);
   border: 1.5px solid #36d1fe !important;
 }
 
 .btn-canai:hover,
 .canai-btn-glow:hover {
-  color: #fff !important;
+  color: #FFFFFF !important;
   background: linear-gradient(135deg, #275084 60%, #37d1fe 100%) !important;
-  filter: drop-shadow(0 0 38px #36d1fedb) brightness(1.10);
+  filter: drop-shadow(0 0 38px rgba(54, 209, 254, 0.8)) brightness(1.10);
   border: 2.5px solid #36d1fe !important;
-  box-shadow: 0 0 28px #36d1fe88;
+  box-shadow: 0 0 28px rgba(54, 209, 254, 0.5);
 }
 
 /* Modal Styles */
 .modal-title,
 .modal-close {
-  color: #E6F6FF !important;
-  text-shadow: 0 2px 14px #36d1fe55, 0 0 1px #000;
+  color: #FFFFFF !important;
+  text-shadow: 0 2px 14px rgba(54, 209, 254, 0.5), 0 0 1px #000;
 }
 
-/* Glassmorphism */
+/* Glassmorphism with better text contrast */
 .glassmorphism {
-  background: linear-gradient(135deg, rgba(245,255,255,0.92) 80%, rgba(215, 240, 255, 0.85) 100%);
-  box-shadow: 0 0 50px 8px #36d1fe22;
+  background: rgba(25, 60, 101, 0.9);
+  box-shadow: 0 0 50px 8px rgba(54, 209, 254, 0.2);
   backdrop-filter: blur(12px) saturate(138%);
   border-radius: 24px;
-  border: 1.5px solid rgba(36, 207, 254, 0.09);
+  border: 1.5px solid rgba(54, 209, 254, 0.3);
+  color: #E6F6FF !important;
 }
 
-/* Text Readability */
-.text-canai-card-title {
-  color: #E6F6FF !important;
-  text-shadow: 0 2px 18px #36d1fe55;
-  font-weight: bold !important;
+/* Text Readability - Force white text on dark backgrounds */
+.canai-product-card,
+.canai-pricing-card,
+.glassmorphism {
+  color: #FFFFFF !important;
+}
+
+.canai-product-card *:not(.text-canai-primary),
+.canai-pricing-card *:not(.text-canai-primary),
+.glassmorphism * {
+  color: inherit !important;
 }
 
 /* Enhanced Card Borders */
 .canai-product-card,
 .canai-pricing-card {
   border-color: #36d1fe !important;
+  border-width: 2px !important;
+}
+
+/* Ensure all card text is readable */
+[class*="canai-"] {
+  color: #E6F6FF;
+}
+
+[class*="canai-"] h1,
+[class*="canai-"] h2,
+[class*="canai-"] h3,
+[class*="canai-"] h4,
+[class*="canai-"] h5,
+[class*="canai-"] h6 {
+  color: #FFFFFF !important;
 }
