@@ -52,7 +52,6 @@ const FeedbackPage: React.FC = () => {
   };
 
   const handleReferralSubmit = async (email: string) => {
-    // Create a mock form event for the existing handler
     const mockEvent = { preventDefault: () => {} } as React.FormEvent;
     await handleRefer(mockEvent);
   };
@@ -61,134 +60,152 @@ const FeedbackPage: React.FC = () => {
     <StandardBackground>
       <PageHeader showBackButton={true} logoSize="sm" showTagline={false} />
       
-      <main className="flex-1 flex items-center justify-center px-4 py-8" aria-label="CanAI Feedback">
-        <div className="w-full max-w-4xl mx-auto">
-          {/* Main Content */}
+      <main className="flex-1 flex items-center justify-center px-4 py-12" aria-label="CanAI Feedback">
+        <div className="w-full max-w-6xl mx-auto">
           {!feedbackSubmitted ? (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Main Feedback Form - Takes 2 columns */}
-              <div className="lg:col-span-2">
-                <StandardCard variant="form" padding="xl" className="animate-fade-in">
-                  <div className="text-center mb-8">
-                    <PageTitle className="text-4xl mb-4">
-                      Share Your Experience
-                    </PageTitle>
-                    <BodyText className="text-lg">
-                      Help us improve CanAI for founders everywhere.
-                    </BodyText>
-                  </div>
+            <>
+              {/* Page Title */}
+              <div className="text-center mb-12">
+                <PageTitle className="text-5xl mb-6">
+                  Share Your Experience
+                </PageTitle>
+                <BodyText className="text-xl max-w-2xl mx-auto">
+                  Help us improve CanAI for founders everywhere.
+                </BodyText>
+              </div>
 
-                  <form onSubmit={handleSubmit} className="space-y-8">
-                    {/* Rating Section */}
-                    <div>
-                      <SectionTitle className="text-xl mb-4 text-white">
-                        How was your <span className="text-[#36d1fe]">SparkSplit experience</span>?
-                      </SectionTitle>
-                      <StarRating rating={rating} setRating={setRating} />
-                    </div>
+              {/* Main Content Grid */}
+              <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+                {/* Main Feedback Form */}
+                <div className="xl:col-span-8">
+                  <StandardCard variant="form" padding="xl" className="h-fit">
+                    <form onSubmit={handleSubmit} className="space-y-8">
+                      {/* Rating Section */}
+                      <div className="text-center">
+                        <SectionTitle className="text-2xl mb-6 text-white">
+                          How was your <span className="text-[#36d1fe]">SparkSplit experience</span>?
+                        </SectionTitle>
+                        <div className="flex justify-center">
+                          <StarRating rating={rating} setRating={setRating} />
+                        </div>
+                      </div>
 
-                    {/* Comment Section */}
-                    <div>
-                      <SectionTitle className="text-xl mb-4 text-white">
-                        Leave a comment
-                      </SectionTitle>
-                      <Textarea
-                        placeholder="What did you think of the business plan comparison? Suggestions welcome!"
-                        value={comment}
-                        onChange={e => setComment(e.target.value)}
+                      {/* Comment Section */}
+                      <div>
+                        <SectionTitle className="text-xl mb-4 text-white">
+                          Leave a comment
+                        </SectionTitle>
+                        <Textarea
+                          placeholder="What did you think of the business plan comparison? Suggestions welcome!"
+                          value={comment}
+                          onChange={e => setComment(e.target.value)}
+                          className="
+                            bg-[rgba(255,255,255,0.05)] 
+                            border-2 border-[rgba(54,209,254,0.3)] 
+                            focus:border-[#36d1fe] 
+                            text-white 
+                            placeholder:text-[#b3d9f2] 
+                            min-h-[120px] 
+                            rounded-xl
+                            resize-none
+                          "
+                          required
+                          minLength={5}
+                          maxLength={200}
+                          rows={4}
+                        />
+                        <CaptionText className="mt-3 mb-0">
+                          Your feedback helps shape CanAI's next phase.{" "}
+                          <a
+                            href={quickbooksLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[#36d1fe] hover:text-[#4ae3ff] underline transition-colors duration-200"
+                          >
+                            Need your invoice?
+                          </a>
+                        </CaptionText>
+                      </div>
+
+                      {/* Submit Button */}
+                      <Button
+                        variant="default"
+                        type="submit"
+                        size="lg"
                         className="
-                          bg-[rgba(255,255,255,0.05)] 
-                          border-2 border-[rgba(54,209,254,0.3)] 
-                          focus:border-[#36d1fe] 
-                          text-white 
-                          placeholder:text-[#b3d9f2] 
-                          min-h-[120px] 
+                          w-full 
+                          bg-gradient-to-r from-[#36d1fe] to-[#00b8e6] 
+                          text-[#0a1628] 
+                          font-bold 
+                          text-lg 
+                          py-6
+                          hover:from-[#4ae3ff] hover:to-[#36d1fe] 
+                          hover:scale-[1.02] 
+                          transition-all 
+                          duration-300
+                          border-0
                           rounded-xl
                         "
-                        required
-                        minLength={5}
-                        maxLength={200}
-                        rows={4}
-                      />
-                      <CaptionText className="mt-2 mb-0">
-                        Your feedback helps shape CanAI's next phase.{" "}
-                        <a
-                          href={quickbooksLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[#36d1fe] hover:text-[#4ae3ff] underline transition-colors duration-200"
-                        >
-                          Need your invoice?
-                        </a>
-                      </CaptionText>
+                      >
+                        Submit Feedback
+                      </Button>
+                    </form>
+
+                    {/* Danger Zone */}
+                    <div className="flex justify-end mt-8">
+                      <button
+                        className="
+                          text-[#ff8fa3] 
+                          hover:text-[#ff6b85] 
+                          font-medium 
+                          text-sm 
+                          underline 
+                          transition-colors 
+                          duration-200
+                        "
+                        type="button"
+                        onClick={() => setShowPurge(v => !v)}
+                      >
+                        Purge my data
+                      </button>
                     </div>
 
-                    {/* Submit Button */}
-                    <Button
-                      variant="default"
-                      type="submit"
-                      size="lg"
-                      className="
-                        w-full 
-                        bg-gradient-to-r from-[#36d1fe] to-[#00b8e6] 
-                        text-[#0a1628] 
-                        font-bold 
-                        text-lg 
-                        py-4
-                        hover:from-[#4ae3ff] hover:to-[#36d1fe] 
-                        hover:scale-[1.02] 
-                        transition-all 
-                        duration-300
-                        border-0
-                      "
-                    >
-                      Submit Feedback
-                    </Button>
-                  </form>
+                    <DangerZone showPurge={showPurge} setShowPurge={setShowPurge} handlePurge={handlePurge} />
+                  </StandardCard>
+                </div>
 
-                  {/* Danger Zone */}
-                  <div className="flex justify-end mt-8">
-                    <button
-                      className="
-                        text-[#ff8fa3] 
-                        hover:text-[#ff6b85] 
-                        font-medium 
-                        text-sm 
-                        underline 
-                        transition-colors 
-                        duration-200
-                      "
-                      type="button"
-                      onClick={() => setShowPurge(v => !v)}
-                    >
-                      Purge my data
-                    </button>
-                  </div>
-                </StandardCard>
+                {/* Sidebar */}
+                <div className="xl:col-span-4 space-y-6">
+                  <EnhancedSocialShare onShare={handleShare} />
+                  <EnhancedReferral onRefer={handleReferralSubmit} />
+                </div>
               </div>
-
-              {/* Sidebar - Social and Referral */}
-              <div className="space-y-6">
-                <EnhancedSocialShare onShare={handleShare} />
-                <EnhancedReferral onRefer={handleReferralSubmit} />
-              </div>
-            </div>
+            </>
           ) : (
             /* Post-Submission View */
             <div className="text-center space-y-8 animate-fade-in">
-              <StandardCard variant="form" padding="xl" className="max-w-2xl mx-auto">
-                <PageTitle className="text-3xl mb-4">
+              <StandardCard variant="form" padding="xl" className="max-w-3xl mx-auto">
+                <PageTitle className="text-4xl mb-6">
                   Thank You! 🎉
                 </PageTitle>
-                <BodyText className="text-lg mb-8">
+                <BodyText className="text-xl mb-10 max-w-xl mx-auto">
                   Your feedback has been received and will help us improve CanAI for all founders.
                 </BodyText>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-lg mx-auto">
                   <Button
                     variant="outline"
                     size="lg"
-                    className="border-[#36d1fe] text-[#36d1fe] hover:bg-[#36d1fe]/20"
+                    className="
+                      border-2 border-[#36d1fe] 
+                      text-[#36d1fe] 
+                      hover:bg-[#36d1fe]/20
+                      hover:scale-105
+                      transition-all
+                      duration-300
+                      py-6
+                      rounded-xl
+                    "
                     onClick={() => window.location.href = '/'}
                   >
                     Return Home
@@ -196,7 +213,18 @@ const FeedbackPage: React.FC = () => {
                   <Button
                     variant="default"
                     size="lg"
-                    className="bg-[#36d1fe] hover:bg-[#00f0ff] text-white"
+                    className="
+                      bg-gradient-to-r from-[#36d1fe] to-[#00b8e6]
+                      hover:from-[#4ae3ff] hover:to-[#36d1fe]
+                      text-[#0a1628]
+                      font-bold
+                      hover:scale-105
+                      transition-all
+                      duration-300
+                      py-6
+                      rounded-xl
+                      border-0
+                    "
                     onClick={() => window.location.href = '/spark-layer'}
                   >
                     Create Another Plan
@@ -204,7 +232,7 @@ const FeedbackPage: React.FC = () => {
                 </div>
               </StandardCard>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-4xl mx-auto mt-12">
                 <EnhancedSocialShare onShare={handleShare} />
                 <EnhancedReferral onRefer={handleReferralSubmit} />
               </div>
@@ -225,7 +253,6 @@ const FeedbackPage: React.FC = () => {
             onClose={() => setReferModalOpen(false)}
             open={referModalOpen}
           />
-          <DangerZone showPurge={showPurge} setShowPurge={setShowPurge} handlePurge={handlePurge} />
           <Followup show={showFollowup} rating={rating} prompt_id={prompt_id} />
         </div>
       </main>
