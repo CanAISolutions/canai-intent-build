@@ -1,4 +1,3 @@
-
 import { generateCorrelationId, retryWithBackoff } from './tracing';
 import { insertComparisonLog } from './supabase';
 import { triggerMakecomWorkflow } from './makecom';
@@ -207,7 +206,12 @@ export const validateEmotionalResonance = async (output: string): Promise<{
   
   if (!HUME_API_KEY || HUME_API_KEY === 'your-hume-api-key') {
     console.warn('[Hume AI] API key not configured, using fallback');
-    return calculateMockEmotionalResonance(output);
+    const mockData = calculateMockEmotionalResonance(output);
+    return {
+      arousal: mockData.arousal,
+      valence: mockData.valence,
+      score: mockData.canaiScore, // Add the missing score property
+    };
   }
   
   try {
@@ -240,7 +244,12 @@ export const validateEmotionalResonance = async (output: string): Promise<{
     
   } catch (error) {
     console.error('[Hume AI] Validation failed, using fallback:', error);
-    return calculateMockEmotionalResonance(output);
+    const mockData = calculateMockEmotionalResonance(output);
+    return {
+      arousal: mockData.arousal,
+      valence: mockData.valence,
+      score: mockData.canaiScore, // Add the missing score property
+    };
   }
 };
 

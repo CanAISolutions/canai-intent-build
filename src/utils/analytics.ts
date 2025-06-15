@@ -2,6 +2,8 @@
  * PostHog Analytics Integration for CanAI Platform
  */
 
+import { generateCorrelationId } from './tracing';
+
 export interface PostHogEvent {
   event: string;
   properties?: Record<string, any>;
@@ -137,6 +139,30 @@ class PostHogClient {
 
 // Global PostHog instance
 export const posthog = new PostHogClient();
+
+// Helper functions
+const isPostHogEnabled = (): boolean => {
+  return typeof window !== 'undefined' && window.posthog && POSTHOG_PROJECT_KEY !== 'phc_demo_key';
+};
+
+const logToFallback = (eventName: string, properties: Record<string, any>) => {
+  console.log(`[PostHog Fallback] ${eventName}:`, properties);
+  
+  // Store in localStorage as fallback
+  try {
+    const events = JSON.parse(localStorage.getItem('canai_analytics_fallback') || '[]');
+    events.push({ event: eventName, properties, timestamp: new Date().toISOString() });
+    
+    // Keep only last 100 events
+    if (events.length > 100) {
+      events.splice(0, events.length - 100);
+    }
+    
+    localStorage.setItem('canai_analytics_fallback', JSON.stringify(events));
+  } catch (error) {
+    console.error('[PostHog] Failed to store fallback event:', error);
+  }
+};
 
 // Analytics helper functions
 export const trackEvent = (eventName: string, properties?: Record<string, any>) => {
