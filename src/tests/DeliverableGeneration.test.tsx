@@ -60,7 +60,7 @@ describe('F7-tests: Deliverable Generation Tests', () => {
         expect(wordCount).toBeGreaterThanOrEqual(700);
         expect(wordCount).toBeLessThanOrEqual(800);
       }
-    }, 10000);
+    }, { timeout: 10000 });
   });
 
   it('should validate SOCIAL_EMAIL format (3-7 posts, 3-5 emails)', async () => {
@@ -84,7 +84,7 @@ describe('F7-tests: Deliverable Generation Tests', () => {
         expect(emailCount).toBeGreaterThanOrEqual(3);
         expect(emailCount).toBeLessThanOrEqual(5);
       }
-    }, 10000);
+    }, { timeout: 10000 });
   });
 
   it('should validate SITE_AUDIT length (300-400 words audit + 100-150 words recommendations)', async () => {
@@ -114,7 +114,7 @@ describe('F7-tests: Deliverable Generation Tests', () => {
           expect(recommendationsWords).toBeLessThanOrEqual(150);
         }
       }
-    }, 10000);
+    }, { timeout: 10000 });
   });
 
   it('should validate emotional resonance scoring', async () => {
@@ -147,7 +147,7 @@ describe('F7-tests: Deliverable Generation Tests', () => {
       // Check that arousal > 0.5 and valence > 0.6
       const scoreElement = screen.getByText(/Arousal: 0\.70.*Valence: 0\.80/);
       expect(scoreElement).toBeInTheDocument();
-    }, 10000);
+    }, { timeout: 10000 });
   });
 
   it('should handle revision requests', async () => {
@@ -190,7 +190,7 @@ describe('F7-tests: Deliverable Generation Tests', () => {
           expect(financialWords).toBeLessThanOrEqual(110);
         }
       }
-    }, 10000);
+    }, { timeout: 10000 });
   });
 
   it('should display branding note', async () => {
@@ -200,7 +200,7 @@ describe('F7-tests: Deliverable Generation Tests', () => {
       const brandingNote = screen.getByText(/CanAI excludes branding/i);
       expect(brandingNote).toBeInTheDocument();
       expect(brandingNote.closest('#branding-note')).toBeInTheDocument();
-    }, 10000);
+    }, { timeout: 10000 });
   });
 
   it('should enforce regeneration limit (max 2 attempts)', async () => {
