@@ -93,25 +93,6 @@ const DetailedInput = () => {
         setLastSaved(new Date());
         setSaveAttempts(0);
         
-        // TODO: Supabase mapping - prompt_logs table
-        // Supabase: prompt_logs
-        // {
-        //   id: UUID,
-        //   user_id: UUID,
-        //   initial_prompt_id: UUID,
-        //   payload: JSONB (formData),
-        //   location: TEXT ('detailed_input_step_' + currentStep),
-        //   unique_value: TEXT (promptId),
-        //   created_at: TIMESTAMPTZ
-        // }
-        
-        // TODO: PostHog event
-        // posthog.capture('input_saved', {
-        //   step: currentStep,
-        //   fields_completed: Object.values(formData).filter(v => v.trim()).length,
-        //   prompt_id: promptId
-        // });
-        
         console.log('Auto-save successful:', { promptId, step: currentStep, formData });
         
       } catch (error) {
@@ -198,14 +179,6 @@ const DetailedInput = () => {
   const handleNext = () => {
     if (validateStep1()) {
       setCurrentStep(2);
-      
-      // TODO: PostHog event
-      // posthog.capture('funnel_step', {
-      //   stepName: 'detailed_input_step_2',
-      //   completed: false,
-      //   dropoffReason: null
-      // });
-      
       console.log('Moving to step 2');
     }
   };
@@ -221,24 +194,6 @@ const DetailedInput = () => {
     try {
       // Final save before submission
       await autoSave();
-      
-      // TODO: API Integration - Intent Mirror
-      // const response = await fetch('/v1/intent-mirror', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     prompt_id: promptId,
-      //     payload: formData
-      //   })
-      // });
-      
-      // TODO: PostHog event
-      // posthog.capture('funnel_step', {
-      //   stepName: 'detailed_input',
-      //   completed: true,
-      //   dropoffReason: null,
-      //   prompt_id: promptId
-      // });
       
       console.log('Form submitted successfully:', formData);
       
@@ -268,32 +223,32 @@ const DetailedInput = () => {
 
   return (
     <main 
-      className="min-h-screen w-full flex flex-col items-center justify-center px-4"
+      className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-8"
       style={{
         background: `radial-gradient(ellipse at 55% 24%, #152647 0%, #091023 65%, #052947 100%)`,
         backgroundColor: "#0A1535"
       }}
     >
-      <div className="w-full max-w-4xl mx-auto">
+      <div className="w-full max-w-3xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-canai-light mb-4 animate-text-glow">
+          <h1 className="text-5xl font-bold text-canai-light mb-4 animate-text-glow">
             Tell Us About Your Business
           </h1>
-          <p className="text-canai-light-blue text-lg mb-6">
+          <p className="text-canai-light-blue text-lg mb-8 opacity-90">
             Help us create something amazing for you. This should take about 2 minutes.
           </p>
           
-          {/* Progress Bar */}
-          <div className="mb-6">
-            <div className="flex justify-between text-sm text-canai-light-blue mb-2">
-              <span>Step {currentStep} of 2</span>
-              <span>{progress}% Complete</span>
+          {/* Progress Section */}
+          <div className="bg-black/20 rounded-2xl p-6 mb-8 border border-canai-primary/20">
+            <div className="flex justify-between text-sm text-canai-light mb-3">
+              <span className="font-medium">Step {currentStep} of 2</span>
+              <span className="font-medium">{progress}% Complete</span>
             </div>
             <Progress 
               id="progress-bar"
               value={progress} 
-              className="h-3 bg-canai-primary-blue-dark"
+              className="h-3 bg-canai-primary-blue-dark rounded-full overflow-hidden"
             />
           </div>
         </div>
@@ -305,14 +260,14 @@ const DetailedInput = () => {
         />
 
         {/* Form Card */}
-        <Card className="canai-product-card mb-8">
-          <CardHeader>
-            <CardTitle className="text-canai-card-title text-center">
+        <Card className="bg-canai-blue-card/80 border-2 border-canai-primary/30 backdrop-blur-sm mb-8 shadow-2xl">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-2xl text-canai-light text-center font-bold">
               {currentStep === 1 ? "Business Basics" : "Business Strategy"}
             </CardTitle>
           </CardHeader>
           
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 px-8 pb-8">
             {currentStep === 1 ? (
               <StepOneForm 
                 formData={formData}
@@ -328,12 +283,12 @@ const DetailedInput = () => {
             )}
             
             {/* Navigation */}
-            <div className="flex justify-between pt-6">
+            <div className="flex justify-between items-center pt-8 border-t border-canai-primary/20">
               {currentStep > 1 ? (
                 <Button
                   variant="outline"
                   onClick={handlePrevious}
-                  className="bg-canai-blue-card border-canai-primary text-canai-light hover:bg-canai-primary-blue"
+                  className="bg-transparent border-canai-primary text-canai-light hover:bg-canai-primary/20 hover:border-canai-cyan transition-all duration-200"
                 >
                   <ChevronLeft className="w-4 h-4 mr-2" />
                   Previous
@@ -344,16 +299,16 @@ const DetailedInput = () => {
               
               {currentStep === 1 ? (
                 <Button
-                  variant="canai"
                   onClick={handleNext}
+                  className="bg-gradient-to-r from-canai-primary to-canai-cyan text-white hover:from-canai-cyan hover:to-canai-primary transition-all duration-300 shadow-lg hover:shadow-canai-primary/40 px-8 py-3"
                 >
                   Next Step
                   <ChevronRight className="w-4 h-4 ml-2" />
                 </Button>
               ) : (
                 <Button
-                  variant="canai"
                   onClick={handleSubmit}
+                  className="bg-gradient-to-r from-canai-primary to-canai-cyan text-white hover:from-canai-cyan hover:to-canai-primary transition-all duration-300 shadow-lg hover:shadow-canai-primary/40 px-8 py-3"
                 >
                   Continue to Review
                   <CheckCircle className="w-4 h-4 ml-2" />
@@ -364,12 +319,12 @@ const DetailedInput = () => {
         </Card>
 
         {/* Resume Link */}
-        <div className="text-center text-canai-light-blue text-sm">
+        <div className="text-center text-canai-light-blue text-sm opacity-75">
           <p>
             Bookmark this link to resume later:{" "}
             <a 
               href={resumeLink}
-              className="text-canai-primary hover:text-canai-cyan underline"
+              className="text-canai-primary hover:text-canai-cyan underline transition-colors duration-200"
             >
               {window.location.origin}{resumeLink}
             </a>
