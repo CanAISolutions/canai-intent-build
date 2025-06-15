@@ -16,7 +16,7 @@ import StandardCard from "@/components/StandardCard";
 import { PageTitle, SectionTitle, BodyText, CaptionText } from "@/components/StandardTypography";
 
 const quickbooksLink = "https://quickbooks.intuit.com/";
-const prompt_id = "SPRINKLE_PROMPT_ID"; // Get real prompt_id from context in future
+const prompt_id = "SPRINKLE_PROMPT_ID";
 
 const FeedbackPage: React.FC = () => {
   const [showSuccess, setShowSuccess] = useState(false);
@@ -60,139 +60,147 @@ const FeedbackPage: React.FC = () => {
     <StandardBackground>
       <PageHeader showBackButton={true} logoSize="sm" showTagline={false} />
       
-      <main className="flex-1 flex items-center justify-center px-4 py-12" aria-label="CanAI Feedback">
-        <div className="w-full max-w-6xl mx-auto">
+      <main className="flex-1 flex items-center justify-center px-4 py-8" aria-label="CanAI Feedback">
+        <div className="w-full max-w-4xl mx-auto">
           {!feedbackSubmitted ? (
-            <>
-              {/* Page Title */}
+            <div className="space-y-8">
+              {/* Centered Page Title */}
               <div className="text-center mb-12">
-                <PageTitle className="text-5xl mb-6">
+                <PageTitle className="text-4xl lg:text-5xl mb-6">
                   Share Your Experience
                 </PageTitle>
-                <BodyText className="text-xl max-w-2xl mx-auto">
+                <BodyText className="text-lg max-w-xl mx-auto opacity-90">
                   Help us improve CanAI for founders everywhere.
                 </BodyText>
               </div>
 
-              {/* Main Content Grid */}
-              <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-                {/* Main Feedback Form */}
-                <div className="xl:col-span-8">
-                  <StandardCard variant="form" padding="xl" className="h-fit">
-                    <form onSubmit={handleSubmit} className="space-y-8">
-                      {/* Rating Section */}
-                      <div className="text-center">
-                        <SectionTitle className="text-2xl mb-6 text-white">
-                          How was your <span className="text-[#36d1fe]">SparkSplit experience</span>?
-                        </SectionTitle>
-                        <div className="flex justify-center">
-                          <StarRating rating={rating} setRating={setRating} />
-                        </div>
+              {/* Main Feedback Form - Centered */}
+              <div className="max-w-2xl mx-auto">
+                <StandardCard variant="form" padding="xl" className="mb-8">
+                  <form onSubmit={handleSubmit} className="space-y-8">
+                    {/* Rating Section */}
+                    <div className="text-center">
+                      <SectionTitle className="text-2xl mb-6 text-white">
+                        How was your <span className="text-[#36d1fe]">SparkSplit experience</span>?
+                      </SectionTitle>
+                      <div className="flex justify-center">
+                        <StarRating rating={rating} setRating={setRating} />
                       </div>
-
-                      {/* Comment Section */}
-                      <div>
-                        <SectionTitle className="text-xl mb-4 text-white">
-                          Leave a comment
-                        </SectionTitle>
-                        <Textarea
-                          placeholder="What did you think of the business plan comparison? Suggestions welcome!"
-                          value={comment}
-                          onChange={e => setComment(e.target.value)}
-                          className="
-                            bg-[rgba(255,255,255,0.05)] 
-                            border-2 border-[rgba(54,209,254,0.3)] 
-                            focus:border-[#36d1fe] 
-                            text-white 
-                            placeholder:text-[#b3d9f2] 
-                            min-h-[120px] 
-                            rounded-xl
-                            resize-none
-                          "
-                          required
-                          minLength={5}
-                          maxLength={200}
-                          rows={4}
-                        />
-                        <CaptionText className="mt-3 mb-0">
-                          Your feedback helps shape CanAI's next phase.{" "}
-                          <a
-                            href={quickbooksLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-[#36d1fe] hover:text-[#4ae3ff] underline transition-colors duration-200"
-                          >
-                            Need your invoice?
-                          </a>
-                        </CaptionText>
-                      </div>
-
-                      {/* Submit Button */}
-                      <Button
-                        variant="default"
-                        type="submit"
-                        size="lg"
-                        className="
-                          w-full 
-                          bg-gradient-to-r from-[#36d1fe] to-[#00b8e6] 
-                          text-[#0a1628] 
-                          font-bold 
-                          text-lg 
-                          py-6
-                          hover:from-[#4ae3ff] hover:to-[#36d1fe] 
-                          hover:scale-[1.02] 
-                          transition-all 
-                          duration-300
-                          border-0
-                          rounded-xl
-                        "
-                      >
-                        Submit Feedback
-                      </Button>
-                    </form>
-
-                    {/* Danger Zone */}
-                    <div className="flex justify-end mt-8">
-                      <button
-                        className="
-                          text-[#ff8fa3] 
-                          hover:text-[#ff6b85] 
-                          font-medium 
-                          text-sm 
-                          underline 
-                          transition-colors 
-                          duration-200
-                        "
-                        type="button"
-                        onClick={() => setShowPurge(v => !v)}
-                      >
-                        Purge my data
-                      </button>
                     </div>
 
-                    <DangerZone showPurge={showPurge} setShowPurge={setShowPurge} handlePurge={handlePurge} />
-                  </StandardCard>
-                </div>
+                    {/* Comment Section */}
+                    <div>
+                      <SectionTitle className="text-xl mb-4 text-white">
+                        Leave a comment
+                      </SectionTitle>
+                      <Textarea
+                        placeholder="What did you think of the business plan comparison? Suggestions welcome!"
+                        value={comment}
+                        onChange={e => setComment(e.target.value)}
+                        className="
+                          bg-[rgba(255,255,255,0.05)] 
+                          border-2 border-[rgba(54,209,254,0.3)] 
+                          focus:border-[#36d1fe] 
+                          text-white 
+                          placeholder:text-[#b3d9f2] 
+                          min-h-[120px] 
+                          rounded-xl
+                          resize-none
+                        "
+                        required
+                        minLength={5}
+                        maxLength={200}
+                        rows={4}
+                      />
+                      <CaptionText className="mt-3 mb-0 text-center">
+                        Your feedback helps shape CanAI's next phase.{" "}
+                        <a
+                          href={quickbooksLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#36d1fe] hover:text-[#4ae3ff] underline transition-colors duration-200"
+                        >
+                          Need your invoice?
+                        </a>
+                      </CaptionText>
+                    </div>
 
-                {/* Sidebar */}
-                <div className="xl:col-span-4 space-y-6">
+                    {/* Submit Button */}
+                    <Button
+                      variant="default"
+                      type="submit"
+                      size="lg"
+                      className="
+                        w-full 
+                        bg-gradient-to-r from-[#36d1fe] to-[#00b8e6] 
+                        text-[#0a1628] 
+                        font-bold 
+                        text-lg 
+                        py-6
+                        hover:from-[#4ae3ff] hover:to-[#36d1fe] 
+                        hover:scale-[1.02] 
+                        transition-all 
+                        duration-300
+                        border-0
+                        rounded-xl
+                      "
+                    >
+                      Submit Feedback
+                    </Button>
+                  </form>
+
+                  {/* Danger Zone */}
+                  <div className="flex justify-end mt-8">
+                    <button
+                      className="
+                        text-[#ff8fa3] 
+                        hover:text-[#ff6b85] 
+                        font-medium 
+                        text-sm 
+                        underline 
+                        transition-colors 
+                        duration-200
+                      "
+                      type="button"
+                      onClick={() => setShowPurge(v => !v)}
+                    >
+                      Purge my data
+                    </button>
+                  </div>
+
+                  <DangerZone showPurge={showPurge} setShowPurge={setShowPurge} handlePurge={handlePurge} />
+                </StandardCard>
+              </div>
+
+              {/* Secondary Actions - Centered Below Form */}
+              <div className="max-w-3xl mx-auto">
+                <div className="text-center mb-6">
+                  <SectionTitle className="text-xl text-white mb-2">
+                    Share the Love
+                  </SectionTitle>
+                  <BodyText className="text-sm opacity-80">
+                    Help other founders discover CanAI or earn rewards through referrals
+                  </BodyText>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <EnhancedSocialShare onShare={handleShare} />
                   <EnhancedReferral onRefer={handleReferralSubmit} />
                 </div>
               </div>
-            </>
+            </div>
           ) : (
-            /* Post-Submission View */
-            <div className="text-center space-y-8 animate-fade-in">
-              <StandardCard variant="form" padding="xl" className="max-w-3xl mx-auto">
+            /* Post-Submission View - Centered */
+            <div className="text-center space-y-8 animate-fade-in max-w-3xl mx-auto">
+              <StandardCard variant="form" padding="xl">
                 <PageTitle className="text-4xl mb-6">
                   Thank You! 🎉
                 </PageTitle>
-                <BodyText className="text-xl mb-10 max-w-xl mx-auto">
+                <BodyText className="text-xl mb-10">
                   Your feedback has been received and will help us improve CanAI for all founders.
                 </BodyText>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-lg mx-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md mx-auto mb-10">
                   <Button
                     variant="outline"
                     size="lg"
@@ -232,9 +240,15 @@ const FeedbackPage: React.FC = () => {
                 </div>
               </StandardCard>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-4xl mx-auto mt-12">
-                <EnhancedSocialShare onShare={handleShare} />
-                <EnhancedReferral onRefer={handleReferralSubmit} />
+              {/* Post-submission sharing - More prominent */}
+              <div>
+                <SectionTitle className="text-2xl text-white mb-6">
+                  Spread the Word About Your Success
+                </SectionTitle>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <EnhancedSocialShare onShare={handleShare} />
+                  <EnhancedReferral onRefer={handleReferralSubmit} />
+                </div>
               </div>
             </div>
           )}
