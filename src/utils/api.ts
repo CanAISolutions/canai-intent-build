@@ -43,6 +43,28 @@ export interface SaveProgressResponse {
   error: null | string;
 }
 
+export interface IntentMirrorRequest {
+  businessName: string;
+  targetAudience: string;
+  primaryGoal: string;
+  competitiveContext: string;
+  brandVoice: string;
+  resourceConstraints: string;
+  currentStatus: string;
+  businessDescription: string;
+  revenueModel: string;
+  planPurpose: string;
+  location: string;
+  uniqueValue: string;
+}
+
+export interface IntentMirrorResponse {
+  summary: string;
+  confidenceScore: number;
+  clarifyingQuestions: string[];
+  error: null | string;
+}
+
 // Base API configuration
 const API_BASE = import.meta.env.VITE_API_BASE || '/v1';
 const DEFAULT_TIMEOUT = 5000;
@@ -343,6 +365,164 @@ const generateContextualTooltip = (data: { field: string; business_type?: string
     return fieldTooltips.retail || fieldTooltips.default;
   } else {
     return fieldTooltips.default;
+  }
+};
+
+// Intent Mirror API endpoint
+export const generateIntentMirror = async (data: IntentMirrorRequest): Promise<IntentMirrorResponse> => {
+  console.log('[API] POST /v1/intent-mirror called with:', data);
+  
+  try {
+    const startTime = Date.now();
+    
+    // TODO: Replace with actual GPT-4o integration
+    const response = await apiCall<IntentMirrorResponse>('/intent-mirror', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    
+    const duration = Date.now() - startTime;
+    
+    // Log to Supabase prompt_logs
+    await insertPromptLog({
+      user_id: undefined, // Anonymous user
+      payload: {
+        ...data,
+        summary: response.summary,
+        confidence_score: response.confidenceScore,
+        response_time: duration
+      },
+      location: window.location.href,
+      unique_value: generateCorrelationId()
+    });
+
+    // Track PostHog event
+    const { trackEvent, POSTHOG_EVENTS } = await import('./analytics');
+    trackEvent(POSTHOG_EVENTS.FUNNEL_STEP, {
+      stepName: 'intent_mirror',
+      completed: true,
+      confidence_score: response.confidenceScore,
+      response_time: duration,
+      dropoffReason: null
+    });
+
+    // Handle low confidence scenarios
+    if (response.confidenceScore < 0.8) {
+      await insertErrorLog({
+        user_id: undefined,
+        error_message: `Low confidence score: ${response.confidenceScore}`,
+        action: 'intent_mirror_low_confidence',
+        error_type: 'low_confidence',
+        support_request: true
+      });
+
+      // Track support request event
+      trackEvent('support_requested', {
+        reason: 'low_confidence',
+        confidence_score: response.confidenceScore,
+        stepName: 'intent_mirror'
+      });
+    }
+    
+    // Ensure response time < 300ms target
+    if (duration > 300) {
+      console.warn(`[API] intent-mirror exceeded 300ms target: ${duration}ms`);
+    }
+    
+    console.log(`[API] Intent mirror generated in ${duration}ms:`, response);
+    return response;
+    
+  } catch (error) {
+    console.error('[API] generateIntentMirror failed:', error);
+    
+    // Error logging
+    await logError({
+      user_id: undefined,
+      error_message: error instanceof Error ? error.message : 'Unknown error',
+      action: 'intent_mirror_generation',
+      error_type: 'timeout'
+    });
+    
+    // Fallback: Generate contextual intent mirror
+    const fallbackResponse = generateContextualIntentMirror(data);
+    
+    return {
+      ...fallbackResponse,
+      error: 'Fallback response due to API failure'
+    };
+  }
+};
+
+// Fallback intent mirror generation
+const generateContextualIntentMirror = (data: IntentMirrorRequest): IntentMirrorResponse => {
+  const businessName = data.businessName || 'your business';
+  const primaryGoal = data.primaryGoal?.toLowerCase() || '';
+  const businessType = data.businessDescription?.toLowerCase() || '';
+  
+  let summary = `Create a comprehensive business plan for ${businessName}`;
+  let confidenceScore = 0.75;
+  let clarifyingQuestions: string[] = [];
+  
+  // Enhance summary based on primary goal
+  if (primaryGoal.includes('funding') || primaryGoal.includes('investment')) {
+    summary += ` focused on securing investor funding`;
+    confidenceScore += 0.1;
+  } else if (primaryGoal.includes('growth') || primaryGoal.includes('scale')) {
+    summary += ` targeting strategic growth and market expansion`;
+    confidenceScore += 0.05;
+  } else if (primaryGoal.includes('launch') || primaryGoal.includes('start')) {
+    summary += ` for successful market launch`;
+  }
+  
+  // Add business context
+  if (data.targetAudience) {
+    summary += `, targeting ${data.targetAudience}`;
+    confidenceScore += 0.05;
+  }
+  
+  if (data.location) {
+    summary += ` in ${data.location}`;
+  }
+  
+  // Add unique value proposition
+  if (data.uniqueValue) {
+    summary += `, emphasizing ${data.uniqueValue}`;
+    confidenceScore += 0.05;
+  }
+  
+  // Generate clarifying questions for low confidence
+  if (confidenceScore < 0.8) {
+    clarifyingQuestions = [
+      `What specific funding amount are you targeting for ${businessName}?`,
+      'How will you differentiate from existing competitors in your market?',
+      'What\'s your projected monthly revenue for the first year?',
+      'Do you have any existing partnerships or supplier relationships?',
+      'What permits or certifications do you need for your business?'
+    ];
+  }
+  
+  return {
+    summary: summary + '.',
+    confidenceScore: Math.min(confidenceScore, 0.95),
+    clarifyingQuestions,
+    error: null
+  };
+};
+
+// Track field edit events
+export const trackFieldEdit = async (field: string, value: string): Promise<void> => {
+  try {
+    const { trackEvent } = await import('./analytics');
+    trackEvent('field_edited', {
+      field,
+      value_length: value.length,
+      stepName: 'intent_mirror',
+      timestamp: new Date().toISOString()
+    });
+    
+    console.log(`[API] Field edit tracked: ${field}`);
+  } catch (error) {
+    console.warn('[API] Failed to track field edit:', error);
   }
 };
 

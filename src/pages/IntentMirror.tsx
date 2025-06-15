@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, ArrowLeft, Shield, Clock, Users } from "lucide-react";
@@ -8,6 +7,9 @@ import { PageTitle, BodyText } from "@/components/StandardTypography";
 import PageHeader from "@/components/PageHeader";
 import EditModal from "@/components/IntentMirror/EditModal";
 import SummaryCard from "@/components/IntentMirror/SummaryCard";
+import { generateIntentMirror, trackFieldEdit } from "@/utils/api";
+import { trackIntentMirrorConfirmed, trackIntentMirrorEdited, trackSupportRequested } from "@/utils/analytics";
+import { triggerIntentMirrorWorkflow, handleLowConfidenceSupport } from "@/utils/intentMirrorIntegration";
 
 interface IntentMirrorData {
   summary: string;
@@ -83,26 +85,55 @@ const IntentMirror = () => {
     setIsLoading(true);
     
     try {
-      // TODO: API Integration - POST /v1/intent-mirror
       const startTime = Date.now();
-      await new Promise(resolve => setTimeout(resolve, 250));
       
-      if (Math.random() > 0.9 && retryCount === 0) {
-        throw new Error('Simulated API failure');
-      }
+      // Get business data from URL params or localStorage
+      const businessData = {
+        businessName: "Sprinkle Haven Bakery", // TODO: Get from actual form data
+        targetAudience: "Denver families with children seeking organic, artisanal baked goods",
+        primaryGoal: "Secure $200K investor funding for bakery launch",
+        competitiveContext: "Competing with Blue Moon Bakery and chain stores",
+        brandVoice: "warm",
+        resourceConstraints: "$50k initial budget; team of 3; 6-month timeline",
+        currentStatus: "Planning phase with market research completed",
+        businessDescription: "Artisanal neighborhood bakery specializing in organic pastries",
+        revenueModel: "Retail sales, custom orders, baking workshops, catering events",
+        planPurpose: "Secure investor funding and establish market presence",
+        location: "Denver, Colorado",
+        uniqueValue: "Organic, community-focused pastries with interactive family baking workshops"
+      };
       
-      const mockConfidence = lowConfidenceAttempts > 0 ? 0.65 : 0.85;
-      const mockData = generateMockIntentData(mockConfidence);
-      setIntentData(mockData);
+      // Use new API integration
+      const response = await generateIntentMirror(businessData);
       
-      if (mockData.confidenceScore < 0.8) {
-        setLowConfidenceAttempts(prev => prev + 1);
+      setIntentData({
+        summary: response.summary,
+        confidenceScore: response.confidenceScore,
+        clarifyingQuestions: response.clarifyingQuestions,
+        originalData: businessData
+      });
+      
+      if (response.confidenceScore < 0.8) {
+        setLowConfidenceAttempts(prev => {
+          const newCount = prev + 1;
+          
+          // Handle support request for multiple low confidence attempts
+          if (newCount >= 2) {
+            handleLowConfidenceSupport({
+              confidence_score: response.confidenceScore,
+              business_data: businessData,
+              attempt_count: newCount
+            });
+          }
+          
+          return newCount;
+        });
       }
       
       const endTime = Date.now();
       console.log('Intent mirror loaded:', { 
         promptId, 
-        confidence: mockData.confidenceScore,
+        confidence: response.confidenceScore,
         loadTime: endTime - startTime 
       });
       
@@ -136,6 +167,13 @@ const IntentMirror = () => {
     setIsConfirming(true);
     
     try {
+      // Track confirmation with analytics
+      trackIntentMirrorConfirmed({
+        confidence_score: intentData.confidenceScore,
+        editing_attempts: lowConfidenceAttempts,
+        time_to_confirm: Date.now() - performance.now() // Approximate time since load
+      });
+      
       console.log('Intent confirmed:', { promptId, confidence: intentData.confidenceScore });
       
       toast({
@@ -143,7 +181,7 @@ const IntentMirror = () => {
         description: "Moving to deliverable generation...",
       });
       
-      // Navigate to Deliverable Generation instead of /generating
+      // Navigate to Deliverable Generation
       setTimeout(() => {
         window.location.href = `/deliverable?prompt_id=${promptId}`;
       }, 1500);
@@ -161,6 +199,16 @@ const IntentMirror = () => {
   };
 
   const handleEdit = (field: string) => {
+    // Track field edit with analytics
+    trackIntentMirrorEdited({
+      field,
+      edit_type: field === 'general' ? 'general' : 'field_specific',
+      confidence_score: intentData?.confidenceScore
+    });
+    
+    // Track field edit event
+    trackFieldEdit(field, '');
+    
     setEditField(field);
     setShowEditModal(true);
     console.log('Edit field requested:', field);
@@ -172,6 +220,13 @@ const IntentMirror = () => {
   };
 
   const handleSupportRequest = () => {
+    // Track support request
+    trackSupportRequested({
+      reason: 'user_initiated',
+      confidence_score: intentData?.confidenceScore,
+      attempt_count: lowConfidenceAttempts
+    });
+    
     console.log('Support requested:', { attempts: lowConfidenceAttempts });
     
     toast({

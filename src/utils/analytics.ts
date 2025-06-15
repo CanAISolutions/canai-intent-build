@@ -24,6 +24,12 @@ export const POSTHOG_EVENTS = {
   SPARK_SELECTED: 'spark_selected',
   SPARKS_REGENERATED: 'sparks_regenerated',
   SPARKS_REGENERATED_EXTRA: 'sparks_regenerated_extra',
+  // Intent Mirror Events
+  INTENT_MIRROR_LOADED: 'intent_mirror_loaded',
+  INTENT_MIRROR_CONFIRMED: 'intent_mirror_confirmed',
+  INTENT_MIRROR_EDITED: 'intent_mirror_edited',
+  SUPPORT_REQUESTED: 'support_requested',
+  FIELD_EDITED: 'field_edited',
 } as const;
 
 // PostHog configuration
@@ -248,6 +254,82 @@ export const trackSparkInteraction = (interactionType: string, details?: Record<
   trackEvent(POSTHOG_EVENTS.FUNNEL_STEP, {
     funnel_step: `spark_layer_${interactionType}`,
     interaction_type: interactionType,
+    completed: true,
+    step_timestamp: new Date().toISOString(),
+    ...details,
+  });
+};
+
+// Intent Mirror specific analytics functions
+export const trackIntentMirrorLoaded = (data: {
+  confidence_score: number;
+  response_time: number;
+  clarifying_questions_count: number;
+}) => {
+  trackEvent(POSTHOG_EVENTS.INTENT_MIRROR_LOADED, {
+    confidence_score: data.confidence_score,
+    response_time: data.response_time,
+    clarifying_questions_count: data.clarifying_questions_count,
+    step_timestamp: new Date().toISOString(),
+  });
+};
+
+export const trackIntentMirrorConfirmed = (data: {
+  confidence_score: number;
+  editing_attempts?: number;
+  time_to_confirm?: number;
+}) => {
+  trackEvent(POSTHOG_EVENTS.INTENT_MIRROR_CONFIRMED, {
+    confidence_score: data.confidence_score,
+    editing_attempts: data.editing_attempts || 0,
+    time_to_confirm: data.time_to_confirm,
+    step_timestamp: new Date().toISOString(),
+  });
+};
+
+export const trackIntentMirrorEdited = (data: {
+  field: string;
+  edit_type: 'field_specific' | 'general' | 'clarification';
+  confidence_score?: number;
+}) => {
+  trackEvent(POSTHOG_EVENTS.INTENT_MIRROR_EDITED, {
+    field: data.field,
+    edit_type: data.edit_type,
+    confidence_score: data.confidence_score,
+    step_timestamp: new Date().toISOString(),
+  });
+};
+
+export const trackSupportRequested = (data: {
+  reason: 'low_confidence' | 'user_initiated' | 'error';
+  confidence_score?: number;
+  attempt_count?: number;
+}) => {
+  trackEvent(POSTHOG_EVENTS.SUPPORT_REQUESTED, {
+    reason: data.reason,
+    confidence_score: data.confidence_score,
+    attempt_count: data.attempt_count || 1,
+    step_timestamp: new Date().toISOString(),
+  });
+};
+
+export const trackFieldEdited = (data: {
+  field: string;
+  value_length: number;
+  edit_source: 'modal' | 'inline' | 'bulk_edit';
+}) => {
+  trackEvent(POSTHOG_EVENTS.FIELD_EDITED, {
+    field: data.field,
+    value_length: data.value_length,
+    edit_source: data.edit_source,
+    step_timestamp: new Date().toISOString(),
+  });
+};
+
+// Enhanced funnel tracking for intent mirror
+export const trackIntentMirrorFunnelStep = (step: string, details?: Record<string, any>) => {
+  trackEvent(POSTHOG_EVENTS.FUNNEL_STEP, {
+    funnel_step: `intent_mirror_${step}`,
     completed: true,
     step_timestamp: new Date().toISOString(),
     ...details,

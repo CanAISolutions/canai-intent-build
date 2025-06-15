@@ -39,6 +39,7 @@ export interface SparkLog {
   created_at: string;
 }
 
+// Enhanced error log interface with support_request column
 export interface ErrorLog {
   id: string;
   user_id?: string;
@@ -208,10 +209,56 @@ export const insertSparkLog = async (log: Omit<SparkLog, 'id' | 'created_at'>) =
   return data;
 };
 
+// Enhanced helper functions for intent mirror
+export const insertIntentMirrorLog = async (log: {
+  user_id?: string;
+  business_data: Record<string, any>;
+  summary: string;
+  confidence_score: number;
+  clarifying_questions?: string[];
+  response_time?: number;
+}) => {
+  try {
+    // Insert into prompt_logs with intent mirror specific data
+    const { data, error } = await supabase
+      .from('prompt_logs')
+      .insert([{
+        user_id: log.user_id,
+        payload: {
+          business_data: log.business_data,
+          summary: log.summary,
+          confidence_score: log.confidence_score,
+          clarifying_questions: log.clarifying_questions || [],
+          response_time: log.response_time,
+          step: 'intent_mirror',
+          timestamp: new Date().toISOString()
+        },
+        location: window.location.href,
+        unique_value: `intent-mirror-${Date.now()}`
+      }])
+      .select();
+    
+    if (error) {
+      console.error('[Supabase] Error inserting intent mirror log:', error);
+      throw error;
+    }
+    
+    console.log('[Supabase] Intent mirror log inserted successfully');
+    return data;
+  } catch (error) {
+    console.error('[Supabase] insertIntentMirrorLog failed:', error);
+    throw error;
+  }
+};
+
+// Enhanced error logging with support_request
 export const insertErrorLog = async (log: Omit<ErrorLog, 'id' | 'created_at'>) => {
   const { data, error } = await supabase
     .from('error_logs')
-    .insert([log])
+    .insert([{
+      ...log,
+      support_request: log.support_request || false
+    }])
     .select();
   
   if (error) {
@@ -222,5 +269,36 @@ export const insertErrorLog = async (log: Omit<ErrorLog, 'id' | 'created_at'>) =
   return data;
 };
 
+// Initialize RLS and create missing columns if needed
+export const initializeIntentMirrorSupport = async () => {
+  try {
+    // TODO: Execute in Supabase SQL editor:
+    /*
+    -- Add support_request column to error_logs if it doesn't exist
+    ALTER TABLE error_logs ADD COLUMN IF NOT EXISTS support_request BOOLEAN DEFAULT false;
+    
+    -- Create index for performance
+    CREATE INDEX IF NOT EXISTS idx_error_logs_support_request ON error_logs(support_request);
+    CREATE INDEX IF NOT EXISTS idx_prompt_logs_step ON prompt_logs((payload->>'step'));
+    
+    -- Update RLS policies for intent mirror
+    CREATE POLICY IF NOT EXISTS "Intent mirror access" ON prompt_logs
+      FOR SELECT USING (
+        auth.uid() = user_id OR 
+        (payload->>'step' = 'intent_mirror' AND user_id IS NULL)
+      );
+    */
+    
+    console.log('[Supabase] Intent mirror support initialization ready (requires manual SQL execution)');
+    return true;
+  } catch (error) {
+    console.error('[Supabase] Intent mirror initialization failed:', error);
+    return false;
+  }
+};
+
 // Initialize vault encryption on module load
 enableVaultEncryption();
+
+// Run initialization
+initializeIntentMirrorSupport();
