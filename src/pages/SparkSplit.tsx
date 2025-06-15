@@ -6,6 +6,7 @@ import RefinedComparisonContainer from "@/components/SparkSplit/RefinedCompariso
 import EmotionalCompass from "@/components/SparkSplit/EmotionalCompass";
 import TrustDeltaDisplay from "@/components/SparkSplit/TrustDeltaDisplay";
 import RefinedFeedbackForm from "@/components/SparkSplit/RefinedFeedbackForm";
+import SparkleIcon from "@/components/SparkSplit/SparkleIcon";
 
 // Circuit breaker for negative engagement tracking
 let negativeEngagementCount = 0;
@@ -285,28 +286,26 @@ const SparkSplit: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] to-[#00B2E3] py-12 px-6">
-      <div className="mx-auto w-full max-w-7xl bg-gradient-to-br from-[#172b47]/95 to-[#1E314F]/95 rounded-3xl shadow-2xl backdrop-blur-xl border border-[#36d1fe66] p-8 md:p-16">
-        <div className="space-y-12">
+    <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] to-[#00B2E3] py-14 px-4 md:px-10 shadow-strong">
+      <div className="mx-auto w-full max-w-7xl bg-gradient-to-br from-[#172b47f0] to-[#1E314F]/90 rounded-3xl shadow-2xl backdrop-blur-xl border border-[#36d1fe66] p-4 md:p-11">
+        <div className="space-y-14">
           {/* Header */}
-          <div className="text-center space-y-4">
-            <h1 className="text-4xl md:text-5xl font-bold canai-gradient-text mb-6 leading-tight">
-              Compare Your Personalized Plan
+          <div className="text-center space-y-4 animate-fade-in">
+            <h1 className="font-playfair text-4xl md:text-5xl font-bold canai-gradient-text drop-shadow-xl mb-4 leading-tight animate-text-glow">
+              Side-by-Side Plan Comparison
             </h1>
-            <p className="text-[#E6F6FF] text-xl max-w-4xl mx-auto leading-relaxed opacity-90">
-              See how CanAI's personalized approach compares to generic AI outputs for your business vision
+            <p className="text-canai-light text-xl max-w-4xl mx-auto leading-relaxed opacity-90 font-manrope">
+              Discover how <span className="font-semibold text-canai-cyan">CanAI’s personalized magic</span> stacks up against the average AI suggestion for your business.
             </p>
           </div>
-
           {/* Main comparison layout */}
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-12">
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-10 relative">
             {/* Left sidebar - Context Summary */}
             <div className="xl:col-span-1 space-y-8">
               <ProjectContextSummary />
             </div>
-
             {/* Main content area */}
-            <div className="xl:col-span-3 space-y-12">
+            <div className="xl:col-span-3 space-y-14">
               {/* Comparison containers */}
               {canaiOutput && genericOutput && (
                 <RefinedComparisonContainer
@@ -314,7 +313,6 @@ const SparkSplit: React.FC = () => {
                   genericOutput={genericOutput}
                 />
               )}
-
               {/* Circuit breaker fallback - CanAI only */}
               {canaiOutput && !genericOutput && negativeEngagementCount >= CIRCUIT_BREAKER_THRESHOLD && (
                 <div className="bg-gradient-to-br from-[#1E314F] to-[#2A4A6B] rounded-3xl border-2 border-[#00CFFF] shadow-2xl p-12">
@@ -330,32 +328,25 @@ const SparkSplit: React.FC = () => {
                   </div>
                 </div>
               )}
-
-              {/* Emotional Compass and Trust Delta */}
+              {/* Emotional Compass & Trust Delta */}
               {emotionalResonance && trustDelta !== null && (
-                <div className="bg-gradient-to-br from-[#172b47] to-[#1E314F] rounded-3xl border border-[#36d1fe66] p-12 shadow-2xl">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                    <EmotionalCompass 
-                      scores={emotionalResonance.compassScores}
-                      title="CanAI Emotional Resonance"
-                    />
+                <div className="bg-gradient-to-br from-[#172b47ea] to-[#1E314F] rounded-3xl border border-[#36d1fe66] p-12 shadow-2xl flex flex-col md:flex-row md:items-center gap-10 md:gap-0 animate-fade-in">
+                  <div className="flex-1 flex flex-col items-center justify-center">
+                    <div className="md:mb-0 mb-8">
+                      <EmotionalCompass 
+                        scores={emotionalResonance.compassScores}
+                        title="CanAI Emotional Resonance"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex-1 flex flex-col items-center justify-center">
                     <TrustDeltaDisplay 
                       delta={trustDelta}
                       onTooltipView={handleTrustDeltaView}
                     />
                   </div>
-                  
-                  {/* Hume AI validation warning */}
-                  {emotionalResonance.isFlagged && (
-                    <div className="mt-8 p-6 bg-yellow-900/30 rounded-2xl border border-yellow-400/50">
-                      <p className="text-yellow-200 text-base">
-                        ⚠️ Emotional resonance scores are below quality thresholds and flagged for review.
-                      </p>
-                    </div>
-                  )}
                 </div>
               )}
-
               {/* Feedback Form */}
               {!loading && canaiOutput && (
                 <RefinedFeedbackForm
@@ -367,25 +358,17 @@ const SparkSplit: React.FC = () => {
                   isSubmitting={isSubmitting}
                 />
               )}
+              {/* Footer: Social Proof / Divider */}
+              <div className="pt-12 border-t border-[#36d1fe33] flex flex-col items-center gap-2">
+                <div className="font-playfair text-canai-cyan text-lg animate-countup-glow font-semibold tracking-wider">
+                  <SparkleIcon className="scale-110 mr-1" />
+                  500+ founders trust CanAI to compare & refine their plans
+                </div>
+                <div className="text-canai-light text-xs opacity-70 text-center">
+                  CanAI excludes branding elements. Contact us for design partnership opportunities.
+                </div>
+              </div>
             </div>
-          </div>
-
-          {/* API Integration Comments */}
-          {/* 
-            Supabase Mapping:
-            - comparisons.trust_delta -> trustDelta state
-            - comparisons.emotional_resonance -> emotionalResonance state  
-            - comparisons.user_feedback -> feedback state
-            
-            PostHog Events:
-            - plan_compared: Triggered on load and selection change
-            - trustdelta_viewed: Triggered on tooltip interaction
-            - generic_preferred: Triggered when generic output selected
-          */}
-
-          {/* Footer note */}
-          <div className="text-center text-sm text-[#E6F6FF] pt-12 border-t border-[#36d1fe33] opacity-75">
-            CanAI excludes branding elements. Contact us for design partnership opportunities.
           </div>
         </div>
       </div>
