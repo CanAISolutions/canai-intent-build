@@ -11,7 +11,7 @@ import StandardCard from "@/components/StandardCard";
 import PageHeader from "@/components/PageHeader";
 import { PageTitle, BodyText, CaptionText } from "@/components/StandardTypography";
 import { createStripeSession } from "@/utils/purchaseFlowApi";
-import { trackPriceViewed, trackCheckoutStarted, trackPaymentCompleted } from "@/utils/purchaseAnalytics";
+import { trackPriceViewed, trackCheckoutStarted, trackPaymentCompleted, trackProductSwitched } from "@/utils/purchaseAnalytics";
 
 // Product types for type safety
 export type ProductType = 'business_builder' | 'social_email' | 'site_audit';
@@ -97,14 +97,12 @@ const PurchaseFlow = () => {
       console.log('[PostHog] Product switched:', { from: selectedProduct, to: productId });
       
       // Track product switch analytics
-      import('./purchaseAnalytics').then(({ trackProductSwitched }) => {
-        trackProductSwitched({
-          from_product: oldProduct.id,
-          to_product: newProduct.id,
-          from_price: oldProduct.price,
-          to_price: newProduct.price,
-          switch_reason: 'user_selection',
-        });
+      trackProductSwitched({
+        from_product: oldProduct.id,
+        to_product: newProduct.id,
+        from_price: oldProduct.price,
+        to_price: newProduct.price,
+        switch_reason: 'user_selection',
       });
     }
   };
