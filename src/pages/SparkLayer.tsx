@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -202,32 +201,34 @@ const SparkLayer: React.FC<SparkLayerProps> = ({
                     selectedSpark === spark.id ? 'ring-4 ring-[#36d1fe]/50' : ''
                   }`}
                 >
-                  <div className="text-center h-full flex flex-col justify-between">
-                    <div>
-                      <SectionTitle className="text-[#36d1fe] text-xl mb-4 font-manrope leading-tight">
+                  <div className="text-center h-full flex flex-col justify-between min-h-[400px]">
+                    <div className="flex-1">
+                      <SectionTitle className="text-[#36d1fe] text-lg mb-4 font-manrope leading-tight break-words">
                         {spark.title}
                       </SectionTitle>
-                      <BodyText className="text-lg leading-relaxed mb-6">
+                      <BodyText className="text-base leading-relaxed mb-6 break-words hyphens-auto">
                         {spark.tagline}
                       </BodyText>
                       
                       <div className="mb-6">
-                        <span className="text-3xl font-bold text-[#36d1fe] font-manrope">
+                        <span className="text-2xl font-bold text-[#36d1fe] font-manrope">
                           {getProductPrice(spark.productTrack)}
                         </span>
                       </div>
                     </div>
                     
-                    <Button
-                      variant="default"
-                      size="lg"
-                      className="w-full py-4 text-lg font-semibold bg-[#36d1fe] hover:bg-[#00f0ff] text-white border-0"
-                      onClick={() => handleSparkSelection(spark)}
-                      disabled={isLoading}
-                    >
-                      <span>Select and Purchase</span>
-                      <ArrowRight className="w-5 h-5 ml-2" />
-                    </Button>
+                    <div className="mt-auto">
+                      <Button
+                        variant="default"
+                        size="lg"
+                        className="w-full py-3 text-base font-semibold bg-[#36d1fe] hover:bg-[#00f0ff] text-white border-0"
+                        onClick={() => handleSparkSelection(spark)}
+                        disabled={isLoading}
+                      >
+                        <span>Select and Purchase</span>
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </div>
                   </div>
                 </StandardCard>
               </div>

@@ -19,7 +19,7 @@ const StandardCard: React.FC<StandardCardProps> = ({
   padding = 'lg',
   style
 }) => {
-  const baseClasses = "rounded-3xl border-2 transition-all duration-300";
+  const baseClasses = "rounded-3xl border-2 transition-all duration-300 overflow-hidden";
   
   const variantClasses = {
     default: "bg-gradient-to-br from-[#193c65] via-[#1e4a73] to-[#12294a] border-[#36d1fe] shadow-[0_0_40px_rgba(54,209,254,0.3)]",
@@ -52,7 +52,9 @@ const StandardCard: React.FC<StandardCardProps> = ({
       )}
       style={style}
     >
-      {children}
+      <div className="w-full h-full break-words overflow-hidden">
+        {children}
+      </div>
     </div>
   );
 };
