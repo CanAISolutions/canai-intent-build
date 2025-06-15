@@ -20,6 +20,7 @@ const MAKECOM_WEBHOOKS = {
   ERROR_LOG: import.meta.env.VITE_MAKECOM_ERROR_WEBHOOK || 'https://hook.integromat.com/your-error-webhook',
   SPARK_GENERATION: import.meta.env.VITE_MAKECOM_SPARK_WEBHOOK || 'https://hook.integromat.com/your-spark-webhook',
   SPARK_REGENERATION: import.meta.env.VITE_MAKECOM_SPARK_REGEN_WEBHOOK || 'https://hook.integromat.com/your-spark-regen-webhook',
+  PROJECT_CREATION: import.meta.env.VITE_MAKECOM_PROJECT_WEBHOOK || 'https://hook.integromat.com/your-project-webhook',
 };
 
 // Send data to Make.com workflow
@@ -135,6 +136,21 @@ export const triggerSparkRegeneration = (sparkData: {
   });
 };
 
+// Purchase Flow specific workflow triggers
+export const triggerProjectCreation = (projectData: {
+  stripe_session_id: string;
+  product: string;
+  user_id?: string;
+  spark_title?: string;
+}) => {
+  return triggerMakecomWorkflow('PROJECT_CREATION', {
+    action: 'create_project',
+    project_request: projectData,
+    webflow_integration: true,
+    memberstack_sync: true,
+  });
+};
+
 // TODO: Configure Make.com scenarios
 /*
 Scenario 1: add_project.json
@@ -158,4 +174,10 @@ Scenario 5: spark_generation.json (NEW)
 Scenario 6: spark_regeneration.json (NEW)
 - Regeneration webhook → GPT-4o API call with attempt_count → Response formatting → Supabase update
 - Include logic for max attempts (3 + 1 extra if trust_score < 50%)
+
+Scenario 7: add_project.json (PURCHASE FLOW)
+- Purchase webhook → Stripe session validation → Webflow project creation → Memberstack sync
+- Include Supabase session_logs update with stripe_payment_id
+- Performance target: <2s project creation
+- Error handling for Stripe failures, Webflow timeouts, Memberstack sync issues
 */

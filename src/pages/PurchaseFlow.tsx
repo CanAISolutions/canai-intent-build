@@ -1,14 +1,17 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import PricingTable from "@/components/PurchaseFlow/PricingTable";
 import CheckoutModal from "@/components/PurchaseFlow/CheckoutModal";
 import ConfirmationSection from "@/components/PurchaseFlow/ConfirmationSection";
+import RefundPolicyModal from "@/components/PurchaseFlow/RefundPolicyModal";
+import ProductSwitchModal from "@/components/PurchaseFlow/ProductSwitchModal";
 import StandardBackground from "@/components/StandardBackground";
 import StandardCard from "@/components/StandardCard";
 import PageHeader from "@/components/PageHeader";
 import { PageTitle, BodyText, CaptionText } from "@/components/StandardTypography";
+import { createStripeSession } from "@/utils/purchaseFlowApi";
+import { trackPriceViewed, trackCheckoutStarted, trackPaymentCompleted } from "@/utils/purchaseAnalytics";
 
 // Product types for type safety
 export type ProductType = 'business_builder' | 'social_email' | 'site_audit';
@@ -65,44 +68,98 @@ const PRODUCTS: Product[] = [
 const PurchaseFlow = () => {
   const [selectedProduct, setSelectedProduct] = useState<ProductType>('business_builder');
   const [isCheckoutOpen, setCheckoutOpen] = useState(false);
+  const [isRefundPolicyOpen, setRefundPolicyOpen] = useState(false);
+  const [isProductSwitchOpen, setProductSwitchOpen] = useState(false);
   const [isProcessing, setProcessing] = useState(false);
   const [purchaseComplete, setPurchaseComplete] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const [currentSessionId, setCurrentSessionId] = useState<string>('');
 
-  // PostHog integration placeholder
+  // Track page view and price viewing
   useEffect(() => {
-    console.log('[PostHog] Purchase page viewed');
-  }, []);
+    const product = PRODUCTS.find(p => p.id === selectedProduct);
+    if (product) {
+      trackPriceViewed({
+        product: selectedProduct,
+        price: product.price,
+        source: 'purchase_flow_page',
+      });
+    }
+  }, [selectedProduct]);
 
   const handleProductSelect = (productId: ProductType) => {
+    const oldProduct = PRODUCTS.find(p => p.id === selectedProduct);
+    const newProduct = PRODUCTS.find(p => p.id === productId);
+    
     setSelectedProduct(productId);
-    console.log('[PostHog] Product switched:', { from: selectedProduct, to: productId });
+    
+    if (oldProduct && newProduct && oldProduct.id !== newProduct.id) {
+      console.log('[PostHog] Product switched:', { from: selectedProduct, to: productId });
+      
+      // Track product switch analytics
+      import('./purchaseAnalytics').then(({ trackProductSwitched }) => {
+        trackProductSwitched({
+          from_product: oldProduct.id,
+          to_product: newProduct.id,
+          from_price: oldProduct.price,
+          to_price: newProduct.price,
+          switch_reason: 'user_selection',
+        });
+      });
+    }
   };
 
   const handlePurchaseClick = () => {
     const product = PRODUCTS.find(p => p.id === selectedProduct);
     if (!product) return;
 
-    console.log('[PostHog] Price viewed:', { product: selectedProduct, price: product.price });
+    // Track checkout started
+    trackCheckoutStarted({
+      product: selectedProduct,
+      price: product.price,
+    });
+
     setCheckoutOpen(true);
   };
 
   const handleCheckoutConfirm = async () => {
     setProcessing(true);
+    const startTime = Date.now();
     
     try {
-      // Simulate API call with retry logic
-      await simulateStripeSession();
+      const product = PRODUCTS.find(p => p.id === selectedProduct);
+      if (!product) throw new Error('Product not found');
+
+      // Create Stripe session via API
+      const response = await createStripeSession({
+        spark: {
+          title: product.name,
+          product_id: selectedProduct,
+          price: product.price,
+        },
+        user_id: 'demo-user-123', // TODO: Get from Memberstack
+      });
+
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      setCurrentSessionId(response.session.id);
       
-      console.log('[Supabase] Session logged:', { product: selectedProduct });
+      // Track payment completion
+      const completionTime = Date.now() - startTime;
+      trackPaymentCompleted({
+        product: selectedProduct,
+        price: product.price,
+        stripe_session_id: response.session.id,
+        completion_time_ms: completionTime,
+      });
 
       // For demo - simulate successful purchase
       setTimeout(() => {
         setProcessing(false);
         setCheckoutOpen(false);
         setPurchaseComplete(true);
-        
-        console.log('[PostHog] Purchase completed:', selectedProduct);
         
         // Navigate to Detailed Input Collection after purchase
         setTimeout(() => {
@@ -116,7 +173,7 @@ const PurchaseFlow = () => {
     } catch (error) {
       console.error('Purchase error:', error);
       
-      // Retry logic with exponential backoff
+      // F4-E1: Retry logic with exponential backoff
       if (retryCount < 3) {
         const delay = Math.pow(2, retryCount) * 1000;
         setTimeout(() => {
@@ -130,21 +187,16 @@ const PurchaseFlow = () => {
     }
   };
 
-  // Simulate Stripe session creation with potential failure
-  const simulateStripeSession = (): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (Math.random() > 0.8 && retryCount === 0) {
-          reject(new Error('Network error'));
-        } else {
-          resolve();
-        }
-      }, 800);
-    });
+  const handleRefundPolicy = () => {
+    setRefundPolicyOpen(true);
   };
 
-  const handleRefundPolicy = () => {
-    console.log('[PostHog] Refund policy viewed');
+  const handleProductSwitch = () => {
+    setProductSwitchOpen(true);
+  };
+
+  const handleProductChanged = (newProduct: Product) => {
+    setSelectedProduct(newProduct.id);
   };
 
   if (purchaseComplete) {
@@ -190,24 +242,46 @@ const PurchaseFlow = () => {
                 30-Day Refund Policy
               </button>
               <span className="text-[#cce7fa]">•</span>
+              <button
+                id="change-product"
+                onClick={handleProductSwitch}
+                className="text-[#cce7fa] hover:text-[#36d1fe] transition-colors underline"
+              >
+                Switch Product
+              </button>
+              <span className="text-[#cce7fa]">•</span>
               <CaptionText className="opacity-80 mb-0">
                 One-time payment • No subscription
               </CaptionText>
               <span className="text-[#cce7fa]">•</span>
-              <CaptionText className="opacity-80 mb-0">
+              <CaptionText id="subscription-note" className="opacity-80 mb-0">
                 Secure checkout with Stripe
               </CaptionText>
             </div>
           </StandardCard>
         </div>
 
-        {/* Checkout Modal */}
+        {/* Modals */}
         <CheckoutModal
           isOpen={isCheckoutOpen}
           onClose={() => setCheckoutOpen(false)}
           selectedProduct={PRODUCTS.find(p => p.id === selectedProduct)!}
           isProcessing={isProcessing}
           onConfirm={handleCheckoutConfirm}
+        />
+
+        <RefundPolicyModal
+          isOpen={isRefundPolicyOpen}
+          onClose={() => setRefundPolicyOpen(false)}
+        />
+
+        <ProductSwitchModal
+          isOpen={isProductSwitchOpen}
+          onClose={() => setProductSwitchOpen(false)}
+          currentProduct={PRODUCTS.find(p => p.id === selectedProduct)!}
+          availableProducts={PRODUCTS}
+          sessionId={currentSessionId}
+          onProductChanged={handleProductChanged}
         />
       </div>
     </StandardBackground>
