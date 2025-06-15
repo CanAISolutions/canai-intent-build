@@ -1,11 +1,25 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
-import { Download, RefreshCw, Edit3, FileText, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { 
+  Download, 
+  RefreshCw, 
+  Edit3, 
+  FileText, 
+  Clock, 
+  CheckCircle, 
+  AlertCircle,
+  ChevronDown,
+  ChevronUp,
+  Copy,
+  Zap,
+  Target,
+  TrendingUp
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface DeliverableData {
@@ -22,6 +36,12 @@ interface DeliverableData {
   };
 }
 
+interface LoadingStep {
+  id: string;
+  label: string;
+  status: 'pending' | 'active' | 'complete';
+}
+
 const DeliverableGeneration: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -29,6 +49,7 @@ const DeliverableGeneration: React.FC = () => {
   
   const [isGenerating, setIsGenerating] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [currentStep, setCurrentStep] = useState(0);
   const [deliverable, setDeliverable] = useState<DeliverableData | null>(null);
   const [revisionText, setRevisionText] = useState('');
   const [isRevising, setIsRevising] = useState(false);
@@ -36,6 +57,7 @@ const DeliverableGeneration: React.FC = () => {
   const [regenerationCount, setRegenerationCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [timeoutError, setTimeoutError] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
   const productType = searchParams.get('type') as 'BUSINESS_BUILDER' | 'SOCIAL_EMAIL' | 'SITE_AUDIT' || 'BUSINESS_BUILDER';
   const promptId = searchParams.get('promptId') || 'demo-prompt-id';
@@ -56,6 +78,13 @@ const DeliverableGeneration: React.FC = () => {
     vision: "Become the go-to celebration destination for meaningful moments"
   };
 
+  const loadingSteps: LoadingStep[] = [
+    { id: 'analyzing', label: 'Analyzing your inputs', status: 'pending' },
+    { id: 'generating', label: 'Generating personalized content', status: 'pending' },
+    { id: 'validating', label: 'Validating emotional resonance', status: 'pending' },
+    { id: 'finalizing', label: 'Finalizing your deliverable', status: 'pending' }
+  ];
+
   useEffect(() => {
     // PostHog tracking
     console.log('PostHog: deliverable_generation_started', { 
@@ -71,25 +100,39 @@ const DeliverableGeneration: React.FC = () => {
   const generateDeliverable = async () => {
     setIsGenerating(true);
     setProgress(0);
+    setCurrentStep(0);
     setError(null);
     setTimeoutError(false);
+    setSteps(loadingSteps.map(step => ({ ...step, status: 'pending' })));
 
-    // Progress simulation
-    const progressInterval = setInterval(() => {
-      setProgress(prev => Math.min(prev + 10, 90));
-    }, 200);
+    // Enhanced progress simulation with steps
+    const stepDuration = 500;
+    const stepProgress = 100 / steps.length;
 
     // Timeout handler (15 seconds)
     const timeoutTimer = setTimeout(() => {
       setTimeoutError(true);
       setIsGenerating(false);
       setError('Generation timed out');
-      clearInterval(progressInterval);
     }, 15000);
 
     try {
-      // Simulate generation process since API endpoints don't exist yet
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      for (let i = 0; i < steps.length; i++) {
+        setCurrentStep(i);
+        setSteps(prev => prev.map((step, index) => ({
+          ...step,
+          status: index === i ? 'active' : index < i ? 'complete' : 'pending'
+        })));
+        
+        setProgress((i + 0.5) * stepProgress);
+        await new Promise(resolve => setTimeout(resolve, stepDuration));
+        
+        setSteps(prev => prev.map((step, index) => ({
+          ...step,
+          status: index <= i ? 'complete' : 'pending'
+        })));
+        setProgress((i + 1) * stepProgress);
+      }
       
       // Mock emotional resonance validation
       const humeResponse = {
@@ -113,7 +156,6 @@ const DeliverableGeneration: React.FC = () => {
       console.log('Storing in Supabase comparisons table:', deliverableData);
 
       setDeliverable(deliverableData);
-      setProgress(100);
       
       // PostHog tracking
       console.log('PostHog: deliverable_generated', {
@@ -121,7 +163,7 @@ const DeliverableGeneration: React.FC = () => {
         promptId,
         deliverableId: deliverableData.id,
         emotionalResonance: humeResponse?.score,
-        generationTime: 2000
+        generationTime: steps.length * stepDuration
       });
 
       // SAAP updates project status
@@ -131,7 +173,6 @@ const DeliverableGeneration: React.FC = () => {
       console.error('Generation error:', error);
       setError(error instanceof Error ? error.message : 'Generation failed');
     } finally {
-      clearInterval(progressInterval);
       clearTimeout(timeoutTimer);
       setIsGenerating(false);
     }
@@ -260,6 +301,47 @@ const DeliverableGeneration: React.FC = () => {
     }
   };
 
+  const copyToClipboard = async (text: string, section: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({
+        title: "Copied to Clipboard",
+        description: `${section} section copied successfully.`
+      });
+    } catch (error) {
+      toast({
+        title: "Copy Failed",
+        description: "Unable to copy to clipboard.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionId]: !prev[sectionId]
+    }));
+  };
+
+  const parseContentSections = (content: string) => {
+    const sections = content.split('\n## ').map((section, index) => {
+      if (index === 0) {
+        const lines = section.split('\n');
+        return {
+          title: lines[0].replace('# ', ''),
+          content: lines.slice(1).join('\n')
+        };
+      }
+      const lines = section.split('\n');
+      return {
+        title: lines[0],
+        content: lines.slice(1).join('\n')
+      };
+    });
+    return sections.filter(section => section.title && section.content.trim());
+  };
+
   const getTemplateContent = (type: string): string => {
     switch (type) {
       case 'BUSINESS_BUILDER':
@@ -283,16 +365,16 @@ With a commercial kitchen lease secured and basic equipment acquired, operationa
 ## Competitive Advantage
 While competitors focus on volume and convenience, Sprinkle Haven emphasizes craftsmanship and personalization. This positioning allows premium pricing while building customer loyalty through superior service and product quality.
 
-## Financial Projections (100 words)
+## Financial Projections
 Startup capital of $15,000 covers initial inventory, marketing, and operational expenses. Projected break-even at month 8 with conservative estimates. Revenue streams include custom celebration cakes (70%), daily fresh items (20%), and catering services (10%). Monthly operating costs estimated at $4,200 including rent, ingredients, and utilities. Target first-year revenue of $85,000 with 15% net profit margin by year-end.
 
-## Team Structure (50 words)
+## Team Structure
 Founder brings 5 years professional baking experience with strong creative and customer service skills. Initial staffing includes part-time assistant for peak periods. Plans for additional decorator hire by month 12 based on demand growth and revenue targets.`;
 
       case 'SOCIAL_EMAIL':
         return `# Social Media & Email Campaign Package
 
-## Social Media Posts (5 posts)
+## Social Media Posts
 
 **Post 1 - Brand Introduction**
 🧁 Welcome to Sprinkle Haven Bakery! Where every celebration deserves a masterpiece. Our artisanal approach to custom cakes turns your special moments into sweet memories. Opening soon in downtown Springfield! #SprinkleHaven #ArtisanalBaking #CustomCakes
@@ -309,7 +391,7 @@ Founder brings 5 years professional baking experience with strong creative and c
 **Post 5 - Grand Opening Announcement**
 🎉 GRAND OPENING in 6 months! Follow our journey as we prepare to bring artisanal celebration cakes to downtown Springfield. Your sweet dreams are about to become reality! #GrandOpening #ComingSoon #SweetDreams
 
-## Email Campaigns (4 emails)
+## Email Campaigns
 
 **Email 1 - Welcome Series**
 Subject: Welcome to the Sprinkle Haven Family! 🧁
@@ -393,8 +475,7 @@ The Sprinkle Haven Team`;
       case 'SITE_AUDIT':
         return `# Website Audit Report: Sprinkle Haven Bakery
 
-## Current State Analysis (300-400 words)
-
+## Current State Analysis
 Upon comprehensive review of the Sprinkle Haven Bakery website, several critical areas require immediate attention to align with the business's artisanal positioning and community-focused mission.
 
 **Navigation and User Experience**: The current navigation structure lacks clarity for users seeking custom cake consultations. The primary call-to-action for design consultations is buried in secondary navigation, reducing conversion potential. Users spend excessive time searching for contact information and service details.
@@ -409,8 +490,7 @@ Upon comprehensive review of the Sprinkle Haven Bakery website, several critical
 
 **Conversion Optimization**: The booking flow for consultations involves too many steps, creating friction for potential customers. Trust signals such as testimonials, certifications, and process explanations are underutilized. Pricing transparency issues may deter potential clients.
 
-## Strategic Recommendations (100-150 words)
-
+## Strategic Recommendations
 **Immediate Actions**: Restructure navigation to prominently feature consultation booking. Implement professional product photography showcasing artisanal quality. Optimize page load speeds through image compression and code optimization. Fix mobile responsiveness issues affecting user experience.
 
 **Content Overhaul**: Rewrite homepage copy to emphasize personalized consultation process and community connection. Develop founder story section highlighting professional experience and unique approach. Create service pages that emotionally connect with celebration moments rather than just listing offerings.
@@ -424,6 +504,13 @@ These improvements will position Sprinkle Haven as the premium artisanal choice 
       default:
         return 'Content generation failed. Please try again.';
     }
+  };
+
+  const getResonanceMessage = (score: number) => {
+    if (score >= 0.8) return "Exceptional emotional connection";
+    if (score >= 0.7) return "Strong emotional resonance";
+    if (score >= 0.6) return "Good emotional alignment";
+    return "Moderate emotional connection";
   };
 
   if (timeoutError) {
@@ -458,20 +545,48 @@ These improvements will position Sprinkle Haven as the premium artisanal choice 
           </p>
         </div>
 
-        {/* Generation Progress */}
+        {/* Enhanced Generation Progress */}
         {isGenerating && (
           <Card className="bg-white/10 border-[#00CFFF]/40 mb-8">
             <CardHeader>
               <CardTitle className="text-[#E6F6FF] flex items-center gap-3">
-                <Clock className="w-6 h-6 text-[#00CFFF] animate-spin" />
+                <Zap className="w-6 h-6 text-[#00CFFF] animate-pulse" />
                 Generating Your Deliverable...
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Progress value={progress} className="mb-4" />
-              <p className="text-[#E6F6FF]/70">
-                Our AI is crafting your personalized content using advanced emotional resonance analysis...
-              </p>
+              <div className="space-y-4">
+                <Progress value={progress} className="h-2" />
+                <div className="space-y-3">
+                  {steps.map((step, index) => (
+                    <div key={step.id} className="flex items-center gap-3">
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                        step.status === 'complete' ? 'bg-green-500' :
+                        step.status === 'active' ? 'bg-[#00CFFF] animate-pulse' :
+                        'bg-gray-500'
+                      }`}>
+                        {step.status === 'complete' ? (
+                          <CheckCircle className="w-4 h-4 text-white" />
+                        ) : step.status === 'active' ? (
+                          <div className="w-3 h-3 bg-white rounded-full animate-pulse" />
+                        ) : (
+                          <div className="w-3 h-3 bg-gray-400 rounded-full" />
+                        )}
+                      </div>
+                      <span className={`text-sm ${
+                        step.status === 'complete' ? 'text-green-300' :
+                        step.status === 'active' ? 'text-[#00CFFF]' :
+                        'text-[#E6F6FF]/60'
+                      }`}>
+                        {step.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[#E6F6FF]/70 text-sm">
+                  Our AI is analyzing your inputs and crafting content with advanced emotional resonance validation...
+                </p>
+              </div>
             </CardContent>
           </Card>
         )}
@@ -479,7 +594,54 @@ These improvements will position Sprinkle Haven as the premium artisanal choice 
         {/* Generated Deliverable */}
         {deliverable && !isGenerating && (
           <div className="space-y-6">
-            {/* Deliverable Content */}
+            {/* Enhanced Emotional Resonance Display */}
+            {deliverable.emotionalResonance && (
+              <Card className="bg-gradient-to-r from-green-500/20 to-blue-500/20 border-green-400/30 mb-6">
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-green-500/30 rounded-full">
+                        <Target className="w-6 h-6 text-green-300" />
+                      </div>
+                      <div>
+                        <h3 className="text-green-300 font-medium text-lg">Emotional Resonance Analysis</h3>
+                        <p className="text-green-200 text-sm">{getResonanceMessage(deliverable.emotionalResonance.score)}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-3xl font-bold text-green-400">
+                        {(deliverable.emotionalResonance.score * 100).toFixed(0)}%
+                      </div>
+                      <div className="text-green-300 text-sm">Overall Score</div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-white/10 rounded-lg p-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <TrendingUp className="w-4 h-4 text-blue-400" />
+                        <span className="text-blue-300 text-sm font-medium">Arousal</span>
+                      </div>
+                      <div className="text-xl font-bold text-blue-400">
+                        {deliverable.emotionalResonance.arousal.toFixed(2)}
+                      </div>
+                      <div className="text-blue-200 text-xs">Engagement Level</div>
+                    </div>
+                    <div className="bg-white/10 rounded-lg p-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <CheckCircle className="w-4 h-4 text-green-400" />
+                        <span className="text-green-300 text-sm font-medium">Valence</span>
+                      </div>
+                      <div className="text-xl font-bold text-green-400">
+                        {deliverable.emotionalResonance.valence.toFixed(2)}
+                      </div>
+                      <div className="text-green-200 text-xs">Positivity Score</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Deliverable Content with Sections */}
             <Card className="bg-white/10 border-[#00CFFF]/40">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-[#E6F6FF] flex items-center gap-3">
@@ -510,102 +672,138 @@ These improvements will position Sprinkle Haven as the premium artisanal choice 
                 </div>
               </CardHeader>
               <CardContent>
-                {/* Emotional Resonance Score */}
-                {deliverable.emotionalResonance && (
-                  <div className="mb-6 p-4 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-lg border border-green-400/30">
-                    <div className="flex items-center justify-between">
-                      <span className="text-green-300 font-medium">Emotional Resonance Score</span>
-                      <span className="text-2xl font-bold text-green-400">
-                        {(deliverable.emotionalResonance.score * 100).toFixed(0)}%
-                      </span>
-                    </div>
-                    <div className="text-sm text-green-200 mt-1">
-                      Arousal: {deliverable.emotionalResonance.arousal.toFixed(2)} | 
-                      Valence: {deliverable.emotionalResonance.valence.toFixed(2)}
-                    </div>
-                  </div>
-                )}
-
-                {/* Content Display */}
-                <div className="bg-white/10 rounded-lg p-6 font-mono text-sm text-white whitespace-pre-wrap">
-                  {deliverable.content}
+                {/* Content Sections */}
+                <div className="space-y-4">
+                  {parseContentSections(deliverable.content).map((section, index) => (
+                    <Collapsible
+                      key={index}
+                      open={expandedSections[`section-${index}`] ?? index === 0}
+                      onOpenChange={() => toggleSection(`section-${index}`)}
+                    >
+                      <div className="border border-[#00CFFF]/20 rounded-lg overflow-hidden">
+                        <CollapsibleTrigger className="w-full p-4 bg-white/5 hover:bg-white/10 transition-colors">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-[#E6F6FF] font-medium text-left">{section.title}</h3>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  copyToClipboard(section.content, section.title);
+                                }}
+                                className="h-8 w-8 p-0 text-[#00CFFF] hover:bg-[#00CFFF]/20"
+                              >
+                                <Copy className="w-4 h-4" />
+                              </Button>
+                              {expandedSections[`section-${index}`] ?? index === 0 ? (
+                                <ChevronUp className="w-5 h-5 text-[#00CFFF]" />
+                              ) : (
+                                <ChevronDown className="w-5 h-5 text-[#00CFFF]" />
+                              )}
+                            </div>
+                          </div>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <div className="p-4 bg-white/5">
+                            <div className="text-white whitespace-pre-wrap text-sm leading-relaxed">
+                              {section.content}
+                            </div>
+                          </div>
+                        </CollapsibleContent>
+                      </div>
+                    </Collapsible>
+                  ))}
                 </div>
 
                 {/* Branding Note */}
-                <div id="branding-note" className="mt-4 p-3 bg-amber-500/20 border border-amber-500/40 rounded-lg">
-                  <p className="text-amber-200 text-sm">
-                    <strong>Note:</strong> CanAI excludes branding elements (e.g., logos, specific brand assets). 
-                    Contact us for partnership opportunities and branded deliverables.
-                  </p>
+                <div id="branding-note" className="mt-6 p-4 bg-amber-500/20 border border-amber-500/40 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-amber-200 text-sm">
+                        <strong>Important:</strong> CanAI excludes branding elements (e.g., logos, specific brand assets) 
+                        from deliverables to maintain neutrality. Contact us for partnership opportunities and branded deliverables.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Revision Request */}
+            {/* Enhanced Revision Request */}
             <Card className="bg-white/10 border-[#00CFFF]/40">
               <CardHeader>
                 <CardTitle className="text-[#E6F6FF] flex items-center gap-3">
                   <Edit3 className="w-6 h-6 text-[#00CFFF]" />
                   Request Revision
                 </CardTitle>
+                <p className="text-[#E6F6FF]/70 text-sm">
+                  Describe what you'd like to change or improve. Be specific for best results.
+                </p>
               </CardHeader>
               <CardContent>
                 <Textarea
                   id="revision-input"
-                  placeholder="Describe what you'd like to change or improve in your deliverable..."
+                  placeholder="Example: Add more detail about marketing strategy, include pricing information, emphasize community partnerships..."
                   value={revisionText}
                   onChange={(e) => setRevisionText(e.target.value)}
-                  className="mb-4 bg-white/10 border-[#00CFFF]/30 text-white"
+                  className="mb-4 bg-white/10 border-[#00CFFF]/30 text-white min-h-[100px]"
                   rows={4}
                 />
-                <Button
-                  id="revision-btn"
-                  onClick={handleRevision}
-                  disabled={!revisionText.trim() || isRevising}
-                  className="w-full bg-[#00CFFF] hover:bg-[#00F0FF] text-black"
-                >
-                  {isRevising ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                      Processing Revision...
-                    </>
-                  ) : (
-                    <>
-                      <Edit3 className="w-4 h-4 mr-2" />
-                      Apply Revision
-                    </>
-                  )}
-                </Button>
+                <div className="flex items-center justify-between">
+                  <span className="text-[#E6F6FF]/60 text-sm">
+                    {revisionText.length}/500 characters
+                  </span>
+                  <Button
+                    id="revision-btn"
+                    onClick={handleRevision}
+                    disabled={!revisionText.trim() || isRevising || revisionText.length > 500}
+                    className="bg-[#00CFFF] hover:bg-[#00F0FF] text-black"
+                  >
+                    {isRevising ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <Edit3 className="w-4 h-4 mr-2" />
+                        Apply Revision
+                      </>
+                    )}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 
-            {/* Deliverable Metadata */}
+            {/* Enhanced Metadata */}
             <Card className="bg-white/10 border-[#00CFFF]/40">
               <CardContent className="pt-6">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                  <div>
-                    <div className="text-[#00CFFF] font-bold text-lg">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center p-4 bg-white/5 rounded-lg">
+                    <div className="text-[#00CFFF] font-bold text-2xl mb-1">
                       {deliverable.revisionCount}
                     </div>
-                    <div className="text-[#E6F6FF]/70 text-sm">Revisions</div>
+                    <div className="text-[#E6F6FF]/70 text-sm">Revisions Applied</div>
                   </div>
-                  <div>
-                    <div className="text-[#00CFFF] font-bold text-lg">
+                  <div className="text-center p-4 bg-white/5 rounded-lg">
+                    <div className="text-[#00CFFF] font-bold text-2xl mb-1">
                       {regenerationCount}/2
                     </div>
-                    <div className="text-[#E6F6FF]/70 text-sm">Regenerations</div>
+                    <div className="text-[#E6F6FF]/70 text-sm">Regenerations Used</div>
                   </div>
-                  <div>
-                    <div className="text-[#00CFFF] font-bold text-lg">
+                  <div className="text-center p-4 bg-white/5 rounded-lg">
+                    <div className="text-[#00CFFF] font-bold text-2xl mb-1">
                       {deliverable.content.split(' ').length}
                     </div>
-                    <div className="text-[#E6F6FF]/70 text-sm">Words</div>
+                    <div className="text-[#E6F6FF]/70 text-sm">Total Words</div>
                   </div>
-                  <div>
-                    <div className="text-[#00CFFF] font-bold text-lg">
-                      {new Date(deliverable.generatedAt).toLocaleTimeString()}
+                  <div className="text-center p-4 bg-white/5 rounded-lg">
+                    <div className="text-[#00CFFF] font-bold text-2xl mb-1">
+                      {new Date(deliverable.generatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
-                    <div className="text-[#E6F6FF]/70 text-sm">Generated</div>
+                    <div className="text-[#E6F6FF]/70 text-sm">Generated At</div>
                   </div>
                 </div>
               </CardContent>
@@ -629,6 +827,7 @@ These improvements will position Sprinkle Haven as the premium artisanal choice 
                 onClick={generateDeliverable}
                 className="mt-4 border-red-400 text-red-200 hover:bg-red-500/20"
               >
+                <RefreshCw className="w-4 h-4 mr-2" />
                 Retry Generation
               </Button>
             </CardContent>
