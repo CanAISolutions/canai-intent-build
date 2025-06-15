@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -96,8 +95,8 @@ const SparkSplit: React.FC = () => {
       setTrustDelta(demoTrustDelta);
       setEmoRes(demoEmoRes);
       setLoading(false);
+
       // PostHog: TrustDelta viewed
-      // @ts-expect-error
       if (window.posthog) {
         window.posthog.capture('trustdelta_viewed', { score: demoTrustDelta });
       }
@@ -111,7 +110,6 @@ const SparkSplit: React.FC = () => {
   const handleTooltipOpen = () => {
     setTooltipVisible(true);
     // TrustDelta Tooltip event
-    // @ts-expect-error
     if (window.posthog) {
       window.posthog.capture('trustdelta_viewed', { score: trustDelta || demoTrustDelta });
     }
@@ -122,7 +120,6 @@ const SparkSplit: React.FC = () => {
     setFeedback('');
     setDislikeFeedback('');
     // PostHog: plan compared
-    // @ts-expect-error
     if (window.posthog && trustDelta) {
       window.posthog.capture('plan_compared', {
         trustDelta,
@@ -134,7 +131,6 @@ const SparkSplit: React.FC = () => {
 
   const handleFeedback = (text: string) => {
     setFeedback(text);
-    // @ts-expect-error
     if (window.posthog) {
       window.posthog.capture('generic_preferred', { feedback: text });
     }
