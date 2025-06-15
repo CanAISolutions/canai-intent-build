@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, CheckCircle, AlertCircle } from "lucide-react";
@@ -81,7 +80,7 @@ const SparkLayer = () => {
         description: `"${selectedSparkData.title}" selected. Moving to purchase...`,
       });
       
-      // Navigate to Purchase Flow instead of Detailed Input
+      // Navigate to Purchase Flow
       setTimeout(() => {
         window.location.href = `/purchase?prompt_id=${promptId}&spark_index=${sparkIndex}`;
       }, 1500);
@@ -140,21 +139,25 @@ const SparkLayer = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
           {mockSparks.map((spark, index) => (
-            <StandardCard
+            <div
               key={index}
-              variant="product"
               onClick={() => handleSparkSelect(index)}
-              className={`group flex flex-col items-center justify-center p-6 rounded-2xl transition-all duration-300 hover:scale-105 cursor-pointer ${selectedSpark === index ? 'border-4 border-[#36d1fe] shadow-[0_0_20px_rgba(54,209,254,0.5)]' : 'border border-white/10'}`}
+              className={`group cursor-pointer transition-all duration-300 hover:scale-105 ${selectedSpark === index ? 'transform scale-105' : ''}`}
             >
-              {selectedSpark === index && (
-                <div className="absolute top-2 right-2">
-                  <CheckCircle className="text-green-500 w-6 h-6 animate-pulse" />
-                </div>
-              )}
-              <Sparkles className="text-[#36d1fe] w-8 h-8 mb-4 group-hover:scale-110 transition-transform" />
-              <h3 className="text-xl font-semibold text-white mb-2">{spark.title}</h3>
-              <BodyText className="text-center opacity-80">{spark.description}</BodyText>
-            </StandardCard>
+              <StandardCard
+                variant="product"
+                className={`h-full flex flex-col items-center justify-center p-6 rounded-2xl transition-all duration-300 ${selectedSpark === index ? 'border-4 border-[#36d1fe] shadow-[0_0_20px_rgba(54,209,254,0.5)]' : 'border border-white/10'}`}
+              >
+                {selectedSpark === index && (
+                  <div className="absolute top-2 right-2">
+                    <CheckCircle className="text-green-500 w-6 h-6 animate-pulse" />
+                  </div>
+                )}
+                <Sparkles className="text-[#36d1fe] w-8 h-8 mb-4 group-hover:scale-110 transition-transform" />
+                <h3 className="text-xl font-semibold text-white mb-2">{spark.title}</h3>
+                <BodyText className="text-center opacity-80">{spark.description}</BodyText>
+              </StandardCard>
+            </div>
           ))}
         </div>
 

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import StandardCard from './StandardCard';
 import { SectionTitle, BodyText } from './StandardTypography';
+import { trackProductClick, trackFunnelStep, logInteraction } from '@/utils/analytics';
 
 const products = [
   {
@@ -33,6 +34,28 @@ const products = [
 const ProductCards = () => {
   const navigate = useNavigate();
 
+  const handleProductClick = async (product: typeof products[0]) => {
+    // Track analytics
+    trackProductClick(product.id, product.title);
+    trackFunnelStep('product_selected', { 
+      product_id: product.id,
+      product_name: product.title 
+    });
+
+    // Log interaction
+    await logInteraction({
+      interaction_type: 'product_card_clicked',
+      interaction_details: {
+        product_id: product.id,
+        product_name: product.title,
+        href: product.href,
+        timestamp: new Date().toISOString(),
+      }
+    });
+
+    navigate(product.href);
+  };
+
   return (
     <section id="product-cards" className="py-12 sm:py-16 container mx-auto px-4">
       <div className="text-center mb-12 sm:mb-14">
@@ -50,7 +73,8 @@ const ProductCards = () => {
           return (
             <button
               key={product.id}
-              onClick={() => navigate(product.href)}
+              id={`product-card-${product.id.toLowerCase()}`}
+              onClick={() => handleProductClick(product)}
               className="group w-full focus:outline-none animate-fade-in"
               style={{ animationDelay: `${0.1 * (index + 1)}s` }}
               aria-label={`View details for ${product.title}`}
