@@ -21,6 +21,9 @@ const MAKECOM_WEBHOOKS = {
   SPARK_GENERATION: import.meta.env.VITE_MAKECOM_SPARK_WEBHOOK || 'https://hook.integromat.com/your-spark-webhook',
   SPARK_REGENERATION: import.meta.env.VITE_MAKECOM_SPARK_REGEN_WEBHOOK || 'https://hook.integromat.com/your-spark-regen-webhook',
   PROJECT_CREATION: import.meta.env.VITE_MAKECOM_PROJECT_WEBHOOK || 'https://hook.integromat.com/your-project-webhook',
+  DELIVERABLE_GENERATION: import.meta.env.VITE_MAKECOM_DELIVERABLE_WEBHOOK || 'https://hook.integromat.com/your-deliverable-webhook',
+  PDF_GENERATION: import.meta.env.VITE_MAKECOM_PDF_WEBHOOK || 'https://hook.integromat.com/your-pdf-webhook',
+  PROJECT_STATUS_UPDATE: import.meta.env.VITE_MAKECOM_STATUS_WEBHOOK || 'https://hook.integromat.com/your-status-webhook',
 };
 
 // Send data to Make.com workflow
@@ -151,6 +154,77 @@ export const triggerProjectCreation = (projectData: {
   });
 };
 
+// Deliverable generation specific workflow triggers
+export const triggerDeliverableGeneration = (deliverableData: {
+  prompt_id: string;
+  product_type: string;
+  business_inputs: Record<string, any>;
+  user_id?: string;
+}) => {
+  return triggerMakecomWorkflow('DELIVERABLE_GENERATION', {
+    action: 'generate_deliverable',
+    deliverable_request: deliverableData,
+    gpt4o_integration: true,
+    hume_validation: true,
+    supabase_logging: true,
+  });
+};
+
+export const triggerPDFGeneration = (pdfData: {
+  prompt_id: string;
+  product_type: string;
+  canai_output: string;
+  user_id?: string;
+}) => {
+  return triggerMakecomWorkflow('PDF_GENERATION', {
+    action: 'generate_pdf',
+    pdf_request: pdfData,
+    storage_integration: true,
+    delivery_method: 'download_link',
+  });
+};
+
+export const triggerProjectStatusUpdate = (statusData: {
+  prompt_id: string;
+  project_id?: string;
+  status: 'generating' | 'complete' | 'failed';
+  user_id?: string;
+}) => {
+  return triggerMakecomWorkflow('PROJECT_STATUS_UPDATE', {
+    action: 'update_project_status',
+    status_update: statusData,
+    saap_integration: true, // SAAP Update Project Blueprint.json
+    webflow_sync: true,
+  });
+};
+
+export const triggerRevisionWorkflow = (revisionData: {
+  prompt_id: string;
+  feedback: string;
+  attempt_count: number;
+  user_id?: string;
+}) => {
+  return triggerMakecomWorkflow('USER_INTERACTION', {
+    action: 'process_revision',
+    revision_request: revisionData,
+    gpt4o_integration: true,
+    supabase_logging: true,
+  });
+};
+
+export const triggerRegenerationWorkflow = (regenData: {
+  prompt_id: string;
+  attempt_count: number;
+  user_id?: string;
+}) => {
+  return triggerMakecomWorkflow('USER_INTERACTION', {
+    action: 'process_regeneration',
+    regeneration_request: regenData,
+    gpt4o_integration: true,
+    supabase_logging: true,
+  });
+};
+
 // TODO: Configure Make.com scenarios
 /*
 Scenario 1: add_project.json
@@ -180,4 +254,31 @@ Scenario 7: add_project.json (PURCHASE FLOW)
 - Include Supabase session_logs update with stripe_payment_id
 - Performance target: <2s project creation
 - Error handling for Stripe failures, Webflow timeouts, Memberstack sync issues
+
+NEW Scenario: deliverable_generation.json
+- Webhook trigger → GPT-4o content generation → Hume AI validation → Supabase comparisons insert → PDF generation → Status update
+- Include error handling for GPT-4o timeout/failures and Hume AI validation failures
+- Performance target: <2s end-to-end for content generation
+- Include fallback logic for API failures
+
+NEW Scenario: pdf_generation.json  
+- PDF webhook → Content formatting → PDF creation → Cloud storage → Download URL generation
+- Include error handling for PDF generation failures
+- Performance target: <1s PDF creation and storage
+- Support multiple product types (business_builder, social_email, site_audit)
+
+UPDATED Scenario: SAAP Update Project Blueprint.json
+- Enhanced with deliverable completion status updates
+- Project status webhook → Webflow project update → Memberstack notification → Status logging
+- Include logic for project completion tracking and user notifications
+
+NEW Scenario: revision_processing.json
+- Revision webhook → GPT-4o revision generation → Hume AI re-validation → Supabase update
+- Include feedback analysis and improvement suggestions
+- Performance target: <2s revision processing
+
+NEW Scenario: regeneration_processing.json
+- Regeneration webhook → GPT-4o alternative generation → Quality scoring → Supabase update
+- Include attempt counting and max limit enforcement (2 attempts)
+- Performance target: <2s regeneration processing
 */

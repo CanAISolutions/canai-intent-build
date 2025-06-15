@@ -10,6 +10,33 @@ import StandardCard from '@/components/StandardCard';
 import PageHeader from '@/components/PageHeader';
 import { PageTitle, SectionTitle, CardTitle, BodyText, CaptionText } from '@/components/StandardTypography';
 
+// Import new API functions
+import { 
+  getGenerationStatus,
+  requestRevision,
+  regenerateDeliverable,
+  generateDeliverableContent,
+  validateEmotionalResonance
+} from '@/utils/deliverableApi';
+import { insertComparisonLog } from '@/utils/supabase';
+import { 
+  trackDeliverableGenerated,
+  trackRevisionRequested,
+  trackDeliverableRegenerated,
+  trackPDFDownload,
+  trackEmotionalResonance 
+} from '@/utils/analytics';
+import { 
+  requireDeliverableAccess,
+  trackUserAccess,
+  memberstackAuth 
+} from '@/utils/memberstackAuth';
+import { 
+  triggerDeliverableGeneration,
+  triggerPDFGeneration,
+  triggerProjectStatusUpdate 
+} from '@/utils/makecom';
+
 interface DeliverableData {
   id: string;
   content: string;
@@ -85,11 +112,29 @@ const DeliverableGeneration: React.FC = () => {
   ];
 
   useEffect(() => {
-    // PostHog tracking
-    console.log('PostHog: deliverable_generation_started', { 
-      product_type: productType.toLowerCase(),
+    // Check Memberstack authentication and access
+    const checkAccess = async () => {
+      const hasAccess = await requireDeliverableAccess(productType);
+      if (!hasAccess) {
+        // Redirect to login or show access denied
+        console.warn('Deliverable access denied');
+        // TODO: Handle access denial
+      }
+    };
+
+    checkAccess();
+    
+    // Track user access
+    trackUserAccess('deliverable_page_viewed', {
+      product_type: productType,
+      prompt_id: promptId
+    });
+
+    // PostHog tracking with real analytics
+    trackDeliverableGenerated({
+      product_type: productType,
       prompt_id: promptId,
-      timestamp: new Date().toISOString() 
+      completion_time_ms: 0 // Will be updated when generation completes
     });
 
     generateDeliverable();
@@ -132,7 +177,6 @@ const DeliverableGeneration: React.FC = () => {
 
   const performGeneration = async (): Promise<void> => {
     return new Promise(async (resolve, reject) => {
-      // Timeout handler (15 seconds)
       const timeoutTimer = setTimeout(() => {
         setTimeoutError(true);
         setIsGenerating(false);
@@ -141,78 +185,95 @@ const DeliverableGeneration: React.FC = () => {
       }, 15000);
 
       try {
-        // Step-by-step generation simulation
+        const startTime = Date.now();
+        
+        // Step-by-step generation with real APIs
         for (const step of generationSteps) {
           setCurrentStep(step);
           setProgress(step.progress);
           await new Promise(resolve => setTimeout(resolve, 300));
         }
 
-        // TODO: POST /v1/generate-deliverable
-        // Mock API call - replace with actual endpoint
-        console.log('TODO: POST /v1/generate-deliverable', {
+        // Trigger Make.com deliverable generation workflow
+        await triggerDeliverableGeneration({
           prompt_id: promptId,
           product_type: productType,
-          inputs: intentMirrorInputs
+          business_inputs: intentMirrorInputs,
+          user_id: (await memberstackAuth.getCurrentUser())?.id
         });
 
-        // Simulate GPT-4o generation
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // TODO: Hume AI validation endpoint
-        // Mock Hume AI emotional resonance validation
-        console.log('TODO: POST /api/hume/validate-resonance');
-        const humeResponse = {
-          arousal: 0.7,
-          valence: 0.8,
-          canaiScore: 0.85,
-          genericScore: 0.45,
-          delta: 0.4,
-          isValid: true // arousal > 0.5 && valence > 0.6
-        };
+        // Generate content with GPT-4o and validate with Hume AI
+        const { canaiOutput, genericOutput, emotionalResonance } = await generateDeliverableContent(
+          productType,
+          intentMirrorInputs
+        );
 
-        if (!humeResponse.isValid) {
+        // Validate emotional resonance
+        if (!emotionalResonance.isValid) {
           throw new Error('Emotional resonance validation failed');
         }
 
-        // TODO: Make.com PDF generation
-        console.log('TODO: Make.com PDF generation via webhook');
+        // Track emotional resonance
+        trackEmotionalResonance({
+          prompt_id: promptId,
+          arousal: emotionalResonance.arousal,
+          valence: emotionalResonance.valence,
+          canai_score: emotionalResonance.canaiScore,
+          generic_score: emotionalResonance.genericScore,
+          delta: emotionalResonance.delta,
+          validation_passed: emotionalResonance.isValid
+        });
+
+        // Generate PDF via Make.com
+        await triggerPDFGeneration({
+          prompt_id: promptId,
+          product_type: productType,
+          canai_output: canaiOutput,
+          user_id: (await memberstackAuth.getCurrentUser())?.id
+        });
+
         const pdfUrl = `https://example.com/deliverables/${promptId}.pdf`;
         
         const deliverableData: DeliverableData = {
           id: `del-${Date.now()}`,
-          content: getTemplateContent(productType),
+          content: canaiOutput,
           productType,
           promptId,
           generatedAt: new Date().toISOString(),
           revisionCount: 0,
           pdfUrl,
-          emotionalResonance: humeResponse
+          emotionalResonance
         };
 
-        // Supabase: Store in comparisons table
-        console.log('Supabase: comparisons.canai_output', {
+        // Log to Supabase comparisons table
+        await insertComparisonLog({
           prompt_id: promptId,
-          canai_output: deliverableData.content,
-          generic_output: getGenericContent(productType),
-          pdf_url: pdfUrl,
-          emotional_resonance: humeResponse
+          canai_output: canaiOutput,
+          generic_output: genericOutput,
+          emotional_resonance: emotionalResonance,
+          trust_delta: emotionalResonance.delta,
+          user_feedback: null
+        });
+
+        const completionTime = Date.now() - startTime;
+
+        // Track deliverable generation completion
+        trackDeliverableGenerated({
+          product_type: productType,
+          prompt_id: promptId,
+          completion_time_ms: completionTime,
+          emotional_resonance_score: emotionalResonance.canaiScore,
+          trust_delta: emotionalResonance.delta
+        });
+
+        // Update project status via Make.com
+        await triggerProjectStatusUpdate({
+          prompt_id: promptId,
+          status: 'complete',
+          user_id: (await memberstackAuth.getCurrentUser())?.id
         });
 
         setDeliverable(deliverableData);
-        
-        // PostHog tracking
-        console.log('PostHog: deliverable_generated', {
-          product_type: productType.toLowerCase(),
-          prompt_id: promptId,
-          deliverable_id: deliverableData.id,
-          emotional_resonance_score: humeResponse.canaiScore,
-          completion_time_ms: 2000
-        });
-
-        // TODO: SAAP Update Project Blueprint.json
-        console.log('SAAP: Updating project status to completed via Make.com');
-
         clearTimeout(timeoutTimer);
         setIsGenerating(false);
         resolve();
@@ -230,34 +291,33 @@ const DeliverableGeneration: React.FC = () => {
     setIsRevising(true);
     
     try {
-      // TODO: POST /v1/request-revision
-      console.log('TODO: POST /v1/request-revision', {
+      const startTime = Date.now();
+      
+      // Use real API endpoint
+      const response = await requestRevision({
         prompt_id: deliverable.promptId,
         feedback: revisionText
       });
       
-      // Simulate revision processing
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const duration = Date.now() - startTime;
       
-      // Mock revised content
-      const revisedContent = deliverable.content + `\n\n[REVISION APPLIED: ${revisionText}]\nContent has been updated to address your feedback with a ${intentMirrorInputs.brandVoice} tone.`;
+      // Track revision request
+      trackRevisionRequested({
+        prompt_id: deliverable.promptId,
+        reason: revisionText,
+        revision_count: deliverable.revisionCount + 1,
+        response_time: duration
+      });
       
       setDeliverable(prev => prev ? {
         ...prev,
-        content: revisedContent,
+        content: response.new_output,
         revisionCount: prev.revisionCount + 1,
         generatedAt: new Date().toISOString()
       } : null);
 
       setRevisionText('');
       
-      // PostHog tracking
-      console.log('PostHog: revision_requested', {
-        deliverable_id: deliverable.id,
-        reason: revisionText.substring(0, 50),
-        revision_count: deliverable.revisionCount + 1
-      });
-
       toast({
         title: "Revision Applied",
         description: "Your deliverable has been updated based on your feedback."
@@ -288,18 +348,26 @@ const DeliverableGeneration: React.FC = () => {
     setIsRegenerating(true);
     
     try {
-      // TODO: POST /v1/regenerate-deliverable
-      console.log('TODO: POST /v1/regenerate-deliverable', {
-        prompt_id: deliverable?.promptId,
+      const startTime = Date.now();
+      
+      // Use real API endpoint
+      const response = await regenerateDeliverable({
+        prompt_id: deliverable?.promptId || '',
         attempt_count: regenerationCount + 1
       });
       
-      // Simulate regeneration
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const duration = Date.now() - startTime;
+      
+      // Track regeneration
+      trackDeliverableRegenerated({
+        prompt_id: deliverable?.promptId || '',
+        attempt_count: regenerationCount + 1,
+        response_time: duration
+      });
       
       setDeliverable(prev => prev ? {
         ...prev,
-        content: getTemplateContent(productType),
+        content: response.new_output,
         generatedAt: new Date().toISOString()
       } : null);
 
@@ -328,19 +396,31 @@ const DeliverableGeneration: React.FC = () => {
         throw new Error('PDF not available');
       }
 
-      // TODO: GET /v1/generation-status to check PDF readiness
-      console.log('TODO: GET /v1/generation-status');
+      const startTime = Date.now();
       
-      // Mock PDF download via Make.com
-      console.log('Downloading PDF via Make.com:', deliverable.pdfUrl);
+      // Check generation status first
+      const status = await getGenerationStatus(deliverable.promptId);
       
-      // Simulate PDF download (<1s)
+      if (status.status !== 'complete' || !status.pdf_url) {
+        throw new Error('PDF not ready yet');
+      }
+      
+      // Simulate PDF download
       const link = document.createElement('a');
-      link.href = deliverable.pdfUrl;
+      link.href = status.pdf_url;
       link.download = `${productType.toLowerCase()}-${Date.now()}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+
+      const downloadTime = Date.now() - startTime;
+      
+      // Track PDF download
+      trackPDFDownload({
+        prompt_id: deliverable.promptId,
+        product_type: productType,
+        download_time: downloadTime
+      });
 
       toast({
         title: "PDF Downloaded",

@@ -269,6 +269,42 @@ export const insertErrorLog = async (log: Omit<ErrorLog, 'id' | 'created_at'>) =
   return data;
 };
 
+// Enhanced comparisons logging function for deliverable generation
+export const insertComparisonLog = async (log: {
+  prompt_id: string;
+  canai_output: string;
+  generic_output?: string;
+  emotional_resonance?: any;
+  trust_delta?: number;
+  user_feedback?: string;
+}) => {
+  try {
+    // TODO: Use vault encryption for sensitive outputs when configured
+    const { data, error } = await supabase
+      .from('comparisons')
+      .insert([{
+        prompt_id: log.prompt_id,
+        canai_output: log.canai_output, // Will be encrypted when vault is configured
+        generic_output: log.generic_output || '',
+        trust_delta: log.trust_delta,
+        emotional_resonance: log.emotional_resonance,
+        user_feedback: log.user_feedback
+      }])
+      .select();
+    
+    if (error) {
+      console.error('[Supabase] Error inserting comparison log:', error);
+      throw error;
+    }
+    
+    console.log('[Supabase] Comparison log inserted successfully');
+    return data;
+  } catch (error) {
+    console.error('[Supabase] insertComparisonLog failed:', error);
+    throw error;
+  }
+};
+
 // Initialize RLS and create missing columns if needed
 export const initializeIntentMirrorSupport = async () => {
   try {

@@ -336,6 +336,91 @@ export const trackIntentMirrorFunnelStep = (step: string, details?: Record<strin
   });
 };
 
+// Enhanced deliverable generation analytics functions
+export const trackDeliverableGenerated = (data: {
+  product_type: string;
+  prompt_id: string;
+  completion_time_ms: number;
+  emotional_resonance_score?: number;
+  trust_delta?: number;
+}) => {
+  trackEvent('deliverable_generated', {
+    product_type: data.product_type.toLowerCase(),
+    prompt_id: data.prompt_id,
+    completion_time_ms: data.completion_time_ms,
+    emotional_resonance_score: data.emotional_resonance_score,
+    trust_delta: data.trust_delta,
+    generation_timestamp: new Date().toISOString(),
+    performance_target_met: data.completion_time_ms < 2000
+  });
+};
+
+export const trackRevisionRequested = (data: {
+  prompt_id: string;
+  reason: string;
+  revision_count: number;
+  response_time?: number;
+}) => {
+  trackEvent('revision_requested', {
+    prompt_id: data.prompt_id,
+    reason: data.reason.substring(0, 100), // Limit reason length
+    revision_count: data.revision_count,
+    response_time: data.response_time,
+    revision_timestamp: new Date().toISOString(),
+    performance_target_met: data.response_time ? data.response_time < 2000 : undefined
+  });
+};
+
+export const trackDeliverableRegenerated = (data: {
+  prompt_id: string;
+  attempt_count: number;
+  response_time?: number;
+}) => {
+  trackEvent('deliverable_regenerated', {
+    prompt_id: data.prompt_id,
+    attempt_count: data.attempt_count,
+    response_time: data.response_time,
+    regeneration_timestamp: new Date().toISOString(),
+    performance_target_met: data.response_time ? data.response_time < 2000 : undefined
+  });
+};
+
+export const trackPDFDownload = (data: {
+  prompt_id: string;
+  product_type: string;
+  download_time?: number;
+}) => {
+  trackEvent('pdf_downloaded', {
+    prompt_id: data.prompt_id,
+    product_type: data.product_type.toLowerCase(),
+    download_time: data.download_time,
+    download_timestamp: new Date().toISOString(),
+    performance_target_met: data.download_time ? data.download_time < 1000 : undefined
+  });
+};
+
+export const trackEmotionalResonance = (data: {
+  prompt_id: string;
+  arousal: number;
+  valence: number;
+  canai_score: number;
+  generic_score: number;
+  delta: number;
+  validation_passed: boolean;
+}) => {
+  trackEvent('emotional_resonance_validated', {
+    prompt_id: data.prompt_id,
+    arousal: data.arousal,
+    valence: data.valence,
+    canai_score: data.canai_score,
+    generic_score: data.generic_score,
+    delta: data.delta,
+    validation_passed: data.validation_passed,
+    hume_criteria_met: data.arousal > 0.5 && data.valence > 0.6,
+    validation_timestamp: new Date().toISOString()
+  });
+};
+
 // TODO: Install actual PostHog
 /*
 1. Add PostHog script to index.html or install via npm:
