@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +9,7 @@ import DiscoveryHook from "./pages/DiscoveryHook";
 import Samples from "./pages/Samples";
 import NotFound from "./pages/NotFound";
 import DiscoveryFunnel from "./pages/DiscoveryFunnel";
+import PurchaseFlow from "./pages/PurchaseFlow";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +28,7 @@ const App = () => (
           <Route path="/detailed-input" element={<div>Detailed Input - Coming Soon</div>} />
           <Route path="/intent-mirror" element={<div>Intent Mirror - Coming Soon</div>} />
           <Route path="/spark-layer" element={<div>Spark Layer - Coming Soon</div>} />
+          <Route path="/purchase" element={<PurchaseFlow />} />
           <Route path="/checkout" element={<div>Checkout - Coming Soon</div>} />
           <Route path="/generating" element={<div>Generating - Coming Soon</div>} />
           <Route path="/spark-split" element={<div>SparkSplit - Coming Soon</div>} />
