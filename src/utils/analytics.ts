@@ -27,8 +27,8 @@ export const POSTHOG_EVENTS = {
 } as const;
 
 // PostHog configuration
-const POSTHOG_PROJECT_KEY = process.env.VITE_POSTHOG_PROJECT_KEY || 'phc_demo_key';
-const POSTHOG_HOST = process.env.VITE_POSTHOG_HOST || 'https://app.posthog.com';
+const POSTHOG_PROJECT_KEY = import.meta.env.VITE_POSTHOG_PROJECT_KEY || 'phc_demo_key';
+const POSTHOG_HOST = import.meta.env.VITE_POSTHOG_HOST || 'https://app.posthog.com';
 
 class PostHogClient {
   private initialized = false;

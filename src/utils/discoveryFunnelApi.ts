@@ -1,9 +1,10 @@
 
 import { generateCorrelationId, retryWithBackoff } from './tracing';
-import { insertSessionLog, insertErrorLog } from './supabase';
+import { insertInitialPromptLog, insertErrorLog } from './supabase';
+import { triggerMakecomWorkflow } from './makecom';
 
 // Discovery Funnel API Types
-export interface ValidateInputRequest {
+export interface ValidationRequest {
   businessType: string;
   otherType?: string;
   primaryChallenge: string;
@@ -12,37 +13,37 @@ export interface ValidateInputRequest {
   desiredOutcome: string;
 }
 
-export interface ValidateInputResponse {
+export interface ValidationResponse {
   valid: boolean;
   feedback: string;
   trustScore: number;
 }
 
-export interface GenerateTooltipRequest {
+export interface TooltipRequest {
   field: string;
 }
 
-export interface GenerateTooltipResponse {
+export interface TooltipResponse {
   tooltip: string;
   error: null | string;
 }
 
-export interface DetectContradictionRequest {
+export interface ContradictionRequest {
   preferredTone: string;
   desiredOutcome: string;
 }
 
-export interface DetectContradictionResponse {
+export interface ContradictionResponse {
   contradiction: boolean;
-  message?: string;
+  message: string;
   error: null | string;
 }
 
 // Base API configuration
-const API_BASE = process.env.VITE_API_BASE || '/v1';
-const DEFAULT_TIMEOUT = 5000;
+const API_BASE = import.meta.env.VITE_API_BASE || '/v1';
+const DEFAULT_TIMEOUT = 2000;
 
-// Generic fetch wrapper with retry logic and correlation ID
+// Generic fetch wrapper with retry logic
 const apiCall = async <T>(
   endpoint: string,
   options: RequestInit = {}
@@ -78,90 +79,91 @@ const apiCall = async <T>(
   });
 };
 
-// Discovery Funnel API Functions
-export const validateInput = async (data: ValidateInputRequest): Promise<ValidateInputResponse> => {
-  console.log('[API] POST /v1/validate-input called with:', data);
+// Validate user input
+export const validateInput = async (data: ValidationRequest): Promise<ValidationResponse> => {
+  console.log('[Discovery API] POST /v1/validate-input called with:', data);
   
   try {
     // TODO: Replace with actual backend endpoint
-    const response = await apiCall<ValidateInputResponse>('/validate-input', {
+    const response = await apiCall<ValidationResponse>('/validate-input', {
       method: 'POST',
       body: JSON.stringify(data),
     });
     
-    console.log('[API] Input validation response:', response);
+    console.log('[Discovery API] Validation response:', response);
+    
+    // Log to Make.com workflow
+    await triggerMakecomWorkflow('USER_INTERACTION', {
+      action: 'validate_input',
+      request_data: data,
+      response_data: response,
+    });
+    
     return response;
     
   } catch (error) {
-    console.warn('[API] validateInput failed, using fallback:', error);
+    console.warn('[Discovery API] validateInput failed, using fallback:', error);
     
-    // Fallback: Generate trust score based on input quality
-    const trustScore = calculateFallbackTrustScore(data);
+    // Fallback: Generate trust score based on input completeness
+    const fallbackResponse = generateFallbackValidation(data);
     
     // Log error
-    await logError({
+    await logDiscoveryError({
       error_message: error instanceof Error ? error.message : 'Unknown error',
       action: 'validate_input',
       error_type: 'timeout'
     });
     
-    return {
-      valid: trustScore >= 50,
-      feedback: trustScore >= 50 ? 'Input looks good!' : 'Please provide more specific details',
-      trustScore
-    };
+    return fallbackResponse;
   }
 };
 
-export const generateTooltip = async (data: GenerateTooltipRequest): Promise<GenerateTooltipResponse> => {
-  console.log('[API] POST /v1/generate-tooltip called with:', data);
+// Generate tooltip for field
+export const generateTooltip = async (data: TooltipRequest): Promise<TooltipResponse> => {
+  console.log('[Discovery API] POST /v1/generate-tooltip called with:', data);
   
   try {
-    // TODO: Replace with actual GPT-4o integration
-    const response = await apiCall<GenerateTooltipResponse>('/generate-tooltip', {
+    // TODO: Replace with actual backend endpoint
+    const response = await apiCall<TooltipResponse>('/generate-tooltip', {
       method: 'POST',
       body: JSON.stringify(data),
     });
     
-    console.log('[API] Tooltip generated:', response);
+    console.log('[Discovery API] Tooltip response:', response);
     return response;
     
   } catch (error) {
-    console.warn('[API] generateTooltip failed, using fallback:', error);
+    console.warn('[Discovery API] generateTooltip failed, using fallback:', error);
     
-    // Fallback: Static tooltips based on field
-    const fallbackTooltips: Record<string, string> = {
-      businessType: "E.g., artisanal bakery, tech startup, consulting firm",
-      primaryChallenge: "Your biggest obstacle (e.g., need $75k funding)",
-      preferredTone: "How your plan should sound (e.g., warm = heartfelt)",
-      desiredOutcome: "Your main goal (e.g., secure Series A funding)"
-    };
+    // Fallback: Static tooltips
+    const fallbackTooltip = getFallbackTooltip(data.field);
     
     return {
-      tooltip: fallbackTooltips[data.field] || "Helpful information for this field",
+      tooltip: fallbackTooltip,
       error: null
     };
   }
 };
 
-export const detectContradiction = async (data: DetectContradictionRequest): Promise<DetectContradictionResponse> => {
-  console.log('[API] POST /v1/detect-contradiction called with:', data);
+// Detect contradiction between tone and outcome
+export const detectContradiction = async (data: ContradictionRequest): Promise<ContradictionResponse> => {
+  console.log('[Discovery API] POST /v1/detect-contradiction called with:', data);
   
   try {
     // TODO: Replace with actual backend endpoint
-    const response = await apiCall<DetectContradictionResponse>('/detect-contradiction', {
+    const response = await apiCall<ContradictionResponse>('/detect-contradiction', {
       method: 'POST',
       body: JSON.stringify(data),
     });
     
-    console.log('[API] Contradiction detection response:', response);
+    console.log('[Discovery API] Contradiction response:', response);
     return response;
     
   } catch (error) {
-    console.warn('[API] detectContradiction failed, using fallback:', error);
+    console.warn('[Discovery API] detectContradiction failed, using fallback:', error);
     
     // Fallback: Simple contradiction detection
-    const contradiction = detectFallbackContradiction(data);
+    const contradiction = checkSimpleContradiction(data.preferredTone, data.desiredOutcome);
     
     return {
       contradiction: contradiction.hasContradiction,
@@ -171,69 +173,135 @@ export const detectContradiction = async (data: DetectContradictionRequest): Pro
   }
 };
 
-// Fallback trust score calculation
-const calculateFallbackTrustScore = (data: ValidateInputRequest): number => {
-  let score = 0;
-  
-  // Business type selected: +20
-  if (data.businessType && data.businessType !== '') score += 20;
-  
-  // Challenge length and specificity: +30
-  if (data.primaryChallenge) {
-    if (data.primaryChallenge.length >= 10) score += 15;
-    if (data.primaryChallenge.length >= 20) score += 15;
-    if (/\d/.test(data.primaryChallenge)) score += 10; // Contains numbers
+// Log user input to Supabase
+export const logUserInput = async (inputData: {
+  user_id?: string;
+  payload: ValidationRequest;
+  trust_score?: number;
+  custom_tone?: string;
+  other_type?: string;
+}): Promise<void> => {
+  try {
+    await insertInitialPromptLog({
+      user_id: inputData.user_id,
+      payload: inputData.payload,
+      trust_score: inputData.trust_score,
+      custom_tone: inputData.custom_tone,
+      other_type: inputData.other_type,
+    });
+    console.log('[Discovery API] User input logged successfully');
+  } catch (error) {
+    console.error('[Discovery API] Failed to log user input:', error);
+    
+    // F2-E1: Fallback to localStorage
+    try {
+      const fallbackData = {
+        ...inputData,
+        timestamp: new Date().toISOString(),
+        fallback_reason: 'supabase_error'
+      };
+      
+      const existingData = JSON.parse(localStorage.getItem('canai_discovery_fallback') || '[]');
+      existingData.push(fallbackData);
+      localStorage.setItem('canai_discovery_fallback', JSON.stringify(existingData));
+      
+      console.log('[F2-E1] User input saved to localStorage fallback');
+    } catch (storageError) {
+      console.error('[F2-E1] localStorage fallback failed:', storageError);
+    }
   }
-  
-  // Tone selection: +20
-  if (data.preferredTone && data.preferredTone !== '') score += 20;
-  
-  // Custom tone specificity: +10
-  if (data.preferredTone === 'custom' && data.customTone && data.customTone.length > 5) {
-    score += 10;
-  }
-  
-  // Outcome selection: +20
-  if (data.desiredOutcome && data.desiredOutcome !== '') score += 20;
-  
-  return Math.min(score, 100);
 };
 
-// Fallback contradiction detection
-const detectFallbackContradiction = (data: DetectContradictionRequest): { hasContradiction: boolean; message?: string } => {
-  const tone = data.preferredTone.toLowerCase();
-  const outcome = data.desiredOutcome.toLowerCase();
+// Fallback validation logic
+const generateFallbackValidation = (data: ValidationRequest): ValidationResponse => {
+  let trustScore = 0;
+  let feedback = '';
   
-  // Check for tone-outcome mismatches
-  if (tone === 'playful' && outcome.includes('funding')) {
-    return {
-      hasContradiction: true,
-      message: "A playful tone might not be ideal for securing funding. Consider 'professional' or 'optimistic' instead."
-    };
+  // Score based on completeness
+  if (data.businessType && data.businessType !== '') trustScore += 20;
+  if (data.primaryChallenge && data.primaryChallenge.length > 10) trustScore += 30;
+  if (data.preferredTone && data.preferredTone !== '') trustScore += 20;
+  if (data.desiredOutcome && data.desiredOutcome !== '') trustScore += 30;
+  
+  // Adjust for quality
+  if (data.primaryChallenge && data.primaryChallenge.length > 50) trustScore += 10;
+  if (data.customTone && data.customTone.length > 5) trustScore += 10;
+  
+  // Generate feedback
+  if (trustScore >= 80) {
+    feedback = 'Excellent! Your input shows great clarity about your business goals.';
+  } else if (trustScore >= 60) {
+    feedback = 'Good input! Consider adding more detail to strengthen your plan.';
+  } else if (trustScore >= 40) {
+    feedback = 'Moderate input. More specificity will help create a better plan.';
+  } else {
+    feedback = 'Please provide more detailed information for the best results.';
   }
   
-  if (tone === 'bold' && outcome.includes('improve operations')) {
-    return {
-      hasContradiction: true,
-      message: "For operational improvements, consider a 'professional' or 'warm' tone instead of bold."
-    };
-  }
-  
-  return { hasContradiction: false };
+  return {
+    valid: trustScore >= 40,
+    feedback,
+    trustScore: Math.min(trustScore, 100)
+  };
 };
 
-// Error logging
-const logError = async (errorData: {
+// Fallback tooltip generation
+const getFallbackTooltip = (field: string): string => {
+  const tooltips: Record<string, string> = {
+    businessType: 'Select the category that best describes your business model and industry focus.',
+    primaryChallenge: 'Describe the main obstacle preventing your business from reaching its next level of growth.',
+    preferredTone: 'Choose the communication style that resonates with your brand and target audience.',
+    desiredOutcome: 'Define the specific result you want to achieve with your business strategy.',
+    customTone: 'Describe your unique brand voice if none of the preset options fit your style.',
+  };
+  
+  return tooltips[field] || 'Additional guidance to help you provide the most relevant information.';
+};
+
+// Simple contradiction detection
+const checkSimpleContradiction = (tone: string, outcome: string): { hasContradiction: boolean; message: string } => {
+  const contradictions = [
+    {
+      condition: (t: string, o: string) => t.includes('professional') && o.includes('disrupt'),
+      message: 'A professional tone might conflict with disruptive outcomes. Consider "innovative" instead.'
+    },
+    {
+      condition: (t: string, o: string) => t.includes('casual') && o.includes('enterprise'),
+      message: 'A casual tone may not align with enterprise-level outcomes. Consider a more professional approach.'
+    },
+    {
+      condition: (t: string, o: string) => t.includes('aggressive') && o.includes('sustainable'),
+      message: 'Aggressive tactics might conflict with sustainable growth. Consider balancing intensity with longevity.'
+    }
+  ];
+  
+  for (const contradiction of contradictions) {
+    if (contradiction.condition(tone.toLowerCase(), outcome.toLowerCase())) {
+      return {
+        hasContradiction: true,
+        message: contradiction.message
+      };
+    }
+  }
+  
+  return {
+    hasContradiction: false,
+    message: 'Your tone and outcome are well-aligned.'
+  };
+};
+
+// Error logging specific to discovery funnel operations
+const logDiscoveryError = async (errorData: {
   error_message: string;
   action: string;
-  error_type: 'timeout' | 'invalid_input' | 'stripe_failure' | 'low_confidence' | 'contradiction' | 'nsfw' | 'token_limit';
-}) => {
+  error_type: 'timeout' | 'invalid_input' | 'contradiction';
+}): Promise<void> => {
   try {
     await insertErrorLog({
       ...errorData,
-      user_id: undefined // Will be set by auth context if available
+      support_request: false,
     });
   } catch (error) {
-    console.error('[API] Failed to log error:', error);
+    console.error('[Discovery API] Failed to log discovery error:', error);
   }
 };

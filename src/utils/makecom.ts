@@ -15,11 +15,11 @@ export interface MakecomWebhookPayload {
 
 // Make.com webhook URLs (TODO: Replace with actual webhook URLs)
 const MAKECOM_WEBHOOKS = {
-  SESSION_LOG: process.env.VITE_MAKECOM_SESSION_WEBHOOK || 'https://hook.integromat.com/your-session-webhook',
-  USER_INTERACTION: process.env.VITE_MAKECOM_INTERACTION_WEBHOOK || 'https://hook.integromat.com/your-interaction-webhook',
-  ERROR_LOG: process.env.VITE_MAKECOM_ERROR_WEBHOOK || 'https://hook.integromat.com/your-error-webhook',
-  SPARK_GENERATION: process.env.VITE_MAKECOM_SPARK_WEBHOOK || 'https://hook.integromat.com/your-spark-webhook',
-  SPARK_REGENERATION: process.env.VITE_MAKECOM_SPARK_REGEN_WEBHOOK || 'https://hook.integromat.com/your-spark-regen-webhook',
+  SESSION_LOG: import.meta.env.VITE_MAKECOM_SESSION_WEBHOOK || 'https://hook.integromat.com/your-session-webhook',
+  USER_INTERACTION: import.meta.env.VITE_MAKECOM_INTERACTION_WEBHOOK || 'https://hook.integromat.com/your-interaction-webhook',
+  ERROR_LOG: import.meta.env.VITE_MAKECOM_ERROR_WEBHOOK || 'https://hook.integromat.com/your-error-webhook',
+  SPARK_GENERATION: import.meta.env.VITE_MAKECOM_SPARK_WEBHOOK || 'https://hook.integromat.com/your-spark-webhook',
+  SPARK_REGENERATION: import.meta.env.VITE_MAKECOM_SPARK_REGEN_WEBHOOK || 'https://hook.integromat.com/your-spark-regen-webhook',
 };
 
 // Send data to Make.com workflow
