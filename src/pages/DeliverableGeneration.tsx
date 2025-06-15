@@ -388,19 +388,19 @@ const DeliverableGeneration: React.FC = () => {
             onClick={() => toggleSection(sectionId)}
             className="flex items-center justify-between w-full text-left hover:text-[#00CFFF] transition-colors duration-200"
           >
-            <CardTitle className="mb-2">## {title}</CardTitle>
-            {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+            <CardTitle className="mb-2 text-white">## {title}</CardTitle>
+            {isExpanded ? <ChevronUp className="w-5 h-5 text-white" /> : <ChevronDown className="w-5 h-5 text-white" />}
           </button>
           {isExpanded && (
             <div className="relative group">
-              <pre className="whitespace-pre-wrap text-[#E6F6FF]/90 leading-relaxed font-manrope">
+              <pre className="whitespace-pre-wrap text-white leading-relaxed font-manrope">
                 {sectionContent}
               </pre>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => copyToClipboard(`## ${title}\n${sectionContent}`, title)}
-                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-[#00CFFF]/10 hover:bg-[#00CFFF]/20"
+                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-[#00CFFF]/10 hover:bg-[#00CFFF]/20 text-white"
               >
                 <Copy className="w-4 h-4" />
               </Button>
@@ -618,7 +618,7 @@ Existing content doesn't address ${targetAudience} pain points or highlight comp
               </div>
               
               <div className="bg-black/20 rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
-                <div className="prose prose-invert max-w-none text-sm sm:text-base">
+                <div className="prose prose-invert max-w-none text-sm sm:text-base text-white">
                   {formatContent(deliverable.content)}
                 </div>
               </div>
