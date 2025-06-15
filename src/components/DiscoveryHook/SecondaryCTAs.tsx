@@ -13,12 +13,11 @@ const SecondaryCTAs: React.FC<SecondaryCTAsProps> = ({
   onOpenPreview,
 }) => {
   const navigate = useNavigate();
+  
   return (
-    <section className="flex justify-center w-full mt-2 mb-6">
+    <section className="flex justify-center w-full mt-2 mb-6 px-4">
       <nav
-        className={`flex flex-col sm:flex-row gap-3 sm:gap-5 px-3 sm:px-6 py-4 
-          rounded-2xl bg-[rgba(13,35,53,0.54)] backdrop-blur-lg shadow-[0_0_36px_0_#00f0ff19] border border-[#36d1fe44]
-          animate-fade-in max-w-2xl w-full justify-center items-stretch sm:items-center`}
+        className="flex flex-col sm:flex-row gap-3 sm:gap-5 px-4 sm:px-6 py-4 rounded-2xl bg-[rgba(25,60,101,0.4)] backdrop-blur-lg border border-[#36d1fe]/30 shadow-[0_0_30px_rgba(54,209,254,0.2)] animate-fade-in max-w-2xl w-full justify-center items-stretch sm:items-center"
         aria-label="Secondary actions"
         tabIndex={-1}
       >
@@ -28,23 +27,25 @@ const SecondaryCTAs: React.FC<SecondaryCTAsProps> = ({
           onClick={onOpenPricing}
           aria-haspopup="dialog"
           aria-controls="pricing-modal"
-          className="w-full sm:w-auto min-w-[138px] text-white font-semibold border border-[#294a64] bg-[rgba(0,220,255,0.03)] hover:bg-[rgba(0,220,255,0.10)] hover:border-[#36d1fe] focus-visible:ring-4 focus-visible:ring-canai-cyan rounded-xl transition-all duration-200"
+          className="w-full sm:w-auto min-w-[140px] text-[#E6F6FF] font-semibold border border-[rgba(54,209,254,0.3)] bg-[rgba(54,209,254,0.05)] hover:bg-[rgba(54,209,254,0.15)] hover:border-[#36d1fe] focus-visible:ring-4 focus-visible:ring-[#36d1fe]/50 rounded-xl transition-all duration-200"
         >
           Pricing
         </Button>
+        
         <Button
           id="sample-btn"
           variant="ghost"
           size="lg"
           onClick={() => navigate("/samples")}
-          className="w-full sm:w-auto min-w-[138px] text-white font-semibold border border-[#294a64] bg-[rgba(0,220,255,0.03)] hover:bg-[rgba(0,220,255,0.10)] hover:border-[#36d1fe] focus-visible:ring-4 focus-visible:ring-canai-cyan rounded-xl transition-all duration-200"
+          className="w-full sm:w-auto min-w-[140px] text-[#E6F6FF] font-semibold border border-[rgba(54,209,254,0.3)] bg-[rgba(54,209,254,0.05)] hover:bg-[rgba(54,209,254,0.15)] hover:border-[#36d1fe] focus-visible:ring-4 focus-visible:ring-[#36d1fe]/50 rounded-xl transition-all duration-200"
         >
           Samples
         </Button>
+        
         <Button
           variant="canai"
           size="lg"
-          className="w-full sm:w-auto min-w-[158px] font-bold border border-[#00cfff] bg-[rgba(0,220,255,0.09)] text-white shadow-[0_0_22px_2px_#00f0ff66] hover:bg-[rgba(0,220,255,0.18)] hover:shadow-[0_0_36px_8px_#00f0ff77] focus-visible:ring-4 focus-visible:ring-canai-cyan rounded-xl transition-all duration-200"
+          className="w-full sm:w-auto min-w-[160px] font-bold shadow-[0_0_20px_rgba(54,209,254,0.4)] hover:shadow-[0_0_30px_rgba(54,209,254,0.6)] focus-visible:ring-4 focus-visible:ring-[#36d1fe]/50 rounded-xl transition-all duration-200"
           onClick={onOpenPreview}
           aria-haspopup="dialog"
         >

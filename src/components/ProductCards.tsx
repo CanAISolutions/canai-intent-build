@@ -4,6 +4,7 @@ import { ArrowRight, FileText, MessageSquare, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import StandardCard from './StandardCard';
+import { SectionTitle, BodyText } from './StandardTypography';
 
 const products = [
   {
@@ -33,47 +34,48 @@ const ProductCards = () => {
   const navigate = useNavigate();
 
   return (
-    <section id="product-cards" className="py-16 container mx-auto px-4">
-      <div className="text-center mb-14">
-        <h2 className="text-4xl md:text-5xl font-bold text-white font-manrope mb-4 drop-shadow-lg">
+    <section id="product-cards" className="py-12 sm:py-16 container mx-auto px-4">
+      <div className="text-center mb-12 sm:mb-14">
+        <SectionTitle className="mb-4 animate-fade-in">
           Tailored Solutions For Every Vision
-        </h2>
-        <p className="text-lg md:text-xl font-manrope text-[#cce7fa] max-w-2xl mx-auto leading-relaxed">
+        </SectionTitle>
+        <BodyText className="text-lg md:text-xl max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: '0.2s' }}>
           Choose your spark – each product delivers expert results, instantly.
-        </p>
+        </BodyText>
       </div>
       
-      <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {products.map((product) => {
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
+        {products.map((product, index) => {
           const IconComponent = product.icon;
           return (
             <button
               key={product.id}
               onClick={() => navigate(product.href)}
-              className="group w-full focus:outline-none"
+              className="group w-full focus:outline-none animate-fade-in"
+              style={{ animationDelay: `${0.1 * (index + 1)}s` }}
               aria-label={`View details for ${product.title}`}
             >
               <StandardCard 
                 variant="product" 
-                className="h-full flex flex-col group-focus-visible:ring-4 group-focus-visible:ring-[#36d1fe]/50"
+                className="h-full flex flex-col group-focus-visible:ring-4 group-focus-visible:ring-[#36d1fe]/50 transition-all duration-300 hover:scale-[1.02]"
               >
                 <div className="flex flex-col items-center gap-6 text-center">
-                  <div className="rounded-2xl bg-gradient-to-br from-[#36d1fe] to-[#00B2E3] p-4 flex items-center justify-center shadow-lg border border-[rgba(255,255,255,0.2)] shadow-[0_0_20px_rgba(54,209,254,0.4)]">
+                  <div className="rounded-2xl bg-gradient-to-br from-[#36d1fe] to-[#00B2E3] p-4 flex items-center justify-center shadow-lg border border-[rgba(255,255,255,0.2)] shadow-[0_0_20px_rgba(54,209,254,0.4)] transition-all duration-300 group-hover:shadow-[0_0_30px_rgba(54,209,254,0.6)]">
                     <IconComponent size={32} className="text-white drop-shadow-lg" strokeWidth={2} />
                   </div>
                   
-                  <h3 className="text-2xl font-bold text-white font-manrope tracking-tight drop-shadow-lg">
+                  <h3 className="text-xl sm:text-2xl font-bold text-white font-manrope tracking-tight drop-shadow-lg">
                     {product.title}
                   </h3>
                   
-                  <p className="text-[#cce7fa] text-base font-manrope leading-relaxed opacity-90 flex-1">
+                  <p className="text-[#cce7fa] text-sm sm:text-base font-manrope leading-relaxed opacity-90 flex-1">
                     {product.description}
                   </p>
                   
                   <Button
                     tabIndex={-1}
                     variant="ghost"
-                    className="w-full max-w-xs py-3 font-semibold rounded-xl text-base text-white bg-[rgba(54,209,254,0.1)] border border-[#36d1fe] transition-all duration-200 hover:bg-[rgba(54,209,254,0.2)] hover:shadow-[0_0_20px_rgba(54,209,254,0.4)] font-manrope"
+                    className="w-full max-w-xs py-3 font-semibold rounded-xl text-base text-white bg-[rgba(54,209,254,0.1)] border border-[#36d1fe] transition-all duration-200 hover:bg-[rgba(54,209,254,0.2)] hover:shadow-[0_0_20px_rgba(54,209,254,0.4)] font-manrope group-hover:scale-105"
                   >
                     Learn More
                     <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
