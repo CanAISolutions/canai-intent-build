@@ -140,7 +140,29 @@ export const posthog = new PostHogClient();
 
 // Analytics helper functions
 export const trackEvent = (eventName: string, properties?: Record<string, any>) => {
-  posthog.capture(eventName, properties);
+  const enhancedProperties = {
+    ...properties,
+    timestamp: new Date().toISOString(),
+    page_url: window.location.href,
+    correlation_id: generateCorrelationId(),
+    platform: 'canai_discovery_hook',
+    version: '1.0.0',
+  };
+
+  // Production PostHog tracking
+  if (isPostHogEnabled() && window.posthog) {
+    try {
+      window.posthog.capture(eventName, enhancedProperties);
+      console.log(`[PostHog] Event captured: ${eventName}`, enhancedProperties);
+    } catch (error) {
+      console.error('[PostHog] Event capture failed:', error);
+      // Fallback to console + Make.com
+      logToFallback(eventName, enhancedProperties);
+    }
+  } else {
+    // Fallback logging
+    logToFallback(eventName, enhancedProperties);
+  }
 };
 
 export const trackFunnelStep = (step: string, details?: Record<string, any>) => {
@@ -258,6 +280,40 @@ export const trackSparkInteraction = (interactionType: string, details?: Record<
     step_timestamp: new Date().toISOString(),
     ...details,
   });
+};
+
+// Enhanced event tracking for SparkSplit
+export const trackSparkSplitComparison = (data: {
+  trustDelta: number;
+  selected?: string;
+  emotionalResonance: { delta: number };
+  completion_time_ms?: number;
+  prompt_id: string;
+}) => {
+  trackEvent('plan_compared', data);
+};
+
+export const trackTrustDeltaView = (data: {
+  score: number;
+  prompt_id: string;
+}) => {
+  trackEvent('trustdelta_viewed', data);
+};
+
+export const trackGenericPreference = (data: {
+  feedback: string;
+  prompt_id: string;
+}) => {
+  trackEvent('generic_preferred', data);
+};
+
+export const trackSparkSplitFeedback = (data: {
+  selection: string;
+  feedback: string;
+  trust_delta?: number;
+  prompt_id: string;
+}) => {
+  trackEvent('sparksplit_feedback', data);
 };
 
 // Intent Mirror specific analytics functions

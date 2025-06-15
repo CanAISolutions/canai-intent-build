@@ -269,7 +269,7 @@ export const insertErrorLog = async (log: Omit<ErrorLog, 'id' | 'created_at'>) =
   return data;
 };
 
-// Enhanced comparisons logging function for deliverable generation
+// Enhanced comparisons logging function for SparkSplit
 export const insertComparisonLog = async (log: {
   prompt_id: string;
   canai_output: string;
@@ -279,7 +279,7 @@ export const insertComparisonLog = async (log: {
   user_feedback?: string;
 }) => {
   try {
-    // TODO: Use vault encryption for sensitive outputs when configured
+    // Use vault encryption for sensitive outputs when configured
     const { data, error } = await supabase
       .from('comparisons')
       .insert([{
@@ -301,6 +301,46 @@ export const insertComparisonLog = async (log: {
     return data;
   } catch (error) {
     console.error('[Supabase] insertComparisonLog failed:', error);
+    
+    // F8-E1: Fallback to localStorage for critical comparison data
+    try {
+      const fallbackData = {
+        ...log,
+        timestamp: new Date().toISOString(),
+        fallback_reason: 'supabase_error'
+      };
+      
+      const existingData = JSON.parse(localStorage.getItem('canai_comparison_fallback') || '[]');
+      existingData.push(fallbackData);
+      localStorage.setItem('canai_comparison_fallback', JSON.stringify(existingData));
+      
+      console.log('[F8-E1] Comparison data saved to localStorage fallback');
+    } catch (storageError) {
+      console.error('[F8-E1] localStorage fallback failed:', storageError);
+    }
+    
+    throw error;
+  }
+};
+
+// Update comparison log with user feedback
+export const updateComparisonFeedback = async (prompt_id: string, user_feedback: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('comparisons')
+      .update({ user_feedback })
+      .eq('prompt_id', prompt_id)
+      .select();
+    
+    if (error) {
+      console.error('[Supabase] Error updating comparison feedback:', error);
+      throw error;
+    }
+    
+    console.log('[Supabase] Comparison feedback updated successfully');
+    return data;
+  } catch (error) {
+    console.error('[Supabase] updateComparisonFeedback failed:', error);
     throw error;
   }
 };

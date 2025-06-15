@@ -139,6 +139,36 @@ export const triggerSparkRegeneration = (sparkData: {
   });
 };
 
+// SparkSplit specific workflow triggers
+export const triggerSparkSplitWorkflow = (sparkSplitData: {
+  canai_output: string;
+  generic_output: string;
+  trust_delta: number;
+  emotional_resonance: any;
+  prompt_id: string;
+}) => {
+  return triggerMakecomWorkflow('DELIVERABLE_GENERATION', {
+    action: 'spark_split_comparison',
+    comparison_data: sparkSplitData,
+    gpt4o_integration: true,
+    hume_validation: true,
+    supabase_logging: true,
+  });
+};
+
+export const triggerSparkSplitFeedback = (feedbackData: {
+  prompt_id: string;
+  selection: string;
+  feedback: string;
+  trust_delta: number;
+}) => {
+  return triggerMakecomWorkflow('USER_INTERACTION', {
+    action: 'sparksplit_feedback',
+    feedback_data: feedbackData,
+    supabase_logging: true,
+  });
+};
+
 // Purchase Flow specific workflow triggers
 export const triggerProjectCreation = (projectData: {
   stripe_session_id: string;
@@ -281,4 +311,15 @@ NEW Scenario: regeneration_processing.json
 - Regeneration webhook → GPT-4o alternative generation → Quality scoring → Supabase update
 - Include attempt counting and max limit enforcement (2 attempts)
 - Performance target: <2s regeneration processing
+
+NEW Scenario: spark_split_comparison.json
+- Webhook trigger → GPT-4o generic generation → Hume AI validation → TrustDelta calculation → Supabase comparisons insert
+- Include error handling for GPT-4o timeout/failures and Hume AI validation failures
+- Performance target: <500ms end-to-end for comparison generation
+- Include fallback logic for API failures
+
+UPDATED Scenario: user_interaction.json
+- Enhanced with SparkSplit feedback processing
+- Feedback webhook → Sentiment analysis → Supabase feedback update → Analytics logging
+- Include logic for feedback categorization and user preference tracking
 */
