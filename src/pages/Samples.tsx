@@ -1,8 +1,9 @@
+
 import React from 'react';
-import { ArrowLeft, FileText, MessageSquare, Search } from 'lucide-react';
+import { FileText, MessageSquare, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import CanAILogo from '@/components/CanAILogo';
+import PageHeader from '@/components/PageHeader';
 
 const sampleCards = [
   {
@@ -65,26 +66,21 @@ const Samples = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-canai-deep">
-      <header className="container mx-auto px-4 py-6 flex items-center justify-between">
-        <CanAILogo size="md" />
-        <Button 
-          onClick={() => navigate('/discovery-hook')}
-          variant="ghost"
-          className="text-canai-light"
-        >
-          <ArrowLeft className="mr-2" size={18} />
-          Back to Home
-        </Button>
-      </header>
+    <div className="min-h-screen bg-canai-deep flex flex-col">
+      {/* Consistent page header with logo and back button */}
+      <PageHeader 
+        showBackButton={true} 
+        className="max-w-7xl mx-auto pt-7 pb-3 px-4" 
+      />
 
-      <main className="container mx-auto px-2 pb-12 pt-4">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 pb-16 pt-2">
         <div className="max-w-5xl mx-auto space-y-12">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-canai-light mb-4">
+          {/* Title & subtitle */}
+          <div className="text-center pb-3">
+            <h1 className="font-playfair text-4xl md:text-5xl font-bold text-canai-light animate-fade-in mb-2">
               Sample CanAI Outputs
             </h1>
-            <p className="text-xl text-canai-light opacity-80">
+            <p className="text-xl text-canai-light opacity-80 animate-fade-in" style={{ animationDelay: '0.12s' }}>
               See the quality and depth of our AI-generated content
             </p>
           </div>
@@ -94,16 +90,16 @@ const Samples = () => {
             {sampleCards.map((card, idx) => (
               <div
                 key={idx}
-                className="canai-card group flex flex-col p-7 h-full from-blue-100/60 to-cyan-100/80 rounded-2xl shadow-md 
-                  transition-transform duration-200 hover:scale-[1.04] hover:shadow-[0_0_32px_#36d1fe99] border-2 border-transparent
-                  hover:border-canai-primary/80 bg-gradient-to-br"
-                style={{ minHeight: 330 }}
+                className="canai-product-card flex flex-col h-full rounded-2xl shadow-strong border-2 border-canai-primary/75 transition-transform duration-200 hover:scale-105 hover:shadow-[0_0_32px_#36d1fe99] bg-gradient-to-br from-[rgba(25,60,101,0.76)] to-[rgba(21,43,71,0.93)] animate-fade-in"
+                style={{ minHeight: 370 }}
               >
-                <div className="flex items-center space-x-3 mb-5">
+                <div className="flex items-center space-x-3 mb-5 pt-7 px-6">
                   {card.icon}
-                  <h2 className="text-xl font-bold text-canai-light">{card.title}</h2>
+                  <h2 className="text-lg md:text-xl font-bold text-canai-light text-glow-hero">
+                    {card.title}
+                  </h2>
                 </div>
-                <div className="bg-white rounded-lg p-6 text-gray-900 flex-1">
+                <div className="bg-white rounded-lg p-6 mx-5 mb-7 text-gray-900 flex-1 shadow">
                   {card.content}
                 </div>
               </div>
@@ -114,7 +110,8 @@ const Samples = () => {
             <Button 
               onClick={() => navigate('/discovery-funnel')}
               size="lg" 
-              className="canai-button-primary text-lg px-8 py-4 shadow-md hover:scale-105 animate-glow-pop"
+              variant="canai"
+              className="canai-button-primary text-lg px-10 py-5 shadow-md hover:scale-105 animate-glow-pop"
             >
               Get Your Custom Content
             </Button>
@@ -126,3 +123,4 @@ const Samples = () => {
 };
 
 export default Samples;
+
