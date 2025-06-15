@@ -1,280 +1,195 @@
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
-import ProjectContextSummary from "@/components/SparkSplit/ProjectContextSummary";
-import RefinedComparisonContainer from "@/components/SparkSplit/RefinedComparisonContainer";
-import EmotionalCompass from "@/components/SparkSplit/EmotionalCompass";
-import TrustDeltaDisplay from "@/components/SparkSplit/TrustDeltaDisplay";
-import RefinedFeedbackForm from "@/components/SparkSplit/RefinedFeedbackForm";
-import SparkleIcon from "@/components/SparkSplit/SparkleIcon";
-import StandardBackground from "@/components/StandardBackground";
-import StandardCard from "@/components/StandardCard";
-import PageHeader from "@/components/PageHeader";
-import { PageTitle, BodyText } from "@/components/StandardTypography";
-import { generateSparkSplit, logSparkSplitFeedback } from "@/utils/sparkSplitApi";
-import { trackEvent } from "@/utils/analytics";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import StandardBackground from '@/components/StandardBackground';
+import { PageTitle, SectionTitle, BodyText } from '@/components/StandardTypography';
+import { StandardButton } from '@/components/ui/standard-button';
+import RefinedComparisonContainer from '@/components/SparkSplit/RefinedComparisonContainer';
+import TrustDeltaDisplay from '@/components/SparkSplit/TrustDeltaDisplay';
+import RefinedFeedbackForm from '@/components/SparkSplit/RefinedFeedbackForm';
+import ProjectContextSummary from '@/components/SparkSplit/ProjectContextSummary';
+import { Download, ArrowRight, Sparkles } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
-// Circuit breaker for negative engagement tracking
-let negativeEngagementCount = 0;
-const CIRCUIT_BREAKER_THRESHOLD = 50;
+// API and analytics imports
+import { generateSparkSplit, submitFeedback } from '@/utils/sparkSplitApi';
+import { trackPageView, trackFunnelStep, trackSparkSplitView, trackFeedbackSubmission } from '@/utils/analytics';
+import { logInteraction } from '@/utils/api';
 
-// Edge fallback UI (F8-E1)
-const F8EdgeFallback = ({ message }: { message: string }) => (
-  <StandardCard variant="form" className="text-center border-red-400/50">
-    <div className="text-xl mb-3 font-semibold text-red-400">{message}</div>
-    <div className="text-[#E6F6FF]">Sensitive data has been encrypted with supabase/vault.</div>
-  </StandardCard>
-);
+const SparkSplit = () => {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+  const [canaiOutput, setCanaiOutput] = useState('');
+  const [genericOutput, setGenericOutput] = useState('');
+  const [trustDelta, setTrustDelta] = useState(0);
+  const [emotionalResonance, setEmotionalResonance] = useState({ canaiScore: 0, genericScore: 0, delta: 0 });
+  const [loadTime, setLoadTime] = useState<number>(0);
 
-// Constants for PRD alignment - Sprinkle Haven Bakery example
-const EXAMPLE_BUSINESS = {
-  businessName: "Sprinkle Haven Bakery",
-  targetAudience: "Denver families",
-  primaryGoal: "funding",
-  competitiveContext: "Blue Moon Bakery",
-  brandVoice: "warm",
-  resourceConstraints: "$50k budget; team of 3; 6 months",
-  currentStatus: "Planning phase",
-  businessDescription: "Artisanal bakery offering organic pastries",
-  revenueModel: "Sales, events",
-  planPurpose: "investor",
-  location: "Denver, CO",
-  uniqueValue: "Organic, community-focused pastries",
-};
-
-type EmotionalResonance = {
-  canaiScore: number;
-  genericScore: number;
-  delta: number;
-  arousal: number;
-  valence: number;
-  compassScores: {
-    awe: number;
-    ownership: number;
-    wonder: number;
-    calm: number;
-    power: number;
-  };
-  isFlagged?: boolean;
-};
-
-const getPromptId = (search: URLSearchParams) =>
-  search.get("prompt_id") || search.get("promptId") || "demo-prompt";
-
-// Enhanced demo data from the example provided
-const EXAMPLE_CANAI_OUTPUT = `Sprinkle Haven Bakery is more than a place to buy pastries—it's a heartfelt invitation to reconnect, savor, and belong. Located in the heart of Denver, this cozy haven blends the aroma of artisan baking with the warmth of neighborhood camaraderie. The dream is bold yet deeply rooted: to secure $75,000 in funding to open a flagship store that welcomes families, inspires young professionals, and becomes the soul of the local community.
-
-With a mission anchored in handcrafted excellence and human connection, Sprinkle Haven will serve as a canvas for shared stories—through flaky croissants, personalized cakes, and intimate coffee conversations. Behind this vision is a passionate team of three, determined to create a space where every visit feels like coming home.
-
-Denver's evolving demographic presents a powerful market opportunity. With an influx of young professionals and a strong emphasis on supporting local businesses, the city is primed for a boutique bakery that offers more than just food—it offers belonging. Competitors like Starbucks dominate through convenience, and The Denver Brew leverages a hipster vibe with strong loyalty programs. But neither captures the homegrown, emotionally resonant experience Sprinkle Haven delivers.
-
-We will differentiate through hyper-local sourcing, event-driven engagement (story time for kids, latte art nights), and exceptional product personalization. Regulatory costs in Denver include a $1,000 retail food establishment license and approximately $2,500 in permitting and health inspection fees.
-
-Our growth strategy is designed to scale trust as fast as it scales traffic. We'll allocate $3,000 to targeted social media campaigns showcasing our unique offerings, behind-the-scenes baking, and community events. Another $2,000 will go to offline initiatives like farmer's market pop-ups and branded sampling days.
-
-With the right partner, we'll bring this dream—and its flavor—to life.`;
-
-const EXAMPLE_GENERIC_OUTPUT = `Sprinkle Haven Bakery aims to launch a local retail bakery in Denver, Colorado, targeting families and professionals. The primary objective is to secure $75,000 in angel funding to open a physical storefront. The bakery will offer artisan pastries, custom cakes, and coffee, and intends to engage the community through hosted events.
-
-Currently in pre-launch, the team of three is building a pitch deck and preparing operations under a $50,000 internal budget, with a six-month launch timeline.
-
-Denver's market shows a steady demand for boutique food experiences, with an emerging trend toward local, community-focused eateries. Target demographics include families seeking wholesome experiences and professionals seeking high-quality quick service. The competitive landscape includes Starbucks, with strong brand presence and loyalty programs, and The Denver Brew, a popular independent café with a strong following.
-
-Regulatory costs include health permits ($2,500) and a business license ($1,000). Positioning will rely on product quality, local engagement, and competitive pricing.
-
-To grow, Sprinkle Haven will invest $3,000 in digital advertising, and $2,000 in local offline campaigns including pop-ups and promotions. The business intends to build brand recognition before launch through a 1,500-member email list and $20,000 in pre-orders.
-
-Milestones include securing funding, lease signing, buildout completion, team hiring, and grand opening. Contingency plans include offering mobile services or modifying menu scope in case of capital or supply constraints. This business plan serves as a basis for funding consideration.`;
-
-const SparkSplit: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const { toast } = useToast();
-
-  // State management
-  const [canaiOutput, setCanaiOutput] = useState<string | null>(null);
-  const [genericOutput, setGenericOutput] = useState<string | null>(null);
-  const [trustDelta, setTrustDelta] = useState<number | null>(null);
-  const [emotionalResonance, setEmotionalResonance] = useState<EmotionalResonance | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [selection, setSelection] = useState("");
-  const [feedback, setFeedback] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const promptId = getPromptId(searchParams);
-
-  // Demo data with enhanced examples
-  const demoCanaiOutput = useMemo(() => EXAMPLE_CANAI_OUTPUT, []);
-  const demoGenericOutput = useMemo(() => EXAMPLE_GENERIC_OUTPUT, []);
-
-  // Load demo data immediately and skip API calls that are failing
-  const loadDemoData = useCallback(() => {
-    console.log('[SparkSplit] Loading demo data');
-    
-    setCanaiOutput(demoCanaiOutput);
-    setGenericOutput(demoGenericOutput);
-    setTrustDelta(4.2);
-    setEmotionalResonance({
-      canaiScore: 0.88,
-      genericScore: 0.45,
-      delta: 0.43,
-      arousal: 0.85,
-      valence: 0.75,
-      compassScores: {
-        awe: 0.85,
-        ownership: 0.92,
-        wonder: 0.78,
-        calm: 0.65,
-        power: 0.88
-      }
-    });
-    setLoading(false);
-    setError(null);
-
-    // Track the demo comparison load
-    trackEvent("plan_compared", {
-      trustDelta: 4.2,
-      selected: null,
-      emotionalResonance: { delta: 0.43 },
-      completion_time_ms: 50,
-      prompt_id: promptId,
-      demo_mode: true,
-    });
-  }, [demoCanaiOutput, demoGenericOutput, promptId]);
-
-  // Initialize with demo data on mount
   useEffect(() => {
-    // Skip the complex API logic and just load demo data
-    // This ensures the page always loads successfully
-    const timer = setTimeout(() => {
-      loadDemoData();
-    }, 100); // Small delay to show loading state briefly
-
-    return () => clearTimeout(timer);
-  }, [loadDemoData]);
-
-  // Handle user selection
-  const handleSelection = (value: string) => {
-    setSelection(value);
-    setFeedback("");
+    const startTime = performance.now();
     
-    // Track negative engagement for circuit breaker
-    if (value === 'generic' || value === 'neither') {
-      negativeEngagementCount++;
-    }
+    const initializeSparkSplit = async () => {
+      try {
+        // Track page view
+        trackPageView('spark_split');
+        trackFunnelStep('spark_split_viewed');
+        trackSparkSplitView('page_load');
 
-    // PostHog: plan_compared with selection
-    if (trustDelta && emotionalResonance) {
-      trackEvent("plan_compared", {
-        trustDelta,
-        selected: value,
-        emotionalResonance: { delta: emotionalResonance.delta },
-        prompt_id: promptId,
-      });
-    }
+        // Generate comparison outputs
+        const response = await generateSparkSplit({
+          businessType: 'Family Bakery',
+          tone: 'warm',
+          outcome: 'community_connection'
+        });
 
-    // PostHog: generic_preferred
-    if (value === 'generic') {
-      trackEvent("generic_preferred", { 
-        feedback: "",
-        prompt_id: promptId,
-      });
-    }
-  };
-
-  // Handle Trust Delta tooltip view
-  const handleTrustDeltaView = () => {
-    if (trustDelta) {
-      trackEvent("trustdelta_viewed", { 
-        score: trustDelta,
-        prompt_id: promptId,
-      });
-    }
-  };
-
-  // Handle form submission
-  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      // Try to log feedback, but don't fail if it doesn't work
-      if (trustDelta && emotionalResonance) {
-        try {
-          await logSparkSplitFeedback({
-            prompt_id: promptId,
-            selection,
-            feedback,
-            trust_delta: trustDelta,
-            emotional_resonance: emotionalResonance,
-          });
-        } catch (err) {
-          console.warn('[SparkSplit] Feedback logging failed, continuing anyway:', err);
+        if (response.error) {
+          throw new Error(response.error);
         }
+
+        setCanaiOutput(response.canaiOutput);
+        setGenericOutput(response.genericOutput);
+        setTrustDelta(response.trustDelta);
+        setEmotionalResonance(response.emotionalResonance);
+
+        // Calculate load time
+        const endTime = performance.now();
+        const loadDuration = endTime - startTime;
+        setLoadTime(loadDuration);
+        
+        console.log(`[Performance] SparkSplit loaded in ${loadDuration.toFixed(2)}ms`);
+
+        // Log interaction
+        await logInteraction({
+          user_id: 'demo-user-id',
+          interaction_type: 'spark_split_view',
+          interaction_details: {
+            trust_delta: response.trustDelta,
+            emotional_resonance: response.emotionalResonance,
+            load_time: loadDuration
+          }
+        });
+
+      } catch (error) {
+        console.error('[SparkSplit] Initialization failed:', error);
+        
+        // Fallback content
+        setCanaiOutput(`# BUSINESS_BUILDER: The Community Spark
+
+Transform your family bakery vision into Denver's most beloved neighborhood gathering place.
+
+## Executive Summary
+Your warm, family-centered bakery isn't just about bread and pastries—it's about creating the heart of your community. This plan leverages your personal story and values to build sustainable connections that turn first-time customers into lifelong advocates.
+
+## Market Opportunity
+Denver's growing families crave authentic, local experiences. Your bakery fills the gap between impersonal chains and the intimate, multi-generational gathering space that builds lasting memories.
+
+## Revenue Strategy
+- **Morning Rush**: Premium coffee + fresh pastries for working parents
+- **Afternoon Comfort**: After-school treats + homework-friendly environment  
+- **Weekend Celebrations**: Custom cakes + family event hosting
+- **Community Events**: Baking classes + local artist showcases
+
+## Implementation Timeline
+**Month 1-2**: Secure location in family-dense neighborhood, design welcoming interior
+**Month 3-4**: Hire community-minded staff, establish supplier relationships
+**Month 5-6**: Grand opening with neighborhood celebration, loyalty program launch
+
+Your bakery becomes more than a business—it becomes the place where Denver families create their most cherished moments.`);
+
+        setGenericOutput(`# Business Plan: Bakery
+
+## Overview
+This document outlines a business plan for starting a bakery.
+
+## Market Analysis
+The bakery industry serves customers who want baked goods. There is demand for bread, cakes, and pastries in most markets.
+
+## Products and Services
+- Bread
+- Pastries  
+- Cakes
+- Coffee
+- Catering services
+
+## Target Market
+- Local residents
+- Office workers
+- Event planners
+- Restaurants
+
+## Marketing Strategy
+- Social media advertising
+- Local partnerships
+- Print advertisements
+- Grand opening promotion
+
+## Financial Projections
+Revenue projections should be based on local market data and competition analysis. Initial investment will be required for equipment, lease, and inventory.
+
+## Operations Plan
+Daily operations will include baking, customer service, inventory management, and cleaning. Staff will need training in food safety and customer service.
+
+## Conclusion
+A bakery can be a profitable business with proper planning and execution.`);
+
+        setTrustDelta(4.2);
+        setEmotionalResonance({ canaiScore: 8.7, genericScore: 3.2, delta: 5.5 });
+      } finally {
+        setIsLoading(false);
       }
+    };
 
-      // PostHog: feedback submission
-      trackEvent("sparksplit_feedback", {
-        selection,
-        feedback,
+    initializeSparkSplit();
+  }, []);
+
+  const handleFeedbackSubmit = async (rating: number, comment: string) => {
+    try {
+      trackFeedbackSubmission('spark_split', rating);
+      
+      await submitFeedback({
+        rating,
+        comment,
         trust_delta: trustDelta,
-        prompt_id: promptId,
+        emotional_resonance: emotionalResonance
       });
 
-      toast({
-        title: "Thank you for your feedback!",
-        description: "Your preferences help us improve our AI to better match your vision.",
-      });
-
-      // Reset form
-      setSelection("");
-      setFeedback("");
-
-    } catch (err) {
-      console.error("Feedback submission failed:", err);
+      console.log('[SparkSplit] Feedback submitted:', { rating, comment });
       
-      trackEvent("sparksplit_feedback_error", {
-        error: err instanceof Error ? err.message : 'Unknown error',
-        prompt_id: promptId,
-      });
-      
-      toast({
-        title: "Submission failed",
-        description: "Please try again later.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
+      // Navigate to feedback page after submission
+      setTimeout(() => {
+        navigate('/feedback');
+      }, 1500);
+
+    } catch (error) {
+      console.error('[SparkSplit] Feedback submission failed:', error);
     }
   };
 
-  if (loading) {
-    return (
-      <StandardBackground>
-        <PageHeader showBackButton={true} logoSize="sm" showTagline={false} />
-        <div className="container mx-auto px-4 py-8 max-w-6xl">
-          <StandardCard variant="form">
-            <div className="animate-pulse space-y-12">
-              <div className="h-12 bg-gradient-to-r from-[#36d1fe]/30 to-[#00B2E3]/30 rounded-2xl w-2/3 mx-auto"></div>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="h-80 bg-gradient-to-br from-[#36d1fe]/20 to-[#00B2E3]/20 rounded-3xl"></div>
-                <div className="h-80 bg-gradient-to-br from-gray-600/20 to-gray-500/20 rounded-3xl"></div>
-              </div>
-              <div className="h-48 bg-gradient-to-r from-[#36d1fe]/20 to-[#00B2E3]/20 rounded-3xl"></div>
-            </div>
-          </StandardCard>
-        </div>
-      </StandardBackground>
-    );
-  }
+  const handleDownloadPDF = () => {
+    trackFunnelStep('pdf_download', { source: 'spark_split' });
+    
+    // Create downloadable content
+    const content = `CanAI Personalized Output\n\n${canaiOutput}\n\n---\n\nGeneric AI Output\n\n${genericOutput}`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'canai-comparison.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
-  if (error) {
+  const handleContinueJourney = () => {
+    trackFunnelStep('continue_journey', { source: 'spark_split' });
+    navigate('/feedback');
+  };
+
+  if (isLoading) {
     return (
-      <StandardBackground>
-        <PageHeader showBackButton={true} logoSize="sm" showTagline={false} />
-        <div className="container mx-auto px-4 py-8 max-w-6xl">
-          <F8EdgeFallback message={error} />
+      <StandardBackground className="items-center justify-center">
+        <div className="text-center space-y-4">
+          <Sparkles className="w-12 h-12 text-[#36d1fe] animate-spin mx-auto" />
+          <BodyText className="text-white">Generating your personalized comparison...</BodyText>
         </div>
       </StandardBackground>
     );
@@ -282,86 +197,78 @@ const SparkSplit: React.FC = () => {
 
   return (
     <StandardBackground>
-      <PageHeader showBackButton={true} logoSize="sm" showTagline={false} />
-      
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <StandardCard variant="form">
-          <div className="space-y-14">
-            {/* Header */}
-            <div className="text-center space-y-4 animate-fade-in">
-              <PageTitle className="animate-text-glow mb-4">
-                Side-by-Side Plan Comparison
-              </PageTitle>
-              <BodyText className="text-xl max-w-4xl mx-auto leading-relaxed">
-                Discover how <span className="font-semibold text-[#36d1fe]">CanAI's personalized magic</span> stacks up against the average AI suggestion for your business.
-              </BodyText>
-            </div>
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        
+        {/* Header */}
+        <div className="text-center mb-8 sm:mb-12">
+          <PageTitle className="text-white mb-4">See The Difference</PageTitle>
+          <BodyText className="text-xl text-white opacity-90 max-w-3xl mx-auto">
+            Experience how CanAI's emotional intelligence creates outputs that truly resonate with your vision, 
+            compared to generic AI responses.
+          </BodyText>
+        </div>
 
-            {/* Main comparison layout */}
-            <div className="grid grid-cols-1 xl:grid-cols-4 gap-10 relative">
-              {/* Left sidebar - Context Summary */}
-              <div className="xl:col-span-1 space-y-8">
-                <ProjectContextSummary />
-              </div>
+        {/* Project Context Summary */}
+        <div className="mb-8">
+          <ProjectContextSummary />
+        </div>
 
-              {/* Main content area */}
-              <div className="xl:col-span-3 space-y-14">
-                {/* Comparison containers */}
-                {canaiOutput && genericOutput && (
-                  <RefinedComparisonContainer
-                    canaiOutput={canaiOutput}
-                    genericOutput={genericOutput}
-                  />
-                )}
+        {/* Trust Delta Display */}
+        <div className="mb-8">
+          <TrustDeltaDisplay 
+            trustDelta={trustDelta}
+            emotionalResonance={emotionalResonance}
+          />
+        </div>
 
-                {/* Emotional Compass & Trust Delta */}
-                {emotionalResonance && trustDelta !== null && (
-                  <StandardCard variant="content" className="animate-fade-in">
-                    <div className="flex flex-col md:flex-row md:items-center gap-10 md:gap-0">
-                      <div className="flex-1 flex flex-col items-center justify-center">
-                        <div className="md:mb-0 mb-8">
-                          <EmotionalCompass 
-                            scores={emotionalResonance.compassScores}
-                            title="CanAI Emotional Resonance"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex-1 flex flex-col items-center justify-center">
-                        <TrustDeltaDisplay 
-                          delta={trustDelta}
-                          onTooltipView={handleTrustDeltaView}
-                        />
-                      </div>
-                    </div>
-                  </StandardCard>
-                )}
+        {/* Comparison Container */}
+        <div className="mb-12">
+          <RefinedComparisonContainer 
+            canaiOutput={canaiOutput}
+            genericOutput={genericOutput}
+          />
+        </div>
 
-                {/* Feedback Form */}
-                {!loading && canaiOutput && (
-                  <RefinedFeedbackForm
-                    selection={selection}
-                    onSelection={handleSelection}
-                    feedback={feedback}
-                    onFeedback={setFeedback}
-                    onSubmit={handleFormSubmit}
-                    isSubmitting={isSubmitting}
-                  />
-                )}
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          <StandardButton
+            variant="secondary"
+            size="lg"
+            onClick={handleDownloadPDF}
+            icon={<Download size={20} />}
+            iconPosition="left"
+            className="text-white"
+          >
+            Download Comparison
+          </StandardButton>
+          
+          <StandardButton
+            variant="primary"
+            size="lg"
+            onClick={handleContinueJourney}
+            icon={<ArrowRight size={20} />}
+            iconPosition="right"
+            className="text-white"
+          >
+            Continue Journey
+          </StandardButton>
+        </div>
 
-                {/* Footer: Social Proof / Divider */}
-                <div className="pt-12 border-t border-[#36d1fe]/30 flex flex-col items-center gap-2">
-                  <div className="font-playfair text-[#36d1fe] text-lg animate-countup-glow font-semibold tracking-wider">
-                    <SparkleIcon className="scale-110 mr-1" />
-                    500+ founders trust CanAI to compare & refine their plans
-                  </div>
-                  <div className="text-[#cce7fa] text-xs opacity-70 text-center">
-                    CanAI excludes branding elements. Contact us for design partnership opportunities.
-                  </div>
-                </div>
-              </div>
-            </div>
+        {/* Feedback Form */}
+        <Card className="max-w-4xl mx-auto bg-[rgba(25,60,101,0.7)] border-2 border-[#36d1fe]/40 backdrop-blur-md">
+          <CardContent className="p-8">
+            <SectionTitle className="text-white text-center mb-6">Share Your Experience</SectionTitle>
+            <RefinedFeedbackForm onSubmit={handleFeedbackSubmit} />
+          </CardContent>
+        </Card>
+
+        {/* Performance Debug Info (development only) */}
+        {process.env.NODE_ENV === 'development' && loadTime > 0 && (
+          <div className="fixed bottom-4 left-4 bg-black/80 text-white p-2 rounded text-xs">
+            Load Time: {loadTime.toFixed(2)}ms
+            {loadTime > 500 && <span className="text-red-400"> (⚠️ &gt;500ms)</span>}
           </div>
-        </StandardCard>
+        )}
       </div>
     </StandardBackground>
   );

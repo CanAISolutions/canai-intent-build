@@ -1,297 +1,273 @@
 
-import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Sparkles, CheckCircle, AlertCircle, RefreshCw } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import StandardBackground from "@/components/StandardBackground";
-import StandardCard from "@/components/StandardCard";
-import { PageTitle, BodyText } from "@/components/StandardTypography";
-import PageHeader from "@/components/PageHeader";
-import { generateSparks, regenerateSparks, logSparkSelection } from "@/utils/sparkLayerApi";
-import { trackSparkSelected, trackSparksRegenerated, trackSparkInteraction } from "@/utils/analytics";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import StandardBackground from '@/components/StandardBackground';
+import { PageTitle, SectionTitle, BodyText } from '@/components/StandardTypography';
+import { StandardButton } from '@/components/ui/standard-button';
+import { StandardForm, StandardFormGroup, StandardFormLabel, StandardFormTextarea } from '@/components/ui/standard-form';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Sparkles, RefreshCw, ArrowRight, Star } from 'lucide-react';
 
-interface SparkData {
+// API and analytics imports
+import { generateSparks, regenerateSparks } from '@/utils/sparkLayerApi';
+import { trackPageView, trackFunnelStep, trackSparkSelected, trackSparksRegenerated } from '@/utils/analytics';
+import { logInteraction } from '@/utils/api';
+
+interface Spark {
+  id: string;
   title: string;
   tagline: string;
+  productTrack: 'business_builder' | 'social_email' | 'site_audit';
 }
 
 const SparkLayer = () => {
-  const { toast } = useToast();
+  const navigate = useNavigate();
+  const [sparks, setSparks] = useState<Spark[]>([]);
+  const [selectedSpark, setSelectedSpark] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
-  const [selectedSpark, setSelectedSpark] = useState<number | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [sparks, setSparks] = useState<SparkData[]>([]);
-  const [regenerateCount, setRegenerateCount] = useState(0);
+  const [attemptCount, setAttemptCount] = useState(1);
   const [feedback, setFeedback] = useState('');
-  const [showEdgeToggle, setShowEdgeToggle] = useState(false);
-  
-  // Get params from URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const promptId = urlParams.get('prompt_id') || 'demo-prompt-id';
-  const businessType = urlParams.get('business_type') || 'general';
-  const tone = urlParams.get('tone') || 'professional';
-  const outcome = urlParams.get('outcome') || 'growth';
-
-  const MAX_REGENERATIONS = 3;
-  const canRegenerate = regenerateCount < MAX_REGENERATIONS;
+  const [trustScore] = useState(85); // Mock trust score
 
   useEffect(() => {
-    const loadSparks = async () => {
-      setIsLoading(true);
-      try {
-        trackSparkInteraction('sparks_loading', { 
-          business_type: businessType,
-          tone,
-          outcome 
-        });
+    initializeSparks();
+  }, []);
 
-        const response = await generateSparks({
-          businessType,
-          tone,
-          outcome
-        });
-
-        if (response.sparks) {
-          setSparks(response.sparks);
-          trackSparkInteraction('sparks_loaded', { 
-            spark_count: response.sparks.length 
-          });
-        }
-        
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Failed to load sparks:", error);
-        setLoadError("Failed to load spark options. Please try again.");
-        toast({
-          title: "Loading failed",
-          description: "Unable to load your spark options. Please try again.",
-          variant: "destructive"
-        });
-        setIsLoading(false);
-      }
-    };
-
-    loadSparks();
-  }, [toast, businessType, tone, outcome]);
-
-  const handleSparkSelect = async (sparkIndex: number) => {
-    setSelectedSpark(sparkIndex);
-    setIsSubmitting(true);
-    
+  const initializeSparks = async () => {
     try {
-      const selectedSparkData = sparks[sparkIndex];
-      
-      // Track spark selection
-      trackSparkSelected({
-        spark_id: selectedSparkData.title.toLowerCase().replace(/\s+/g, '_'),
-        product: 'business_builder',
-        spark_index: sparkIndex,
-        attempt_count: regenerateCount,
-      });
-      
-      // Log to Supabase
-      await logSparkSelection({
-        initial_prompt_id: promptId,
-        selected_spark: selectedSparkData,
-        product_track: 'business_builder',
-        feedback: feedback || undefined,
-      });
-      
-      console.log('[Spark Layer] Spark selected:', { 
-        promptId, 
-        sparkIndex, 
-        sparkData: selectedSparkData,
-        regenerateCount,
-      });
-      
-      toast({
-        title: "Perfect choice!",
-        description: `"${selectedSparkData.title}" selected. Moving to purchase...`,
-      });
-      
-      // Navigate to Purchase Flow
-      setTimeout(() => {
-        window.location.href = `/purchase?prompt_id=${promptId}&spark_index=${sparkIndex}&product_track=business_builder`;
-      }, 1500);
-      
-    } catch (error) {
-      console.error('Spark selection failed:', error);
-      toast({
-        title: "Selection failed",
-        description: "Please try selecting your spark again.",
-        variant: "destructive"
-      });
-      setIsSubmitting(false);
-    }
-  };
+      trackPageView('spark_layer');
+      trackFunnelStep('spark_layer_viewed');
 
-  const handleRegenerate = async () => {
-    if (!canRegenerate) return;
-    
-    setIsRegenerating(true);
-    const newCount = regenerateCount + 1;
-    
-    try {
-      trackSparksRegenerated({
-        attempt_count: newCount,
-        business_type: businessType,
-      });
-
-      const response = await regenerateSparks({
-        businessType,
-        tone,
-        outcome,
-        attempt_count: newCount,
+      const response = await generateSparks({
+        businessType: 'Family Bakery',
+        tone: 'warm',
+        outcome: 'community_connection',
+        attempt_count: 1
       });
 
       if (response.sparks) {
         setSparks(response.sparks);
-        setRegenerateCount(newCount);
-        setSelectedSpark(null);
-        
-        toast({
-          title: "New sparks generated!",
-          description: `Here are ${response.sparks.length} fresh options for you.`,
-        });
+        console.log('[Spark Layer] Initial sparks loaded:', response.sparks);
+      } else {
+        // Fallback sparks
+        setSparks([
+          {
+            id: 'community_spark',
+            title: 'BUSINESS_BUILDER: The Community Spark',
+            tagline: 'Unite Denver families with a cozy bakery experience',
+            productTrack: 'business_builder'
+          },
+          {
+            id: 'heritage_hub',
+            title: 'BUSINESS_BUILDER: The Heritage Hub',
+            tagline: 'Celebrate traditions through authentic family recipes',
+            productTrack: 'business_builder'
+          },
+          {
+            id: 'neighborhood_nest',
+            title: 'BUSINESS_BUILDER: The Neighborhood Nest',
+            tagline: 'Create the heartbeat of your local community',
+            productTrack: 'business_builder'
+          }
+        ]);
       }
-    } catch (error) {
-      console.error('Regeneration failed:', error);
-      toast({
-        title: "Regeneration failed",
-        description: "Please try again.",
-        variant: "destructive"
+
+      await logInteraction({
+        user_id: 'demo-user-id',
+        interaction_type: 'sparks_generated',
+        interaction_details: {
+          attempt_count: 1,
+          spark_count: 3,
+          trust_score: trustScore
+        }
       });
+
+    } catch (error) {
+      console.error('[Spark Layer] Failed to load sparks:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRegenerate = async () => {
+    if (attemptCount >= 3) return; // Limit regeneration attempts
+
+    setIsRegenerating(true);
+    const newAttemptCount = attemptCount + 1;
+
+    try {
+      trackSparksRegenerated(newAttemptCount, trustScore);
+
+      const response = await regenerateSparks({
+        businessType: 'Family Bakery',
+        tone: 'warm',
+        outcome: 'community_connection',
+        attempt_count: newAttemptCount,
+        feedback: feedback.trim() || undefined
+      });
+
+      if (response.sparks) {
+        setSparks(response.sparks);
+        setAttemptCount(newAttemptCount);
+        setFeedback('');
+        console.log('[Spark Layer] Sparks regenerated:', response.sparks);
+      }
+
+    } catch (error) {
+      console.error('[Spark Layer] Regeneration failed:', error);
     } finally {
       setIsRegenerating(false);
+    }
+  };
+
+  const handleSparkSelect = (sparkId: string) => {
+    setSelectedSpark(sparkId);
+    const spark = sparks.find(s => s.id === sparkId);
+    
+    if (spark) {
+      trackSparkSelected(sparkId, spark.productTrack, Date.now());
+      
+      logInteraction({
+        user_id: 'demo-user-id',
+        interaction_type: 'spark_selected',
+        interaction_details: {
+          spark_id: sparkId,
+          product_track: spark.productTrack,
+          attempt_count: attemptCount
+        }
+      });
+    }
+  };
+
+  const handleProceedToPurchase = () => {
+    if (!selectedSpark) return;
+
+    const spark = sparks.find(s => s.id === selectedSpark);
+    if (spark) {
+      trackFunnelStep('proceed_to_purchase', { spark_id: selectedSpark, product: spark.productTrack });
+      navigate('/purchase-flow');
     }
   };
 
   if (isLoading) {
     return (
       <StandardBackground className="items-center justify-center">
-        <PageHeader />
-        <div className="text-center animate-fade-in">
-          <div className="animate-spin w-12 h-12 border-4 border-[#36d1fe] border-t-transparent rounded-full mx-auto mb-4"></div>
-          <PageTitle className="text-2xl mb-2">Analyzing Your Business</PageTitle>
-          <BodyText className="opacity-75">Finding the perfect spark for your business...</BodyText>
-        </div>
-      </StandardBackground>
-    );
-  }
-
-  if (loadError) {
-    return (
-      <StandardBackground className="items-center justify-center">
-        <PageHeader />
-        <div className="error-fallback text-center animate-fade-in">
-          <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-          <PageTitle className="text-2xl mb-2">Loading Failed</PageTitle>
-          <BodyText className="opacity-75 mb-6">{loadError}</BodyText>
-          <Button variant="canai" onClick={() => window.location.reload()}>
-            Try Again
-          </Button>
+        <div className="text-center space-y-4">
+          <Sparkles className="w-12 h-12 text-[#36d1fe] animate-spin mx-auto" />
+          <BodyText className="text-white">Generating your personalized sparks...</BodyText>
         </div>
       </StandardBackground>
     );
   }
 
   return (
-    <StandardBackground className="items-center justify-center">
-      <PageHeader />
-      
-      <div className="w-full max-w-4xl mx-auto px-4 py-8">
-        <div className="text-center mb-8 animate-fade-in">
-          <PageTitle className="mb-4">Choose Your Business Spark</PageTitle>
-          <BodyText className="text-lg opacity-90">
-            Select the option that best fits your goals. Each spark is designed to ignite your business potential.
+    <StandardBackground>
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        
+        {/* Header */}
+        <div className="text-center mb-8 sm:mb-12">
+          <PageTitle className="text-white mb-4">Choose Your Spark</PageTitle>
+          <BodyText className="text-xl text-white opacity-90 max-w-3xl mx-auto">
+            We've created three unique concepts tailored to your vision. Select the one that resonates most with your goals.
           </BodyText>
-          
-          {/* Spark Prompt Display */}
-          <div id="spark-prompt" className="mt-4 p-4 bg-white/5 rounded-lg border border-white/10">
-            <BodyText className="text-sm opacity-75">
-              Based on: {businessType} • {tone} tone • Focus: {outcome}
-            </BodyText>
-          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
-          {sparks.map((spark, index) => (
-            <div
-              key={`${spark.title}-${regenerateCount}`}
-              id={`spark-card-${index}`}
-              onClick={() => handleSparkSelect(index)}
-              className={`group cursor-pointer transition-all duration-300 hover:scale-105 ${selectedSpark === index ? 'transform scale-105' : ''}`}
+        {/* Spark Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {sparks.map((spark) => (
+            <Card
+              key={spark.id}
+              className={`cursor-pointer transition-all duration-300 canai-product-card ${
+                selectedSpark === spark.id 
+                  ? 'ring-4 ring-[#36d1fe] ring-opacity-60 scale-105' 
+                  : 'hover:scale-102'
+              }`}
+              onClick={() => handleSparkSelect(spark.id)}
             >
-              <StandardCard
-                variant="product"
-                className={`h-full flex flex-col items-center justify-center p-6 rounded-2xl transition-all duration-300 ${selectedSpark === index ? 'border-4 border-[#36d1fe] shadow-[0_0_20px_rgba(54,209,254,0.5)]' : 'border border-white/10'}`}
-              >
-                {selectedSpark === index && (
-                  <div className="absolute top-2 right-2">
-                    <CheckCircle className="text-green-500 w-6 h-6 animate-pulse" />
+              <CardHeader className="pb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Star className="w-5 h-5 text-[#36d1fe]" />
+                  <span className="text-[#36d1fe] text-sm font-medium">CONCEPT {spark.id.toUpperCase()}</span>
+                </div>
+                <CardTitle className="text-white text-lg leading-tight">
+                  {spark.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <BodyText className="text-white opacity-90 text-base">
+                  {spark.tagline}
+                </BodyText>
+                {selectedSpark === spark.id && (
+                  <div className="mt-4 p-3 bg-[#36d1fe]/10 rounded-lg border border-[#36d1fe]/30">
+                    <BodyText className="text-[#36d1fe] text-sm font-medium">
+                      ✓ Selected - This concept will shape your personalized deliverable
+                    </BodyText>
                   </div>
                 )}
-                <Sparkles className="text-[#36d1fe] w-8 h-8 mb-4 group-hover:scale-110 transition-transform" />
-                <h3 className="text-xl font-semibold text-white mb-2">{spark.title}</h3>
-                <BodyText className="text-center opacity-80">{spark.tagline}</BodyText>
-              </StandardCard>
-            </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
 
-        {/* Regeneration Controls */}
-        <div className="text-center mt-8 space-y-4 animate-fade-in">
-          {canRegenerate && (
-            <Button
-              id="regenerate-btn"
-              variant="ghost"
-              onClick={handleRegenerate}
-              disabled={isRegenerating || isSubmitting}
-              className="text-[#36d1fe] hover:text-[#00f0ff] hover:bg-[#36d1fe]/10 transition-colors duration-200 text-lg px-6 py-3"
-            >
-              <RefreshCw className={`mr-2 h-4 w-4 ${isRegenerating ? 'animate-spin' : ''}`} />
-              {isRegenerating ? 'Generating...' : `Regenerate Options (${MAX_REGENERATIONS - regenerateCount} left)`}
-            </Button>
-          )}
+        {/* Regeneration Section */}
+        <Card className="mb-8 bg-[rgba(25,60,101,0.7)] border-2 border-[#36d1fe]/40">
+          <CardContent className="p-6">
+            <SectionTitle className="text-white text-center mb-4">
+              Want Different Options?
+            </SectionTitle>
+            <BodyText className="text-white text-center mb-4 opacity-90">
+              Not quite right? Share what you'd like to see different and we'll generate new concepts.
+            </BodyText>
+            
+            <StandardForm>
+              <StandardFormGroup>
+                <StandardFormLabel className="text-white">
+                  What would you like to adjust? (Optional)
+                </StandardFormLabel>
+                <StandardFormTextarea
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  placeholder="e.g., More focus on sustainability, different target audience, stronger community emphasis..."
+                  className="text-white placeholder:text-white/50"
+                />
+              </StandardFormGroup>
+              
+              <div className="flex justify-center">
+                <StandardButton
+                  onClick={handleRegenerate}
+                  disabled={attemptCount >= 3 || isRegenerating}
+                  loading={isRegenerating}
+                  loadingText="Generating new concepts..."
+                  variant="secondary"
+                  icon={<RefreshCw size={18} />}
+                  iconPosition="left"
+                >
+                  Generate New Concepts ({attemptCount}/3)
+                </StandardButton>
+              </div>
+            </StandardForm>
+            
+            {attemptCount >= 3 && (
+              <BodyText className="text-regenerate-count text-center mt-4">
+                Maximum regenerations reached. Please select from the available concepts.
+              </BodyText>
+            )}
+          </CardContent>
+        </Card>
 
-          {/* Feedback Input */}
-          <div id="spark-regen-feedback" className="max-w-md mx-auto">
-            <textarea
-              id="spark-feedback"
-              value={feedback}
-              onChange={(e) => setFeedback(e.target.value)}
-              placeholder="Any specific preferences for your spark? (optional)"
-              className="w-full p-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 resize-none"
-              rows={2}
-              maxLength={200}
-            />
-          </div>
-
-          {/* Edge Toggle */}
-          <div id="edge-toggle" className="flex items-center justify-center space-x-2">
-            <input
-              type="checkbox"
-              id="show-comparison"
-              checked={showEdgeToggle}
-              onChange={(e) => setShowEdgeToggle(e.target.checked)}
-              className="rounded"
-            />
-            <label htmlFor="show-comparison" className="text-sm text-white/70">
-              Show generic AI comparison
-            </label>
-          </div>
-
-          {/* Navigation */}
-          <Button
-            variant="ghost"
-            onClick={() => window.location.href = `/discovery-funnel?prompt_id=${promptId}`}
-            className="text-[#36d1fe] hover:text-[#00f0ff] hover:bg-[#36d1fe]/10 transition-colors duration-200 text-lg px-6 py-3"
-            disabled={isSubmitting || isRegenerating}
+        {/* Proceed Button */}
+        <div className="flex justify-center">
+          <StandardButton
+            onClick={handleProceedToPurchase}
+            disabled={!selectedSpark}
+            variant="primary"
+            size="lg"
+            icon={<ArrowRight size={20} />}
+            iconPosition="right"
           >
-            {isSubmitting || isRegenerating ? 'Loading...' : '← Back to Edit Details'}
-          </Button>
+            Continue to Purchase ({selectedSpark ? '1 concept selected' : 'Select a concept first'})
+          </StandardButton>
         </div>
       </div>
     </StandardBackground>

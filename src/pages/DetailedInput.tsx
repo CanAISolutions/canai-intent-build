@@ -1,408 +1,315 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { ChevronRight, ChevronLeft, CheckCircle } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import StandardBackground from "@/components/StandardBackground";
-import StandardCard from "@/components/StandardCard";
-import { PageTitle, BodyText, CaptionText } from "@/components/StandardTypography";
-import PageHeader from "@/components/PageHeader";
-import StepOneForm from "@/components/DetailedInput/StepOneForm";
-import StepTwoForm from "@/components/DetailedInput/StepTwoForm";
-import AutoSaveIndicator from "@/components/DetailedInput/AutoSaveIndicator";
-import { trackEvent, trackFunnelStep, POSTHOG_EVENTS } from "@/utils/analytics";
-import { insertSessionLog } from "@/utils/supabase";
-import { logSessionToMakecom } from "@/utils/makecom";
 
-export interface FormData {
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import StandardBackground from '@/components/StandardBackground';
+import { PageTitle, SectionTitle, BodyText } from '@/components/StandardTypography';
+import { StandardButton } from '@/components/ui/standard-button';
+import StepOneForm from '@/components/DetailedInput/StepOneForm';
+import StepTwoForm from '@/components/DetailedInput/StepTwoForm';
+import AutoSaveIndicator from '@/components/DetailedInput/AutoSaveIndicator';
+import { Card, CardContent } from '@/components/ui/card';
+import { ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react';
+
+// API and analytics imports
+import { saveDetailedInput, validateDetailedInput } from '@/utils/detailedInputIntegration';
+import { trackPageView, trackFunnelStep, trackFormStep } from '@/utils/analytics';
+import { logInteraction } from '@/utils/api';
+
+interface FormData {
   // Step 1 fields
   businessName: string;
+  businessDescription: string;
   targetAudience: string;
-  primaryGoal: string;
-  competitiveContext: string;
-  brandVoice: string;
+  keyProducts: string;
+  uniqueValueProp: string;
   location: string;
-  uniqueValue: string;
   
   // Step 2 fields
-  resourceConstraints: string;
-  currentStatus: string;
-  businessDescription: string;
-  revenueModel: string;
-  planPurpose: string;
+  primaryGoals: string;
+  secondaryGoals: string;
+  timeline: string;
+  budget: string;
+  successMetrics: string;
+  additionalContext: string;
 }
 
 const DetailedInput = () => {
-  const { toast } = useToast();
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [promptId] = useState(() => crypto.randomUUID());
-  const [saveAttempts, setSaveAttempts] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [formData, setFormData] = useState<FormData>({
-    businessName: "",
-    targetAudience: "",
-    primaryGoal: "",
-    competitiveContext: "",
-    brandVoice: "warm", // Default for bakery
-    location: "",
-    uniqueValue: "",
-    resourceConstraints: "",
-    currentStatus: "",
-    businessDescription: "",
-    revenueModel: "",
-    planPurpose: ""
+    businessName: '',
+    businessDescription: '',
+    targetAudience: '',
+    keyProducts: '',
+    uniqueValueProp: '',
+    location: '',
+    primaryGoals: '',
+    secondaryGoals: '',
+    timeline: '',
+    budget: '',
+    successMetrics: '',
+    additionalContext: ''
   });
 
-  const [errors, setErrors] = useState<Partial<FormData>>({});
-
-  // Validation regex patterns
-  const validationRegex = {
-    businessName: /^[a-zA-Z0-9\s]{3,50}$/,
-    location: /^[a-zA-Z\s,]{1,100}$/,
-    uniqueValue: /^[a-zA-Z0-9\s,.]{1,200}$/,
-    competitiveContext: /^[a-zA-Z0-9\s,.]{1,100}$/,
-    currentStatus: /^[a-zA-Z0-9\s,.]{1,120}$/
-  };
-
-  // Word count helper
-  const countWords = (text: string) => {
-    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
-  };
-
-  // Auto-save with retry logic
-  const autoSave = useCallback(async (retryCount = 0) => {
-    if (Object.values(formData).some(value => value.trim())) {
-      setIsAutoSaving(true);
-      
+  useEffect(() => {
+    // Track page view
+    trackPageView('detailed_input');
+    trackFunnelStep('detailed_input_entered');
+    
+    // Load saved data from localStorage
+    const savedData = localStorage.getItem('canai_detailed_input');
+    if (savedData) {
       try {
-        // Track input_saved event
-        const completedFields = Object.values(formData).filter(value => value.trim()).length;
-        trackEvent(POSTHOG_EVENTS.FUNNEL_STEP, {
-          stepName: 'detailed_input_autosave',
-          completed: true,
-          fields_completed: completedFields,
-          step: currentStep,
-          prompt_id: promptId
-        });
-
-        // Save to Supabase via session logs
-        await insertSessionLog({
-          user_id: undefined, // Anonymous user
-          interaction_type: 'detailed_input_autosave',
-          interaction_details: {
-            prompt_id: promptId,
-            step: currentStep,
-            form_data: formData,
-            fields_completed: completedFields,
-            completion_percentage: Math.round((completedFields / 12) * 100)
-          }
-        });
-
-        // Trigger Make.com workflow for additional processing
-        await logSessionToMakecom({
-          user_id: undefined,
-          interaction_type: 'detailed_input_autosave',
-          interaction_details: {
-            prompt_id: promptId,
-            payload: formData,
-            step: currentStep
-          }
-        });
-        
-        setLastSaved(new Date());
-        setSaveAttempts(0);
-        
-        console.log('Auto-save successful:', { promptId, step: currentStep, formData });
-        
+        const parsed = JSON.parse(savedData);
+        setFormData(parsed);
+        console.log('[Detailed Input] Loaded saved data from localStorage');
       } catch (error) {
-        console.error('Auto-save failed:', error);
-        
-        if (retryCount < 3) {
-          const delay = Math.pow(2, retryCount) * 1000;
-          setTimeout(() => {
-            autoSave(retryCount + 1);
-          }, delay);
-          setSaveAttempts(retryCount + 1);
-        } else {
-          toast({
-            title: "Save failed",
-            description: "Your progress couldn't be saved after multiple attempts. Please try again.",
-            variant: "destructive"
-          });
-
-          // Track failed save
-          trackEvent(POSTHOG_EVENTS.FUNNEL_STEP, {
-            stepName: 'detailed_input_save_failed',
-            completed: false,
-            dropoffReason: 'autosave_failure',
-            retry_count: retryCount
-          });
-        }
-      } finally {
-        setIsAutoSaving(false);
+        console.error('[Detailed Input] Failed to parse saved data:', error);
       }
     }
-  }, [formData, currentStep, promptId, toast]);
 
-  // Auto-save every 10 seconds
-  useEffect(() => {
-    const interval = setInterval(() => autoSave(), 10000);
-    return () => clearInterval(interval);
-  }, [autoSave]);
-
-  // Track page view and funnel step
-  useEffect(() => {
-    trackFunnelStep('detailed_input_page_viewed', {
-      step: currentStep,
-      prompt_id: promptId
+    logInteraction({
+      user_id: 'demo-user-id',
+      interaction_type: 'page_view',
+      interaction_details: {
+        page: 'detailed_input',
+        step: currentStep,
+        timestamp: new Date().toISOString(),
+      }
     });
-  }, [currentStep, promptId]);
+  }, []);
 
-  // Validation functions
-  const validateStep1 = (): boolean => {
-    const stepErrors: Partial<FormData> = {};
+  // Auto-save functionality
+  useEffect(() => {
+    const autoSaveTimer = setTimeout(() => {
+      handleAutoSave();
+    }, 10000); // Auto-save every 10 seconds
+
+    return () => clearTimeout(autoSaveTimer);
+  }, [formData]);
+
+  const handleAutoSave = async () => {
+    setIsAutoSaving(true);
     
-    if (!formData.businessName.trim()) {
-      stepErrors.businessName = "Business name is required";
-    } else if (!validationRegex.businessName.test(formData.businessName)) {
-      stepErrors.businessName = "Business name must be 3-50 characters, letters and numbers only";
+    try {
+      // Save to localStorage
+      localStorage.setItem('canai_detailed_input', JSON.stringify(formData));
+      
+      // Save to API
+      await saveDetailedInput({
+        user_id: 'demo-user-id',
+        payload: formData,
+        step: currentStep,
+        auto_save: true
+      });
+
+      setLastSaved(new Date());
+      console.log('[Detailed Input] Auto-saved successfully');
+
+    } catch (error) {
+      console.error('[Detailed Input] Auto-save failed:', error);
+    } finally {
+      setIsAutoSaving(false);
     }
-    
-    if (!formData.targetAudience.trim() || formData.targetAudience.length < 10) {
-      stepErrors.targetAudience = "Target audience must be at least 10 characters";
-    }
-    
-    if (!formData.primaryGoal.trim()) {
-      stepErrors.primaryGoal = "Primary goal is required";
-    }
-    
-    if (!formData.location.trim()) {
-      stepErrors.location = "Location is required";
-    } else if (!validationRegex.location.test(formData.location)) {
-      stepErrors.location = "Location must be valid (letters, spaces, commas only)";
-    }
-    
-    if (!formData.uniqueValue.trim()) {
-      stepErrors.uniqueValue = "Unique value proposition is required";
-    } else if (!validationRegex.uniqueValue.test(formData.uniqueValue)) {
-      stepErrors.uniqueValue = "Invalid characters in unique value proposition";
-    }
-    
-    setErrors(stepErrors);
-    return Object.keys(stepErrors).length === 0;
   };
 
-  const validateStep2 = (): boolean => {
-    const stepErrors: Partial<FormData> = {};
-    
-    const descWordCount = countWords(formData.businessDescription);
-    if (!formData.businessDescription.trim()) {
-      stepErrors.businessDescription = "Business description is required";
-    } else if (descWordCount < 10 || descWordCount > 50) {
-      stepErrors.businessDescription = "Business description must be 10-50 words";
-    }
-    
-    if (!formData.planPurpose.trim()) {
-      stepErrors.planPurpose = "Plan purpose is required";
-    }
-    
-    setErrors(stepErrors);
-    return Object.keys(stepErrors).length === 0;
+  const handleInputChange = (field: keyof FormData, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
-  const handleNext = () => {
-    if (validateStep1()) {
+  const handleStepForward = () => {
+    if (currentStep === 1) {
+      trackFormStep('step_1_completed', { formData: getStep1Data() });
       setCurrentStep(2);
-      trackFunnelStep('detailed_input_step_2', {
-        step: 2,
-        prompt_id: promptId,
-        step1_completion: 'success'
-      });
-      console.log('Moving to step 2');
-    } else {
-      trackEvent(POSTHOG_EVENTS.FUNNEL_STEP, {
-        stepName: 'detailed_input_step_1_validation_failed',
-        completed: false,
-        dropoffReason: 'validation_errors'
-      });
     }
   };
 
-  const handlePrevious = () => {
-    setCurrentStep(1);
-    setErrors({});
-    trackFunnelStep('detailed_input_step_1_return', {
-      step: 1,
-      prompt_id: promptId
-    });
+  const handleStepBack = () => {
+    if (currentStep === 2) {
+      setCurrentStep(1);
+    }
   };
 
   const handleSubmit = async () => {
-    if (!validateStep2()) {
-      trackEvent(POSTHOG_EVENTS.FUNNEL_STEP, {
-        stepName: 'detailed_input_step_2_validation_failed',
-        completed: false,
-        dropoffReason: 'validation_errors'
-      });
-      return;
-    }
+    setIsSubmitting(true);
     
     try {
-      await autoSave();
+      // Validate form data
+      const validation = await validateDetailedInput(formData);
+      
+      if (!validation.valid) {
+        throw new Error(validation.error || 'Validation failed');
+      }
 
-      // Track successful completion
-      const completedFields = Object.values(formData).filter(value => value.trim()).length;
-      trackFunnelStep('detailed_input_completed', {
+      trackFunnelStep('detailed_input_completed', { formData });
+      
+      // Save final data
+      await saveDetailedInput({
+        user_id: 'demo-user-id',
+        payload: formData,
         step: 2,
-        prompt_id: promptId,
-        fields_completed: completedFields,
-        completion_percentage: Math.round((completedFields / 12) * 100),
-        form_data_summary: {
-          has_business_name: !!formData.businessName,
-          has_description: !!formData.businessDescription,
-          has_target_audience: !!formData.targetAudience,
-          has_location: !!formData.location
-        }
+        auto_save: false,
+        completed: true
       });
+
+      console.log('[Detailed Input] Form submitted successfully');
       
-      console.log('Form submitted successfully:', formData);
-      
-      toast({
-        title: "Perfect! Your details are saved",
-        description: "Moving to the next step...",
-      });
-      
-      setTimeout(() => {
-        window.location.href = `/intent-mirror?prompt_id=${promptId}`;
-      }, 1500);
-      
+      // Clear localStorage and navigate
+      localStorage.removeItem('canai_detailed_input');
+      navigate('/intent-mirror');
+
     } catch (error) {
-      console.error('Submission failed:', error);
-      
-      trackEvent(POSTHOG_EVENTS.FUNNEL_STEP, {
-        stepName: 'detailed_input_submission_failed',
-        completed: false,
-        dropoffReason: 'submission_error',
-        error_message: error instanceof Error ? error.message : 'Unknown error'
-      });
-      
-      toast({
-        title: "Submission failed",
-        description: "Please try again or contact support.",
-        variant: "destructive"
-      });
+      console.error('[Detailed Input] Submission failed:', error);
+      setIsSubmitting(false);
     }
   };
 
-  const progress = currentStep === 1 ? 50 : 100;
-  const resumeLink = `/resume?prompt_id=${promptId}`;
+  const getStep1Data = () => ({
+    businessName: formData.businessName,
+    businessDescription: formData.businessDescription,
+    targetAudience: formData.targetAudience,
+    keyProducts: formData.keyProducts,
+    uniqueValueProp: formData.uniqueValueProp,
+    location: formData.location
+  });
+
+  const getStep2Data = () => ({
+    primaryGoals: formData.primaryGoals,
+    secondaryGoals: formData.secondaryGoals,
+    timeline: formData.timeline,
+    budget: formData.budget,
+    successMetrics: formData.successMetrics,
+    additionalContext: formData.additionalContext
+  });
+
+  const isStep1Valid = formData.businessName && formData.businessDescription && 
+                     formData.targetAudience && formData.keyProducts;
+  const isStep2Valid = formData.primaryGoals && formData.timeline && formData.successMetrics;
 
   return (
-    <StandardBackground className="items-center justify-center">
-      <PageHeader />
-      
-      <div className="w-full max-w-4xl mx-auto px-4 py-8">
-        <div className="text-center mb-8 animate-fade-in">
-          <PageTitle className="mb-4">Tell Us About Your Business</PageTitle>
-          <BodyText className="text-lg opacity-90 mb-8">
-            Help us create something amazing for you. This should take about 2 minutes.
+    <StandardBackground>
+      <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        
+        {/* Header */}
+        <div className="text-center mb-8 sm:mb-12">
+          <PageTitle className="text-white mb-4">Shape Your Vision</PageTitle>
+          <BodyText className="text-xl text-white opacity-90 max-w-3xl mx-auto">
+            Help us understand the details of your business so we can create something truly tailored to your needs.
           </BodyText>
-          
-          {/* Progress Section */}
-          <StandardCard variant="glass" padding="md" className="mb-8">
-            <div className="flex justify-between text-sm text-[#E6F6FF] mb-3">
-              <CaptionText className="font-medium">Step {currentStep} of 2</CaptionText>
-              <CaptionText className="font-medium">{progress}% Complete</CaptionText>
-            </div>
-            <Progress 
-              id="progress-bar"
-              value={progress} 
-              className="h-3 bg-[#19334a] rounded-full overflow-hidden"
-            />
-          </StandardCard>
         </div>
 
-        {/* Auto-save indicator */}
-        <AutoSaveIndicator 
-          isAutoSaving={isAutoSaving}
-          lastSaved={lastSaved}
-        />
+        {/* Progress Indicator */}
+        <div className="mb-8">
+          <div className="flex items-center justify-center space-x-4">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+              currentStep >= 1 ? 'bg-[#36d1fe] text-white' : 'bg-gray-600 text-gray-300'
+            }`}>
+              {currentStep > 1 ? <CheckCircle2 size={18} /> : '1'}
+            </div>
+            <div className={`w-16 h-1 ${currentStep >= 2 ? 'bg-[#36d1fe]' : 'bg-gray-600'}`} />
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+              currentStep >= 2 ? 'bg-[#36d1fe] text-white' : 'bg-gray-600 text-gray-300'
+            }`}>
+              2
+            </div>
+          </div>
+          <div className="flex justify-between mt-2 text-sm text-white opacity-70">
+            <span>Business Details</span>
+            <span>Goals & Context</span>
+          </div>
+        </div>
+
+        {/* Auto-save Indicator */}
+        <div className="mb-6">
+          <AutoSaveIndicator 
+            isAutoSaving={isAutoSaving}
+            lastSaved={lastSaved}
+          />
+        </div>
 
         {/* Form Card */}
-        <StandardCard variant="form" className="mb-8 shadow-2xl">
-          <div className="mb-6">
-            <PageTitle className="text-2xl text-center">
-              {currentStep === 1 ? "Business Basics" : "Business Strategy"}
-            </PageTitle>
-          </div>
-          
-          <div className="space-y-6">
-            {currentStep === 1 ? (
-              <StepOneForm 
-                formData={formData}
-                setFormData={setFormData}
-                errors={errors}
-              />
-            ) : (
-              <StepTwoForm 
-                formData={formData}
-                setFormData={setFormData}
-                errors={errors}
-              />
-            )}
+        <Card className="bg-[rgba(25,60,101,0.7)] border-2 border-[#36d1fe]/40 backdrop-blur-md">
+          <CardContent className="p-8">
             
-            {/* Navigation */}
-            <div className="flex justify-between items-center pt-8 border-t-2 border-[#36d1fe]/20">
-              {currentStep > 1 ? (
-                <Button
-                  variant="outline"
-                  onClick={handlePrevious}
-                  className="bg-transparent border-[#36d1fe] text-[#E6F6FF] hover:bg-[#36d1fe]/20 hover:border-[#36d1fe] transition-all duration-200"
-                >
-                  <ChevronLeft className="w-4 h-4 mr-2" />
-                  Previous
-                </Button>
-              ) : (
-                <div />
-              )}
-              
-              {currentStep === 1 ? (
-                <Button
-                  variant="canai"
-                  onClick={handleNext}
-                  className="px-8 py-3"
-                >
-                  Next Step
-                  <ChevronRight className="w-4 h-4 ml-2" />
-                </Button>
-              ) : (
-                <Button
-                  variant="canai"
-                  onClick={handleSubmit}
-                  className="px-8 py-3"
-                >
-                  Continue to Review
-                  <CheckCircle className="w-4 h-4 ml-2" />
-                </Button>
-              )}
-            </div>
-          </div>
-        </StandardCard>
+            {currentStep === 1 && (
+              <>
+                <SectionTitle className="text-white text-center mb-8">
+                  Tell Us About Your Business
+                </SectionTitle>
+                <StepOneForm
+                  data={getStep1Data()}
+                  onChange={handleInputChange}
+                />
+              </>
+            )}
 
-        {/* Resume Link */}
-        <div className="text-center">
-          <CaptionText>
-            Bookmark this link to resume later:{" "}
-            <a 
-              href={resumeLink}
-              className="text-[#36d1fe] hover:text-[#00f0ff] underline transition-colors duration-200"
-            >
-              {window.location.origin}{resumeLink}
-            </a>
-          </CaptionText>
-        </div>
+            {currentStep === 2 && (
+              <>
+                <SectionTitle className="text-white text-center mb-8">
+                  Define Your Goals
+                </SectionTitle>
+                <StepTwoForm
+                  data={getStep2Data()}
+                  onChange={handleInputChange}
+                />
+              </>
+            )}
+
+            {/* Navigation Buttons */}
+            <div className="flex justify-between mt-8">
+              <div>
+                {currentStep === 2 && (
+                  <StandardButton
+                    onClick={handleStepBack}
+                    variant="ghost"
+                    icon={<ArrowLeft size={18} />}
+                    iconPosition="left"
+                    className="text-white"
+                  >
+                    Back
+                  </StandardButton>
+                )}
+              </div>
+
+              <div>
+                {currentStep === 1 && (
+                  <StandardButton
+                    onClick={handleStepForward}
+                    disabled={!isStep1Valid}
+                    variant="primary"
+                    size="lg"
+                    icon={<ArrowRight size={20} />}
+                    iconPosition="right"
+                  >
+                    Continue
+                  </StandardButton>
+                )}
+
+                {currentStep === 2 && (
+                  <StandardButton
+                    onClick={handleSubmit}
+                    disabled={!isStep2Valid}
+                    loading={isSubmitting}
+                    loadingText="Saving your details..."
+                    variant="primary"
+                    size="lg"
+                    icon={<CheckCircle2 size={20} />}
+                    iconPosition="right"
+                  >
+                    Complete Setup
+                  </StandardButton>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </StandardBackground>
   );
