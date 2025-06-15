@@ -1,12 +1,14 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { Download, RefreshCw, Edit3, FileText, Clock, CheckCircle, AlertCircle, Copy, ChevronDown, ChevronUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import StandardBackground from '@/components/StandardBackground';
+import StandardCard from '@/components/StandardCard';
+import PageHeader from '@/components/PageHeader';
+import { PageTitle, SectionTitle, CardTitle, BodyText, CaptionText } from '@/components/StandardTypography';
 
 interface DeliverableData {
   id: string;
@@ -390,21 +392,21 @@ const DeliverableGeneration: React.FC = () => {
         <div key={sectionId} className="border-b border-[#00CFFF]/20 pb-4 mb-4">
           <button
             onClick={() => toggleSection(sectionId)}
-            className="flex items-center justify-between w-full text-left hover:text-[#00CFFF] transition-colors"
+            className="flex items-center justify-between w-full text-left hover:text-[#00CFFF] transition-colors duration-200"
           >
-            <h3 className="text-lg font-semibold text-[#E6F6FF] mb-2">## {title}</h3>
+            <CardTitle className="mb-2">## {title}</CardTitle>
             {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </button>
           {isExpanded && (
             <div className="relative group">
-              <pre className="whitespace-pre-wrap text-[#E6F6FF]/90 leading-relaxed">
+              <pre className="whitespace-pre-wrap text-[#E6F6FF]/90 leading-relaxed font-manrope">
                 {sectionContent}
               </pre>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => copyToClipboard(`## ${title}\n${sectionContent}`, title)}
-                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-[#00CFFF]/10 hover:bg-[#00CFFF]/20"
               >
                 <Copy className="w-4 h-4" />
               </Button>
@@ -613,118 +615,132 @@ These improvements will position ${businessName} to effectively compete against 
   // Timeout Error Component
   if (timeoutError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] via-[#1a237e] to-[#00B2E3] p-4">
-        <div className="max-w-4xl mx-auto pt-8">
-          <div className="error-fallback bg-red-500/20 border border-red-500/40 rounded-xl p-8 text-center">
-            <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-4">Generation Timed Out</h2>
-            <p className="text-red-200 mb-6">
+      <StandardBackground className="items-center justify-center">
+        <PageHeader />
+        <div className="flex-1 flex items-center justify-center px-4">
+          <StandardCard variant="content" className="max-w-2xl w-full text-center">
+            <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-6 animate-pulse" />
+            <SectionTitle className="text-red-300 mb-4">Generation Timed Out</SectionTitle>
+            <BodyText className="text-red-200 mb-6">
               The deliverable generation process took longer than expected. 
               {retryAttempt > 1 && ` Attempted ${retryAttempt} times.`}
-            </p>
-            <Button onClick={() => window.location.reload()} className="bg-[#00CFFF] hover:bg-[#00F0FF] text-black">
+            </BodyText>
+            <Button 
+              onClick={() => window.location.reload()} 
+              variant="canai"
+              className="mx-auto"
+            >
               Try Again
             </Button>
-          </div>
+          </StandardCard>
         </div>
-      </div>
+      </StandardBackground>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] via-[#1a237e] to-[#00B2E3] p-4">
-      <div className="max-w-4xl mx-auto pt-8">
+    <StandardBackground>
+      <PageHeader />
+      
+      <div className="flex-1 px-4 py-8 max-w-6xl mx-auto w-full">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-[#E6F6FF] mb-2">
+        <div className="text-center mb-8 animate-fade-in">
+          <PageTitle className="mb-4">
             {productType.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase())} Generation
-          </h1>
-          <p className="text-[#E6F6FF]/80">
+          </PageTitle>
+          <BodyText className="text-xl">
             Creating personalized deliverable for {intentMirrorInputs.businessName}
-          </p>
+          </BodyText>
         </div>
 
         {/* Generation Progress */}
         {isGenerating && (
-          <Card className="bg-white/10 border-[#00CFFF]/40 mb-8">
-            <CardHeader>
-              <CardTitle className="text-[#E6F6FF] flex items-center gap-3">
-                <Clock className="w-6 h-6 text-[#00CFFF] animate-spin" />
-                {currentStep.message}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Progress value={currentStep.progress} className="mb-4" />
-              <div className="flex justify-between text-sm text-[#E6F6FF]/70 mb-2">
-                <span>Step {generationSteps.findIndex(s => s.step === currentStep.step) + 1} of {generationSteps.length}</span>
-                <span>{currentStep.progress}% Complete</span>
+          <div className="mb-8 animate-fade-in">
+            <StandardCard variant="form" className="max-w-4xl mx-auto">
+              <div className="flex items-center gap-4 mb-6">
+                <Clock className="w-8 h-8 text-[#00CFFF] animate-spin" />
+                <div>
+                  <CardTitle className="text-[#E6F6FF]">{currentStep.message}</CardTitle>
+                  <CaptionText className="mt-1">
+                    Step {generationSteps.findIndex(s => s.step === currentStep.step) + 1} of {generationSteps.length}
+                  </CaptionText>
+                </div>
               </div>
-              <p className="text-[#E6F6FF]/70 text-sm">
+              
+              <Progress value={currentStep.progress} className="mb-4 h-3" />
+              
+              <div className="flex justify-between mb-4">
+                <CaptionText>{currentStep.progress}% Complete</CaptionText>
+                {retryAttempt > 1 && (
+                  <CaptionText className="text-amber-400">
+                    Retry attempt {retryAttempt}
+                  </CaptionText>
+                )}
+              </div>
+              
+              <CaptionText className="text-center">
                 Generating with GPT-4o • Validating with Hume AI • Creating PDF via Make.com
-                {retryAttempt > 1 && ` • Retry attempt ${retryAttempt}`}
-              </p>
-            </CardContent>
-          </Card>
+              </CaptionText>
+            </StandardCard>
+          </div>
         )}
 
         {/* Generated Deliverable */}
         {deliverable && !isGenerating && (
-          <div className="space-y-6">
+          <div className="space-y-8 animate-fade-in">
             {/* Emotional Resonance Score */}
             {deliverable.emotionalResonance && (
-              <Card className="bg-gradient-to-r from-green-500/20 via-blue-500/20 to-purple-500/20 border-green-400/40">
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-green-300 mb-1">Emotional Resonance Analysis</h3>
-                      <p className="text-green-200/80 text-sm">Validated by Hume AI for optimal engagement</p>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-3xl font-bold text-green-400">
-                        {(deliverable.emotionalResonance.canaiScore * 100).toFixed(0)}%
-                      </div>
-                      <div className="text-sm text-green-300">CanAI Score</div>
-                    </div>
+              <StandardCard variant="content" className="bg-gradient-to-r from-green-500/20 via-blue-500/20 to-purple-500/20 border-green-400/40 max-w-4xl mx-auto">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6">
+                  <div>
+                    <CardTitle className="text-green-300 mb-2">Emotional Resonance Analysis</CardTitle>
+                    <BodyText className="text-green-200/80">Validated by Hume AI for optimal engagement</BodyText>
                   </div>
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                    <div className="bg-black/20 rounded-lg p-3">
-                      <div className="text-lg font-bold text-green-400">
-                        {deliverable.emotionalResonance.arousal.toFixed(2)}
-                      </div>
-                      <div className="text-xs text-green-200">Arousal</div>
+                  <div className="text-center lg:text-right mt-4 lg:mt-0">
+                    <div className="text-4xl font-bold text-green-400 font-manrope">
+                      {(deliverable.emotionalResonance.canaiScore * 100).toFixed(0)}%
                     </div>
-                    <div className="bg-black/20 rounded-lg p-3">
-                      <div className="text-lg font-bold text-blue-400">
-                        {deliverable.emotionalResonance.valence.toFixed(2)}
-                      </div>
-                      <div className="text-xs text-blue-200">Valence</div>
-                    </div>
-                    <div className="bg-black/20 rounded-lg p-3">
-                      <div className="text-lg font-bold text-purple-400">
-                        {(deliverable.emotionalResonance.delta * 100).toFixed(0)}%
-                      </div>
-                      <div className="text-xs text-purple-200">Improvement</div>
-                    </div>
-                    <div className="bg-black/20 rounded-lg p-3">
-                      <div className="text-lg font-bold text-gray-400">
-                        {(deliverable.emotionalResonance.genericScore * 100).toFixed(0)}%
-                      </div>
-                      <div className="text-xs text-gray-200">Generic</div>
-                    </div>
+                    <CaptionText className="text-green-300">CanAI Score</CaptionText>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+                
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-black/20 rounded-xl p-4 text-center">
+                    <div className="text-xl font-bold text-green-400 font-manrope">
+                      {deliverable.emotionalResonance.arousal.toFixed(2)}
+                    </div>
+                    <CaptionText className="text-green-200">Arousal</CaptionText>
+                  </div>
+                  <div className="bg-black/20 rounded-xl p-4 text-center">
+                    <div className="text-xl font-bold text-blue-400 font-manrope">
+                      {deliverable.emotionalResonance.valence.toFixed(2)}
+                    </div>
+                    <CaptionText className="text-blue-200">Valence</CaptionText>
+                  </div>
+                  <div className="bg-black/20 rounded-xl p-4 text-center">
+                    <div className="text-xl font-bold text-purple-400 font-manrope">
+                      {(deliverable.emotionalResonance.delta * 100).toFixed(0)}%
+                    </div>
+                    <CaptionText className="text-purple-200">Improvement</CaptionText>
+                  </div>
+                  <div className="bg-black/20 rounded-xl p-4 text-center">
+                    <div className="text-xl font-bold text-gray-400 font-manrope">
+                      {(deliverable.emotionalResonance.genericScore * 100).toFixed(0)}%
+                    </div>
+                    <CaptionText className="text-gray-200">Generic</CaptionText>
+                  </div>
+                </div>
+              </StandardCard>
             )}
 
             {/* Deliverable Content */}
-            <Card className="bg-white/10 border-[#00CFFF]/40">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-[#E6F6FF] flex items-center gap-3">
-                  <CheckCircle className="w-6 h-6 text-green-400" />
-                  Your {productType.replace('_', ' ')} Deliverable
-                </CardTitle>
-                <div className="flex gap-2">
+            <StandardCard variant="content" className="max-w-5xl mx-auto">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6">
+                <div className="flex items-center gap-4">
+                  <CheckCircle className="w-8 h-8 text-green-400" />
+                  <CardTitle>Your {productType.replace('_', ' ')} Deliverable</CardTitle>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3 mt-4 lg:mt-0">
                   <Button
                     id="regenerate-btn"
                     variant="outline"
@@ -733,131 +749,124 @@ These improvements will position ${businessName} to effectively compete against 
                     disabled={isRegenerating || regenerationCount >= 2}
                     className="border-[#00CFFF] text-[#E6F6FF] hover:bg-[#00CFFF]/20"
                   >
-                    <RefreshCw className={`w-4 h-4 mr-1 ${isRegenerating ? 'animate-spin' : ''}`} />
+                    <RefreshCw className={`w-4 h-4 mr-2 ${isRegenerating ? 'animate-spin' : ''}`} />
                     Regenerate ({regenerationCount}/2)
                   </Button>
                   <Button
-                    variant="default"
+                    variant="canai"
                     size="sm"
                     onClick={handleDownloadPDF}
-                    className="bg-[#00CFFF] hover:bg-[#00F0FF] text-black"
                   >
-                    <Download className="w-4 h-4 mr-1" />
+                    <Download className="w-4 h-4 mr-2" />
                     Download PDF
                   </Button>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="bg-white/10 rounded-lg p-6">
-                  <div className="prose prose-invert max-w-none">
-                    {formatContent(deliverable.content)}
-                  </div>
+              </div>
+              
+              <div className="bg-black/20 rounded-xl p-6 mb-6">
+                <div className="prose prose-invert max-w-none">
+                  {formatContent(deliverable.content)}
                 </div>
+              </div>
 
-                {/* Branding Note */}
-                <div id="branding-note" className="mt-6 p-4 bg-amber-500/20 border border-amber-500/40 rounded-lg">
-                  <p className="text-amber-200 text-sm">
-                    <strong>Note:</strong> CanAI excludes branding (e.g., logos). Contact us for partners.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+              {/* Branding Note */}
+              <div id="branding-note" className="p-4 bg-amber-500/20 border border-amber-500/40 rounded-xl">
+                <BodyText className="text-amber-200">
+                  <strong>Note:</strong> CanAI excludes branding (e.g., logos). Contact us for partners.
+                </BodyText>
+              </div>
+            </StandardCard>
 
             {/* Revision Request */}
-            <Card className="bg-white/10 border-[#00CFFF]/40">
-              <CardHeader>
-                <CardTitle className="text-[#E6F6FF] flex items-center gap-3">
-                  <Edit3 className="w-6 h-6 text-[#00CFFF]" />
-                  Request Revision
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Textarea
-                  id="revision-input"
-                  placeholder="Describe specific changes you'd like (e.g., 'Make tone bolder', 'Add more financial details', 'Focus more on sustainability')..."
-                  value={revisionText}
-                  onChange={(e) => setRevisionText(e.target.value)}
-                  className="mb-4 bg-white/10 border-[#00CFFF]/30 text-white placeholder:text-white/50"
-                  rows={3}
-                />
-                <Button
-                  id="revision-btn"
-                  onClick={handleRevision}
-                  disabled={!revisionText.trim() || isRevising}
-                  className="w-full bg-[#00CFFF] hover:bg-[#00F0FF] text-black"
-                >
-                  {isRevising ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                      Applying Revision...
-                    </>
-                  ) : (
-                    <>
-                      <Edit3 className="w-4 h-4 mr-2" />
-                      Apply Revision
-                    </>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
+            <StandardCard variant="form" className="max-w-4xl mx-auto">
+              <div className="flex items-center gap-4 mb-6">
+                <Edit3 className="w-8 h-8 text-[#00CFFF]" />
+                <CardTitle>Request Revision</CardTitle>
+              </div>
+              
+              <Textarea
+                id="revision-input"
+                placeholder="Describe specific changes you'd like (e.g., 'Make tone bolder', 'Add more financial details', 'Focus more on sustainability')..."
+                value={revisionText}
+                onChange={(e) => setRevisionText(e.target.value)}
+                className="mb-4 bg-white/10 border-[#00CFFF]/30 text-white placeholder:text-white/50 min-h-[100px]"
+                rows={4}
+              />
+              
+              <Button
+                id="revision-btn"
+                onClick={handleRevision}
+                disabled={!revisionText.trim() || isRevising}
+                variant="canai"
+                className="w-full"
+              >
+                {isRevising ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Applying Revision...
+                  </>
+                ) : (
+                  <>
+                    <Edit3 className="w-4 h-4 mr-2" />
+                    Apply Revision
+                  </>
+                )}
+              </Button>
+            </StandardCard>
 
             {/* Deliverable Metadata */}
-            <Card className="bg-white/10 border-[#00CFFF]/40">
-              <CardContent className="pt-6">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                  <div>
-                    <div className="text-[#00CFFF] font-bold text-lg">
-                      {deliverable.revisionCount}
-                    </div>
-                    <div className="text-[#E6F6FF]/70 text-sm">Revisions</div>
+            <StandardCard variant="content" className="max-w-4xl mx-auto">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+                <div>
+                  <div className="text-3xl font-bold text-[#00CFFF] font-manrope mb-2">
+                    {deliverable.revisionCount}
                   </div>
-                  <div>
-                    <div className="text-[#00CFFF] font-bold text-lg">
-                      {regenerationCount}/2
-                    </div>
-                    <div className="text-[#E6F6FF]/70 text-sm">Regenerations</div>
-                  </div>
-                  <div>
-                    <div className="text-[#00CFFF] font-bold text-lg">
-                      {deliverable.content.split(' ').length}
-                    </div>
-                    <div className="text-[#E6F6FF]/70 text-sm">Words</div>
-                  </div>
-                  <div>
-                    <div className="text-[#00CFFF] font-bold text-lg">
-                      {new Date(deliverable.generatedAt).toLocaleTimeString()}
-                    </div>
-                    <div className="text-[#E6F6FF]/70 text-sm">Generated</div>
-                  </div>
+                  <CaptionText>Revisions</CaptionText>
                 </div>
-              </CardContent>
-            </Card>
+                <div>
+                  <div className="text-3xl font-bold text-[#00CFFF] font-manrope mb-2">
+                    {regenerationCount}/2
+                  </div>
+                  <CaptionText>Regenerations</CaptionText>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-[#00CFFF] font-manrope mb-2">
+                    {deliverable.content.split(' ').length}
+                  </div>
+                  <CaptionText>Words</CaptionText>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-[#00CFFF] font-manrope mb-2">
+                    {new Date(deliverable.generatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </div>
+                  <CaptionText>Generated</CaptionText>
+                </div>
+              </div>
+            </StandardCard>
           </div>
         )}
 
         {/* Error Display */}
         {error && !timeoutError && (
-          <Card className="bg-red-500/20 border-red-500/40">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3 text-red-200">
-                <AlertCircle className="w-6 h-6" />
-                <div>
-                  <p className="font-medium">Generation Error</p>
-                  <p className="text-sm opacity-75">{error}</p>
-                </div>
+          <StandardCard variant="content" className="bg-red-500/20 border-red-500/40 max-w-3xl mx-auto">
+            <div className="flex items-center gap-4 text-red-200 mb-6">
+              <AlertCircle className="w-8 h-8" />
+              <div>
+                <CardTitle className="text-red-300">Generation Error</CardTitle>
+                <BodyText className="opacity-75">{error}</BodyText>
               </div>
-              <Button
-                variant="outline"
-                onClick={generateDeliverable}
-                className="mt-4 border-red-400 text-red-200 hover:bg-red-500/20"
-              >
-                Retry Generation
-              </Button>
-            </CardContent>
-          </Card>
+            </div>
+            <Button
+              variant="outline"
+              onClick={generateDeliverable}
+              className="border-red-400 text-red-200 hover:bg-red-500/20"
+            >
+              Retry Generation
+            </Button>
+          </StandardCard>
         )}
       </div>
-    </div>
+    </StandardBackground>
   );
 };
 
