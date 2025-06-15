@@ -15,9 +15,9 @@ const AutoSaveIndicator: React.FC<AutoSaveIndicatorProps> = ({ isAutoSaving, las
   if (isAutoSaving) {
     return (
       <div className="flex items-center justify-center mb-6">
-        <div className="flex items-center gap-3 bg-canai-deep/60 border border-canai-primary/40 rounded-xl px-6 py-3 backdrop-blur-sm">
-          <Loader2 className="w-5 h-5 text-canai-primary animate-spin" />
-          <span className="text-canai-light text-sm font-medium">Saving your progress...</span>
+        <div className="flex items-center gap-3 bg-[rgba(25,60,101,0.6)] border border-[#36d1fe]/40 rounded-xl px-6 py-3 backdrop-blur-sm">
+          <Loader2 className="w-5 h-5 text-[#36d1fe] animate-spin" />
+          <span className="text-[#E6F6FF] text-sm font-medium">Saving your progress...</span>
         </div>
       </div>
     );
@@ -41,9 +41,9 @@ const AutoSaveIndicator: React.FC<AutoSaveIndicatorProps> = ({ isAutoSaving, las
 
   return (
     <div className="flex items-center justify-center mb-6">
-      <div className="flex items-center gap-3 bg-canai-deep/40 border border-canai-primary/30 rounded-xl px-6 py-3 backdrop-blur-sm">
-        <Save className="w-5 h-5 text-canai-light-blue" />
-        <span className="text-canai-light-blue text-sm font-medium">Auto-save every 10 seconds</span>
+      <div className="flex items-center gap-3 bg-[rgba(25,60,101,0.4)] border border-[#36d1fe]/30 rounded-xl px-6 py-3 backdrop-blur-sm">
+        <Save className="w-5 h-5 text-[#E6F6FF] opacity-70" />
+        <span className="text-[#E6F6FF] text-sm font-medium opacity-90">Auto-save every 10 seconds</span>
       </div>
     </div>
   );

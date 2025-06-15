@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, ArrowLeft, Shield, Clock, Users } from "lucide-react";
@@ -235,15 +236,17 @@ const IntentMirror = () => {
           showSupportLink={showSupportLink}
         />
 
-        <div className="text-center animate-fade-in">
-          <Button
-            variant="ghost"
-            onClick={() => window.location.href = `/detailed-input?prompt_id=${promptId}`}
-            className="text-[#36d1fe] hover:text-[#00f0ff] hover:bg-[#36d1fe]/10 transition-colors duration-200 text-lg"
-          >
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Back to Edit Details
-          </Button>
+        <div className="text-center mt-8 animate-fade-in">
+          <div className="bg-[rgba(25,60,101,0.4)] border-2 border-[rgba(54,209,254,0.3)] backdrop-blur-sm rounded-2xl p-6 inline-block">
+            <Button
+              variant="ghost"
+              onClick={() => window.location.href = `/detailed-input?prompt_id=${promptId}`}
+              className="text-[#36d1fe] hover:text-[#00f0ff] hover:bg-[#36d1fe]/10 transition-colors duration-200 text-lg px-6 py-3"
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Back to Edit Details
+            </Button>
+          </div>
         </div>
       </div>
 

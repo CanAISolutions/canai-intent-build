@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -269,11 +270,13 @@ function DiscoveryFunnel() {
         </div>
 
         <StandardCard variant="form" className="animate-scale-in">
-          {/* Progress bar */}
+          {/* Enhanced Progress bar */}
           <div className="flex items-center mb-8 gap-4">
-            <CaptionText className="font-bold">
-              Step <span className="text-2xl font-black text-[#36d1fe]">{step}</span>/2
-            </CaptionText>
+            <div className="flex items-baseline gap-1">
+              <CaptionText className="font-bold text-[#36d1fe]">Step</CaptionText>
+              <span className="text-3xl font-black text-[#36d1fe]">{step}</span>
+              <span className="text-xl font-medium text-[#E6F6FF]">/2</span>
+            </div>
             <div className="flex-1 h-3 bg-[#19334a] rounded-full overflow-hidden">
               <div
                 style={{
@@ -361,7 +364,7 @@ function DiscoveryFunnel() {
                   variant="outline"
                   ref={quizButtonRef}
                   onClick={handleQuizOpen}
-                  className="border-[#36d1fe] text-[#36d1fe] hover:bg-[#36d1fe]/10 px-6 py-3 text-lg"
+                  className="border-[#36d1fe] text-[#36d1fe] hover:bg-[#36d1fe]/20 hover:border-[#00f0ff] hover:text-[#00f0ff] px-6 py-3 text-lg transition-all duration-200"
                 >
                   Help Me Decide
                 </Button>
@@ -455,7 +458,7 @@ function DiscoveryFunnel() {
                   type="button"
                   variant="outline"
                   onClick={handleBack}
-                  className="border-[#36d1fe] text-[#36d1fe] hover:bg-[#36d1fe]/10 px-6 py-3 text-lg"
+                  className="border-[#36d1fe] text-[#36d1fe] hover:bg-[#36d1fe]/20 hover:border-[#00f0ff] hover:text-[#00f0ff] px-6 py-3 text-lg transition-all duration-200"
                 >
                   Back
                 </Button>
@@ -499,26 +502,26 @@ function DiscoveryFunnel() {
         </StandardCard>
       </div>
 
-      {/* Quiz Modal */}
+      {/* Enhanced Quiz Modal */}
       {quizOpen && (
         <div
           className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center animate-fade-in"
           role="dialog"
           aria-modal="true"
         >
-          <StandardCard variant="glass" className="max-w-sm w-full mx-4 text-center">
+          <StandardCard variant="glass" className="max-w-md w-full mx-4 text-center">
             <PageTitle className="text-2xl mb-6">Help Me Decide</PageTitle>
             <div className="mb-6">
-              <BodyText className="mb-4 font-semibold">Biggest challenge?</BodyText>
+              <BodyText className="mb-4 font-semibold">What's your biggest challenge?</BodyText>
               {quizOptions.map((q) => (
                 <button
                   key={q.value}
                   type="button"
                   className={cn(
-                    "w-full border px-4 py-3 rounded-xl my-2 text-left font-medium transition-all",
+                    "w-full border-2 px-4 py-3 rounded-xl my-2 text-left font-medium transition-all duration-200",
                     quizSelected === q.value
-                      ? "border-[#36d1fe] bg-[#36d1fe]/20 text-[#36d1fe]"
-                      : "border-[#36d1fe]/30 text-[#E6F6FF] hover:bg-[#36d1fe]/10"
+                      ? "border-[#36d1fe] bg-[#36d1fe]/20 text-[#36d1fe] shadow-[0_0_20px_rgba(54,209,254,0.3)]"
+                      : "border-[#36d1fe]/30 text-[#E6F6FF] hover:bg-[#36d1fe]/10 hover:border-[#36d1fe]/60"
                   )}
                   onClick={() => handleQuizSelect(q.value)}
                 >
