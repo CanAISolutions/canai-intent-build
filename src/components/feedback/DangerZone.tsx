@@ -14,17 +14,58 @@ export const DangerZone: React.FC<DangerZoneProps> = ({
   handlePurge,
 }) => (
   <>
-    <div className="flex justify-end">
-      <Button variant="ghost" size="sm" onClick={() => setShowPurge(!showPurge)}>
-        {showPurge ? "Hide Purge" : "Purge my data"}
-      </Button>
-    </div>
     {showPurge && (
-      <div className="p-3 rounded bg-[#ffcbcb22] border border-red-200 text-red-700 flex items-center gap-2 mt-1 mb-1">
-        <span className="font-medium">Danger:</span>
-        <Button variant="destructive" size="sm" onClick={handlePurge}>
-          Confirm Data Purge
-        </Button>
+      <div className="
+        mt-4 
+        p-4 
+        rounded-xl 
+        bg-gradient-to-r from-[rgba(255,69,69,0.1)] to-[rgba(255,99,99,0.1)]
+        border-2 border-[rgba(255,69,69,0.3)]
+        backdrop-blur-sm
+        animate-fade-in
+      ">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="flex-1">
+            <p className="text-[#ff8fa3] font-manrope font-medium text-sm mb-1">
+              <span className="font-bold">Warning:</span> This will permanently delete all your data.
+            </p>
+            <p className="text-[#ffb3c1] font-manrope text-xs">
+              This action cannot be undone and will remove all feedback and session logs.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowPurge(false)}
+              className="
+                text-[#cce7fa] 
+                hover:text-white 
+                hover:bg-[rgba(255,255,255,0.1)]
+                border border-[rgba(255,255,255,0.2)]
+                font-manrope
+              "
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handlePurge}
+              className="
+                bg-gradient-to-r from-[#ff4545] to-[#ff6b6b]
+                hover:from-[#ff3030] hover:to-[#ff4545]
+                border-0
+                font-manrope font-bold
+                shadow-[0_0_15px_rgba(255,69,69,0.4)]
+                hover:shadow-[0_0_25px_rgba(255,69,69,0.6)]
+                transition-all duration-300
+              "
+            >
+              Confirm Purge
+            </Button>
+          </div>
+        </div>
       </div>
     )}
   </>

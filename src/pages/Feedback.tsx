@@ -188,27 +188,27 @@ const FeedbackPage: React.FC = () => {
                   Submit Feedback
                 </Button>
               </div>
-            </form>
 
-            {/* Danger Zone */}
-            <div className="mt-6 flex justify-end">
-              <button
-                className="
-                  text-[#ff8fa3] 
-                  hover:text-[#ff6b85] 
-                  font-medium 
-                  text-sm 
-                  underline 
-                  transition-colors 
-                  duration-200
-                  font-manrope
-                "
-                type="button"
-                onClick={() => setShowPurge(v => !v)}
-              >
-                Purge my data
-              </button>
-            </div>
+              {/* Danger Zone - Moved inside form for better organization */}
+              <div className="flex justify-end">
+                <button
+                  className="
+                    text-[#ff8fa3] 
+                    hover:text-[#ff6b85] 
+                    font-medium 
+                    text-sm 
+                    underline 
+                    transition-colors 
+                    duration-200
+                    font-manrope
+                  "
+                  type="button"
+                  onClick={() => setShowPurge(v => !v)}
+                >
+                  Purge my data
+                </button>
+              </div>
+            </form>
           </div>
         </div>
 
