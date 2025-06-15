@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +13,7 @@ import IntentMirror from "./pages/IntentMirror";
 import SparkLayer from "./pages/SparkLayer";
 import PurchaseFlow from "./pages/PurchaseFlow";
 import DeliverableGeneration from "./pages/DeliverableGeneration";
+import SparkSplit from "./pages/SparkSplit";
 
 const queryClient = new QueryClient();
 
@@ -36,7 +36,7 @@ const App = () => (
           <Route path="/deliverable" element={<DeliverableGeneration />} />
           <Route path="/checkout" element={<div>Checkout - Coming Soon</div>} />
           <Route path="/generating" element={<div>Generating - Coming Soon</div>} />
-          <Route path="/spark-split" element={<div>SparkSplit - Coming Soon</div>} />
+          <Route path="/spark-split" element={<SparkSplit />} />
           <Route path="/feedback" element={<div>Feedback - Coming Soon</div>} />
           <Route path="/business-builder" element={<div>Business Builder - Coming Soon</div>} />
           <Route path="/social-email" element={<div>Social Email - Coming Soon</div>} />
