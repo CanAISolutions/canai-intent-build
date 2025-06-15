@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -207,6 +208,31 @@
     color: #E6F6FF !important;
     text-shadow: 0 2px 14px #36d1fe55, 0 0 1px #000;
   }
+
+  /* Enhanced visual hierarchy and micro-interactions */
+  .enhanced-text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 20px rgba(54, 209, 254, 0.2);
+  }
+  
+  .enhanced-text-shadow-subtle {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 0 15px rgba(54, 209, 254, 0.1);
+  }
+  
+  .enhanced-cta-glow {
+    box-shadow: 
+      0 0 20px rgba(54, 209, 254, 0.4),
+      0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .enhanced-cta-glow:hover {
+    box-shadow: 
+      0 0 30px rgba(54, 209, 254, 0.6),
+      0 8px 25px rgba(0, 0, 0, 0.3);
+  }
+  
+  .enhanced-caption-glow {
+    text-shadow: 0 0 15px rgba(54, 209, 254, 0.3);
+  }
 }
 
 @keyframes cubeRotate {
@@ -217,12 +243,60 @@
   100% { transform: rotateX(0deg) rotateY(0deg); }
 }
 
+/* Enhanced Animations for 2025 UI Trends */
+@keyframes logoBreath {
+  0%, 100% { 
+    transform: scale(1);
+  }
+  50% { 
+    transform: scale(1.02);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Utility classes for CanAI */
 .text-canai-primary { color: var(--canai-primary-blue); }
 .text-canai-cyan { color: var(--canai-glow-cyan); }
 .text-canai-light { color: var(--canai-light-text); }
 .bg-canai-deep { background-color: var(--canai-deep-background); }
 .border-canai-primary { border-color: var(--canai-primary-blue); }
+
+/* Enhanced Animations */
+@layer utilities {
+  .animate-logo-breathe {
+    animation: logoBreath 4s ease-in-out infinite;
+  }
+  
+  .animate-fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+  }
+  
+  .animate-delay-200 {
+    animation-delay: 0.2s;
+  }
+  
+  .animate-delay-300 {
+    animation-delay: 0.3s;
+  }
+  
+  .animate-delay-400 {
+    animation-delay: 0.4s;
+  }
+  
+  .animate-delay-600 {
+    animation-delay: 0.6s;
+  }
+}
 
 /* ----- CanAI Custom Animations and Glows for Hero ----- */
 
