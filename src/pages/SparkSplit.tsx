@@ -3,13 +3,16 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import StandardBackground from '@/components/StandardBackground';
 import { PageTitle, SectionTitle, BodyText } from '@/components/StandardTypography';
-import { StandardButton } from '@/components/ui/standard-button';
+import { EnhancedButton } from '@/components/ui/enhanced-button';
 import RefinedComparisonContainer from '@/components/SparkSplit/RefinedComparisonContainer';
 import TrustDeltaDisplay from '@/components/SparkSplit/TrustDeltaDisplay';
 import RefinedFeedbackForm from '@/components/SparkSplit/RefinedFeedbackForm';
 import ProjectContextSummary from '@/components/SparkSplit/ProjectContextSummary';
-import { Download, ArrowRight, Sparkles } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import LoadingState from '@/components/enhanced/LoadingState';
+import { MobileOptimizedCard, MobileOptimizedCardContent } from '@/components/ui/mobile-optimized-card';
+import { Download, ArrowRight } from 'lucide-react';
+import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
+import { useAccessibility } from '@/hooks/useAccessibility';
 
 // API and analytics imports
 import { generateSparkSplit, submitFeedback } from '@/utils/sparkSplitApi';
@@ -23,10 +26,13 @@ const SparkSplit = () => {
   const [genericOutput, setGenericOutput] = useState('');
   const [trustDelta, setTrustDelta] = useState(0);
   const [emotionalResonance, setEmotionalResonance] = useState({ canaiScore: 0, genericScore: 0, delta: 0 });
-  const [loadTime, setLoadTime] = useState<number>(0);
+  
+  // Enhanced hooks
+  const { trackInteraction } = usePerformanceMonitor('spark_split', 500);
+  const { setPageTitle, announce } = useAccessibility();
 
   useEffect(() => {
-    const startTime = performance.now();
+    setPageTitle('Spark Split Comparison');
     
     const initializeSparkSplit = async () => {
       try {
@@ -51,12 +57,7 @@ const SparkSplit = () => {
         setTrustDelta(response.trustDelta);
         setEmotionalResonance(response.emotionalResonance);
 
-        // Calculate load time
-        const endTime = performance.now();
-        const loadDuration = endTime - startTime;
-        setLoadTime(loadDuration);
-        
-        console.log(`[Performance] SparkSplit loaded in ${loadDuration.toFixed(2)}ms`);
+        announce('Comparison results loaded successfully', 'polite');
 
         // Log interaction
         await logInteraction({
@@ -64,8 +65,7 @@ const SparkSplit = () => {
           interaction_type: 'spark_split_view',
           interaction_details: {
             trust_delta: response.trustDelta,
-            emotional_resonance: response.emotionalResonance,
-            load_time: loadDuration
+            emotional_resonance: response.emotionalResonance
           }
         });
 
@@ -134,16 +134,19 @@ A bakery can be a profitable business with proper planning and execution.`);
 
         setTrustDelta(4.2);
         setEmotionalResonance({ canaiScore: 8.7, genericScore: 3.2, delta: 5.5 });
+        
+        announce('Loaded with sample content due to connection issue', 'assertive');
       } finally {
         setIsLoading(false);
       }
     };
 
     initializeSparkSplit();
-  }, []);
+  }, [setPageTitle, announce]);
 
   const handleFeedbackSubmit = async (rating: number, comment: string) => {
     try {
+      trackInteraction('feedback_submit');
       trackFeedbackSubmission('spark_split', rating);
       
       await submitFeedback({
@@ -153,7 +156,7 @@ A bakery can be a profitable business with proper planning and execution.`);
         emotional_resonance: emotionalResonance
       });
 
-      console.log('[SparkSplit] Feedback submitted:', { rating, comment });
+      announce('Feedback submitted successfully', 'polite');
       
       // Navigate to feedback page after submission
       setTimeout(() => {
@@ -162,10 +165,12 @@ A bakery can be a profitable business with proper planning and execution.`);
 
     } catch (error) {
       console.error('[SparkSplit] Feedback submission failed:', error);
+      announce('Failed to submit feedback. Please try again.', 'assertive');
     }
   };
 
   const handleDownloadPDF = () => {
+    trackInteraction('pdf_download');
     trackFunnelStep('pdf_download', { source: 'spark_split' });
     
     // Create downloadable content
@@ -177,9 +182,12 @@ A bakery can be a profitable business with proper planning and execution.`);
     a.download = 'canai-comparison.txt';
     a.click();
     URL.revokeObjectURL(url);
+    
+    announce('Comparison downloaded successfully', 'polite');
   };
 
   const handleContinueJourney = () => {
+    trackInteraction('continue_journey');
     trackFunnelStep('continue_journey', { source: 'spark_split' });
     navigate('/feedback');
   };
@@ -187,17 +195,18 @@ A bakery can be a profitable business with proper planning and execution.`);
   if (isLoading) {
     return (
       <StandardBackground className="items-center justify-center">
-        <div className="text-center space-y-4">
-          <Sparkles className="w-12 h-12 text-[#36d1fe] animate-spin mx-auto" />
-          <BodyText className="text-white">Generating your personalized comparison...</BodyText>
-        </div>
+        <LoadingState 
+          message="Generating your personalized comparison..."
+          variant="sparkles"
+          size="lg"
+        />
       </StandardBackground>
     );
   }
 
   return (
     <StandardBackground>
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div id="main-content" className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         
         {/* Header */}
         <div className="text-center mb-8 sm:mb-12">
@@ -228,44 +237,34 @@ A bakery can be a profitable business with proper planning and execution.`);
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-          <StandardButton
+          <EnhancedButton
             variant="secondary"
             size="lg"
             onClick={handleDownloadPDF}
             icon={<Download size={20} />}
             iconPosition="left"
-            className="text-white"
           >
             Download Comparison
-          </StandardButton>
+          </EnhancedButton>
           
-          <StandardButton
+          <EnhancedButton
             variant="primary"
             size="lg"
             onClick={handleContinueJourney}
             icon={<ArrowRight size={20} />}
             iconPosition="right"
-            className="text-white"
           >
             Continue Journey
-          </StandardButton>
+          </EnhancedButton>
         </div>
 
         {/* Feedback Form */}
-        <Card className="max-w-4xl mx-auto bg-[rgba(25,60,101,0.7)] border-2 border-[#36d1fe]/40 backdrop-blur-md">
-          <CardContent className="p-8">
+        <MobileOptimizedCard className="max-w-4xl mx-auto" glowEffect>
+          <MobileOptimizedCardContent className="p-6 sm:p-8">
             <SectionTitle className="text-white text-center mb-6">Share Your Experience</SectionTitle>
             <RefinedFeedbackForm onSubmit={handleFeedbackSubmit} />
-          </CardContent>
-        </Card>
-
-        {/* Performance Debug Info (development only) */}
-        {process.env.NODE_ENV === 'development' && loadTime > 0 && (
-          <div className="fixed bottom-4 left-4 bg-black/80 text-white p-2 rounded text-xs">
-            Load Time: {loadTime.toFixed(2)}ms
-            {loadTime > 500 && <span className="text-red-400"> (⚠️ &gt;500ms)</span>}
-          </div>
-        )}
+          </MobileOptimizedCardContent>
+        </MobileOptimizedCard>
       </div>
     </StandardBackground>
   );

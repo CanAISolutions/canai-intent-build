@@ -1,12 +1,7 @@
 
-/**
- * Discovery Funnel API Integration
- */
-
 import { generateCorrelationId } from './tracing';
 
 export interface ValidationRequest {
-  field: string;
   value: string;
   context: Record<string, any>;
 }

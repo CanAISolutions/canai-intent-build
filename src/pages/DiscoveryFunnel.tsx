@@ -3,11 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import StandardBackground from '@/components/StandardBackground';
 import { PageTitle, SectionTitle, BodyText } from '@/components/StandardTypography';
-import { StandardButton } from '@/components/ui/standard-button';
+import { EnhancedButton } from '@/components/ui/enhanced-button';
 import { StandardForm, StandardFormGroup, StandardFormLabel, StandardFormInput } from '@/components/ui/standard-form';
-import { StandardModal, StandardModalContent, StandardModalHeader, StandardModalTitle, StandardModalDescription } from '@/components/ui/standard-modal';
-import { Card, CardContent } from '@/components/ui/card';
+import { ResponsiveModal, ResponsiveModalContent, ResponsiveModalHeader, ResponsiveModalTitle, ResponsiveModalDescription } from '@/components/ui/responsive-modal';
+import { MobileOptimizedCard, MobileOptimizedCardContent } from '@/components/ui/mobile-optimized-card';
+import ProgressIndicator from '@/components/enhanced/ProgressIndicator';
 import { ArrowRight, Lightbulb, Heart, Target, Clock } from 'lucide-react';
+import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
+import { useAccessibility } from '@/hooks/useAccessibility';
 
 // API and analytics imports
 import { validateInput, submitInitialPrompt } from '@/utils/discoveryFunnelApi';
@@ -16,7 +19,7 @@ import { logInteraction } from '@/utils/api';
 
 const DiscoveryFunnel = () => {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [trustScore, setTrustScore] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,7 +32,15 @@ const DiscoveryFunnel = () => {
     outcome: ''
   });
 
+  // Enhanced hooks
+  const { trackInteraction } = usePerformanceMonitor('discovery_funnel', 1500);
+  const { setPageTitle, announce } = useAccessibility();
+
+  const steps = ['Your Business', 'Your Style'];
+
   useEffect(() => {
+    setPageTitle('Discovery Funnel');
+    
     // Track page view and funnel step
     trackPageView('discovery_funnel');
     trackFunnelStep('discovery_funnel_entered');
@@ -40,11 +51,11 @@ const DiscoveryFunnel = () => {
       interaction_type: 'page_view',
       interaction_details: {
         page: 'discovery_funnel',
-        step: 1,
+        step: step + 1,
         timestamp: new Date().toISOString(),
       }
     });
-  }, []);
+  }, [setPageTitle, step]);
 
   const handleInputChange = async (field: string, value: string) => {
     const updatedData = { ...formData, [field]: value };
@@ -53,7 +64,6 @@ const DiscoveryFunnel = () => {
     // Validate input and update trust score
     try {
       const validation = await validateInput({
-        field,
         value,
         context: updatedData
       });
@@ -69,12 +79,16 @@ const DiscoveryFunnel = () => {
   };
 
   const handleStepComplete = () => {
-    if (step === 1) {
+    trackInteraction(`step_${step + 1}_complete`);
+    
+    if (step === 0) {
       trackFunnelStep('step_1_completed', { businessType: formData.businessType, challenge: formData.challenge });
-      setStep(2);
-    } else if (step === 2) {
+      setStep(1);
+      announce('Moving to step 2: Define your style', 'polite');
+    } else if (step === 1) {
       trackFunnelStep('step_2_completed', { tone: formData.tone, outcome: formData.outcome });
       setIsModalOpen(true);
+      announce('Discovery complete! Ready to continue?', 'polite');
     }
   };
 
@@ -92,6 +106,7 @@ const DiscoveryFunnel = () => {
 
       if (response.success) {
         console.log('[Discovery Funnel] Submission successful:', response);
+        announce('Discovery submitted successfully! Redirecting...', 'polite');
         
         // Navigate to next step
         setTimeout(() => {
@@ -103,6 +118,7 @@ const DiscoveryFunnel = () => {
 
     } catch (error) {
       console.error('[Discovery Funnel] Submission failed:', error);
+      announce('Submission failed. Please try again.', 'assertive');
       setIsSubmitting(false);
     }
   };
@@ -112,7 +128,7 @@ const DiscoveryFunnel = () => {
 
   return (
     <StandardBackground>
-      <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div id="main-content" className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         
         {/* Header */}
         <div className="text-center mb-8 sm:mb-12">
@@ -124,29 +140,13 @@ const DiscoveryFunnel = () => {
 
         {/* Progress Indicator */}
         <div className="mb-8">
-          <div className="flex items-center justify-center space-x-4">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-              step >= 1 ? 'bg-[#36d1fe] text-white' : 'bg-gray-600 text-gray-300'
-            }`}>
-              1
-            </div>
-            <div className={`w-16 h-1 ${step >= 2 ? 'bg-[#36d1fe]' : 'bg-gray-600'}`} />
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-              step >= 2 ? 'bg-[#36d1fe] text-white' : 'bg-gray-600 text-gray-300'
-            }`}>
-              2
-            </div>
-          </div>
-          <div className="flex justify-between mt-2 text-sm text-white opacity-70">
-            <span>Your Business</span>
-            <span>Your Style</span>
-          </div>
+          <ProgressIndicator steps={steps} currentStep={step} />
         </div>
 
         {/* Trust Score Display */}
         {trustScore > 0 && (
-          <Card className="mb-8 bg-[rgba(25,60,101,0.7)] border-2 border-[#36d1fe]/40">
-            <CardContent className="p-4 text-center">
+          <MobileOptimizedCard className="mb-8" glowEffect>
+            <MobileOptimizedCardContent className="p-4 text-center">
               <BodyText className="text-white mb-2">Trust Score: {trustScore}%</BodyText>
               <div className="w-full bg-gray-600 rounded-full h-2">
                 <div 
@@ -154,15 +154,15 @@ const DiscoveryFunnel = () => {
                   style={{ width: `${trustScore}%` }}
                 />
               </div>
-            </CardContent>
-          </Card>
+            </MobileOptimizedCardContent>
+          </MobileOptimizedCard>
         )}
 
         {/* Form Steps */}
-        <Card className="bg-[rgba(25,60,101,0.7)] border-2 border-[#36d1fe]/40 backdrop-blur-md">
-          <CardContent className="p-8">
+        <MobileOptimizedCard glowEffect>
+          <MobileOptimizedCardContent className="p-6 sm:p-8">
             
-            {step === 1 && (
+            {step === 0 && (
               <StandardForm>
                 <SectionTitle className="text-white text-center mb-6 flex items-center justify-center gap-2">
                   <Lightbulb className="w-6 h-6" />
@@ -194,7 +194,7 @@ const DiscoveryFunnel = () => {
                 </StandardFormGroup>
 
                 <div className="flex justify-center mt-8">
-                  <StandardButton
+                  <EnhancedButton
                     onClick={handleStepComplete}
                     disabled={!isStep1Complete}
                     variant="primary"
@@ -203,12 +203,12 @@ const DiscoveryFunnel = () => {
                     iconPosition="right"
                   >
                     Continue
-                  </StandardButton>
+                  </EnhancedButton>
                 </div>
               </StandardForm>
             )}
 
-            {step === 2 && (
+            {step === 1 && (
               <StandardForm>
                 <SectionTitle className="text-white text-center mb-6 flex items-center justify-center gap-2">
                   <Heart className="w-6 h-6" />
@@ -240,7 +240,7 @@ const DiscoveryFunnel = () => {
                 </StandardFormGroup>
 
                 <div className="flex justify-center mt-8">
-                  <StandardButton
+                  <EnhancedButton
                     onClick={handleStepComplete}
                     disabled={!isStep2Complete}
                     variant="primary"
@@ -249,29 +249,29 @@ const DiscoveryFunnel = () => {
                     iconPosition="right"
                   >
                     Complete Discovery
-                  </StandardButton>
+                  </EnhancedButton>
                 </div>
               </StandardForm>
             )}
-          </CardContent>
-        </Card>
+          </MobileOptimizedCardContent>
+        </MobileOptimizedCard>
       </div>
 
       {/* Completion Modal */}
-      <StandardModal open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <StandardModalContent className="bg-[rgba(25,60,101,0.95)] border-2 border-[#36d1fe] backdrop-blur-md">
-          <StandardModalHeader>
-            <StandardModalTitle className="text-white text-center flex items-center justify-center gap-2">
+      <ResponsiveModal open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <ResponsiveModalContent>
+          <ResponsiveModalHeader>
+            <ResponsiveModalTitle className="text-center flex items-center justify-center gap-2">
               <Clock className="w-6 h-6" />
               Ready to Create Something Amazing?
-            </StandardModalTitle>
-            <StandardModalDescription className="text-white text-center">
+            </ResponsiveModalTitle>
+            <ResponsiveModalDescription className="text-center">
               We've captured your vision. Let's transform it into something extraordinary with CanAI's emotional intelligence.
-            </StandardModalDescription>
-          </StandardModalHeader>
+            </ResponsiveModalDescription>
+          </ResponsiveModalHeader>
           
           <div className="flex justify-center mt-6">
-            <StandardButton
+            <EnhancedButton
               onClick={handleSubmit}
               loading={isSubmitting}
               loadingText="Processing your vision..."
@@ -281,10 +281,10 @@ const DiscoveryFunnel = () => {
               iconPosition="right"
             >
               Continue to Spark Layer
-            </StandardButton>
+            </EnhancedButton>
           </div>
-        </StandardModalContent>
-      </StandardModal>
+        </ResponsiveModalContent>
+      </ResponsiveModal>
     </StandardBackground>
   );
 };
