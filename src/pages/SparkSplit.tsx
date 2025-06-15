@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -55,6 +54,31 @@ type EmotionalResonance = {
 const getPromptId = (search: URLSearchParams) =>
   search.get("prompt_id") || search.get("promptId") || "demo-prompt";
 
+// Enhanced demo data from the example provided
+const EXAMPLE_CANAI_OUTPUT = `Sprinkle Haven Bakery is more than a place to buy pastries—it's a heartfelt invitation to reconnect, savor, and belong. Located in the heart of Denver, this cozy haven blends the aroma of artisan baking with the warmth of neighborhood camaraderie. The dream is bold yet deeply rooted: to secure $75,000 in funding to open a flagship store that welcomes families, inspires young professionals, and becomes the soul of the local community.
+
+With a mission anchored in handcrafted excellence and human connection, Sprinkle Haven will serve as a canvas for shared stories—through flaky croissants, personalized cakes, and intimate coffee conversations. Behind this vision is a passionate team of three, determined to create a space where every visit feels like coming home.
+
+Denver's evolving demographic presents a powerful market opportunity. With an influx of young professionals and a strong emphasis on supporting local businesses, the city is primed for a boutique bakery that offers more than just food—it offers belonging. Competitors like Starbucks dominate through convenience, and The Denver Brew leverages a hipster vibe with strong loyalty programs. But neither captures the homegrown, emotionally resonant experience Sprinkle Haven delivers.
+
+We will differentiate through hyper-local sourcing, event-driven engagement (story time for kids, latte art nights), and exceptional product personalization. Regulatory costs in Denver include a $1,000 retail food establishment license and approximately $2,500 in permitting and health inspection fees.
+
+Our growth strategy is designed to scale trust as fast as it scales traffic. We'll allocate $3,000 to targeted social media campaigns showcasing our unique offerings, behind-the-scenes baking, and community events. Another $2,000 will go to offline initiatives like farmer's market pop-ups and branded sampling days.
+
+With the right partner, we'll bring this dream—and its flavor—to life.`;
+
+const EXAMPLE_GENERIC_OUTPUT = `Sprinkle Haven Bakery aims to launch a local retail bakery in Denver, Colorado, targeting families and professionals. The primary objective is to secure $75,000 in angel funding to open a physical storefront. The bakery will offer artisan pastries, custom cakes, and coffee, and intends to engage the community through hosted events.
+
+Currently in pre-launch, the team of three is building a pitch deck and preparing operations under a $50,000 internal budget, with a six-month launch timeline.
+
+Denver's market shows a steady demand for boutique food experiences, with an emerging trend toward local, community-focused eateries. Target demographics include families seeking wholesome experiences and professionals seeking high-quality quick service. The competitive landscape includes Starbucks, with strong brand presence and loyalty programs, and The Denver Brew, a popular independent café with a strong following.
+
+Regulatory costs include health permits ($2,500) and a business license ($1,000). Positioning will rely on product quality, local engagement, and competitive pricing.
+
+To grow, Sprinkle Haven will invest $3,000 in digital advertising, and $2,000 in local offline campaigns including pop-ups and promotions. The business intends to build brand recognition before launch through a 1,500-member email list and $20,000 in pre-orders.
+
+Milestones include securing funding, lease signing, buildout completion, team hiring, and grand opening. Contingency plans include offering mobile services or modifying menu scope in case of capital or supply constraints. This business plan serves as a basis for funding consideration.`;
+
 const SparkSplit: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
@@ -73,31 +97,9 @@ const SparkSplit: React.FC = () => {
 
   const promptId = getPromptId(searchParams);
 
-  // Demo CanAI output based on Sprinkle Haven Bakery
-  const demoCanaiOutput = useMemo(
-    () =>
-      `**Sprinkle Haven Bakery: A Sweet Investment Opportunity**
-
-Sprinkle Haven Bakery represents more than just another bakery—we're crafting a community hub where Denver families discover the joy of truly organic, artisanal pastries. Our warm, family-first approach sets us apart in a market dominated by impersonal chains like Blue Moon Bakery.
-
-**The Opportunity:**
-Denver's growing health-conscious family demographic seeks authentic, organic options for their children. We're positioned to capture this $2.3M local market with our unique community-focused approach.
-
-**Our Secret Sauce:**
-- 100% organic, locally-sourced ingredients
-- Warm, inviting atmosphere designed for families
-- Community events that build lasting relationships
-- Transparent baking process that parents trust
-
-**Financial Projections:**
-With our $50,000 investment and dedicated team of 3, we project:
-- Year 1: $180,000 revenue (break-even month 8)
-- Year 2: $340,000 revenue (28% profit margin)
-- Year 3: $520,000 revenue, ready for second location
-
-Our 6-month runway allows for careful market entry and relationship building—the foundation of sustainable growth in the artisanal bakery space.`,
-    []
-  );
+  // Demo data with enhanced examples
+  const demoCanaiOutput = useMemo(() => EXAMPLE_CANAI_OUTPUT, []);
+  const demoGenericOutput = useMemo(() => EXAMPLE_GENERIC_OUTPUT, []);
 
   // Fetch comparison data with circuit breaker logic
   const fetchSparkSplit = useCallback(
@@ -120,42 +122,12 @@ Our 6-month runway allows for careful market entry and relationship building—t
       
       try {
         // <!-- TODO: POST /v1/spark-split -->
-        // This would call the actual API endpoint
-        // const response = await fetch("/v1/spark-split", {
-        //   method: "POST",
-        //   headers: { "Content-Type": "application/json" },
-        //   body: JSON.stringify({
-        //     canaiOutput: demoCanaiOutput,
-        //     promptId,
-        //   }),
-        // });
-
-        // MOCK API RESPONSE for demonstration
-        await new Promise(resolve => setTimeout(resolve, 300)); // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 300));
 
         const mockData = {
           canaiOutput: demoCanaiOutput,
-          genericOutput: `Sprinkle Haven Bakery Business Plan
-
-Sprinkle Haven Bakery is a bakery business located in Denver, Colorado. The business targets families in the Denver area and competes with Blue Moon Bakery.
-
-Business Overview:
-- Product: Pastries and baked goods
-- Target Market: Local families
-- Competition: Blue Moon Bakery
-- Budget: $50,000
-- Team: 3 people
-- Timeline: 6 months
-
-Revenue Model:
-The business will generate revenue through direct sales and catering events.
-
-Financial Requirements:
-The business seeks funding to support startup costs and initial operations.
-
-Business Goals:
-The primary objective is to secure investor funding for business growth and expansion.`,
-          trustDelta: 2.3,
+          genericOutput: demoGenericOutput,
+          trustDelta: 4.1,
           emotionalResonance: {
             canaiScore: 0.89,
             genericScore: 0.42,
@@ -187,14 +159,12 @@ The primary objective is to secure investor funding for business growth and expa
           });
         }
 
-        // Performance check (<2s requirement)
         const loadTime = performance.now() - startTime;
         if (loadTime > 2000) {
           console.warn(`SparkSplit load time exceeded 2s: ${loadTime}ms`);
         }
 
       } catch (err) {
-        // F8-E1 edge case: Retry 3 times with exponential backoff
         if (retry < 3) {
           setTimeout(() => setRetryCount(count => count + 1), Math.pow(2, retry) * 1000);
           return;
@@ -202,11 +172,10 @@ The primary objective is to secure investor funding for business growth and expa
         
         setError("Comparison failed to load");
         setLoading(false);
-        // Supabase: Log error and encrypt sensitive data with supabase/vault
         console.error("SparkSplit load failed:", err);
       }
     },
-    [demoCanaiOutput, promptId]
+    [demoCanaiOutput, demoGenericOutput, promptId]
   );
 
   // Retry trigger
@@ -324,8 +293,8 @@ The primary objective is to secure investor funding for business growth and expa
             <h1 className="text-3xl md:text-4xl font-bold canai-gradient-text mb-4">
               Compare Your Personalized Plan
             </h1>
-            <p className="text-canai-light text-lg">
-              See how CanAI's personalized approach compares to generic AI outputs
+            <p className="text-canai-light text-lg max-w-3xl mx-auto">
+              See how CanAI's personalized approach compares to generic AI outputs for your business vision
             </p>
           </div>
 
@@ -350,7 +319,7 @@ The primary objective is to secure investor funding for business growth and expa
               {canaiOutput && !genericOutput && negativeEngagementCount >= CIRCUIT_BREAKER_THRESHOLD && (
                 <div className="bg-gradient-to-br from-[#1E314F] to-[#2A4A6B] rounded-xl border-2 border-[#00CFFF] shadow-xl p-8">
                   <h3 className="text-xl font-bold text-[#00CFFF] mb-4">Your Personalized Plan</h3>
-                  <div className="text-base leading-relaxed text-canai-light prose prose-invert max-w-none">
+                  <div className="text-base leading-relaxed text-canai-light prose prose-invert max-w-none break-words" style={{ whiteSpace: 'pre-wrap' }}>
                     {canaiOutput}
                   </div>
                   <div className="mt-6 p-4 bg-blue-900/30 rounded-lg border border-blue-400">

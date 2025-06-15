@@ -29,13 +29,16 @@ const RefinedFeedbackForm: React.FC<RefinedFeedbackFormProps> = ({
           <h3 className="text-lg font-semibold text-canai-light mb-4" id="feedback-heading">
             Which output feels more like you?
           </h3>
+          <p className="text-sm text-gray-400 mb-4">
+            Your honest feedback helps us understand what resonates with you.
+          </p>
           <RadioGroup
             value={selection}
             onValueChange={onSelection}
             className="space-y-3"
             aria-labelledby="feedback-heading"
           >
-            <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-[#1E314F] transition-colors">
+            <div className="flex items-center space-x-3 p-4 rounded-lg hover:bg-[#1E314F] transition-colors border border-transparent hover:border-[#36d1fe33] focus-within:border-[#00CFFF] focus-within:ring-1 focus-within:ring-[#00CFFF]">
               <RadioGroupItem 
                 value="canai" 
                 id="choice-canai"
@@ -46,10 +49,13 @@ const RefinedFeedbackForm: React.FC<RefinedFeedbackFormProps> = ({
                 className="text-[#00CFFF] font-medium cursor-pointer flex-1"
               >
                 CanAI Output
+                <span className="block text-xs text-gray-400 font-normal mt-1">
+                  Personalized for your vision
+                </span>
               </Label>
             </div>
 
-            <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-[#1E314F] transition-colors">
+            <div className="flex items-center space-x-3 p-4 rounded-lg hover:bg-[#1E314F] transition-colors border border-transparent hover:border-[#36d1fe33] focus-within:border-[#00CFFF] focus-within:ring-1 focus-within:ring-[#00CFFF]">
               <RadioGroupItem 
                 value="generic" 
                 id="choice-generic"
@@ -60,33 +66,39 @@ const RefinedFeedbackForm: React.FC<RefinedFeedbackFormProps> = ({
                 className="text-gray-300 font-medium cursor-pointer flex-1"
               >
                 Generic Output
+                <span className="block text-xs text-gray-400 font-normal mt-1">
+                  Standard AI response
+                </span>
               </Label>
             </div>
 
-            <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-[#1E314F] transition-colors">
+            <div className="flex items-center space-x-3 p-4 rounded-lg hover:bg-[#1E314F] transition-colors border border-transparent hover:border-[#36d1fe33] focus-within:border-[#00CFFF] focus-within:ring-1 focus-within:ring-[#00CFFF]">
               <RadioGroupItem 
                 value="neither" 
                 id="choice-neither"
-                className="border-red-400 text-red-400 focus:ring-red-400 focus:ring-offset-[#172b47]"
+                className="border-orange-400 text-orange-400 focus:ring-orange-400 focus:ring-offset-[#172b47]"
               />
               <Label 
                 htmlFor="choice-neither" 
-                className="text-red-300 font-medium cursor-pointer flex-1"
+                className="text-orange-300 font-medium cursor-pointer flex-1"
               >
                 Neither feels right
+                <span className="block text-xs text-gray-400 font-normal mt-1">
+                  Both outputs need improvement
+                </span>
               </Label>
             </div>
           </RadioGroup>
         </div>
 
         {(selection === 'generic' || selection === 'neither') && (
-          <div className="space-y-2">
+          <div className="space-y-3">
             <Label 
               htmlFor="feedback-text" 
-              className="text-sm font-medium text-canai-light"
+              className="text-sm font-medium text-canai-light block"
             >
               {selection === 'generic' 
-                ? 'Why does the generic output feel better?' 
+                ? 'What made the generic output feel better?' 
                 : 'What would make either output feel more like you?'
               }
             </Label>
@@ -98,7 +110,7 @@ const RefinedFeedbackForm: React.FC<RefinedFeedbackFormProps> = ({
                 ? 'Tell us what resonated with you about the generic version...'
                 : 'Help us understand what both outputs are missing...'
               }
-              className="min-h-[100px] bg-[#1E314F] border-[#36d1fe66] text-canai-light placeholder:text-gray-400 focus:border-[#00CFFF] focus:ring-[#00CFFF]"
+              className="min-h-[120px] bg-[#1E314F] border-[#36d1fe66] text-canai-light placeholder:text-gray-400 focus:border-[#00CFFF] focus:ring-[#00CFFF] resize-none"
               required
               aria-describedby={selection === 'generic' ? 'generic-help' : 'neither-help'}
             />
@@ -115,7 +127,7 @@ const RefinedFeedbackForm: React.FC<RefinedFeedbackFormProps> = ({
           type="submit"
           variant="canai"
           disabled={!selection || isSubmitting || ((selection === 'generic' || selection === 'neither') && !feedback.trim())}
-          className="w-full"
+          className="w-full py-3 text-base focus:ring-2 focus:ring-[#00CFFF] focus:ring-offset-2 focus:ring-offset-[#172b47]"
           aria-describedby="submit-help"
         >
           {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
