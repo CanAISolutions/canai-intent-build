@@ -14,6 +14,7 @@ import SparkLayer from "./pages/SparkLayer";
 import PurchaseFlow from "./pages/PurchaseFlow";
 import DeliverableGeneration from "./pages/DeliverableGeneration";
 import SparkSplit from "./pages/SparkSplit";
+import FeedbackPage from "./pages/Feedback";
 
 const queryClient = new QueryClient();
 
@@ -37,7 +38,7 @@ const App = () => (
           <Route path="/checkout" element={<div>Checkout - Coming Soon</div>} />
           <Route path="/generating" element={<div>Generating - Coming Soon</div>} />
           <Route path="/spark-split" element={<SparkSplit />} />
-          <Route path="/feedback" element={<div>Feedback - Coming Soon</div>} />
+          <Route path="/feedback" element={<FeedbackPage />} />
           <Route path="/business-builder" element={<div>Business Builder - Coming Soon</div>} />
           <Route path="/social-email" element={<div>Social Email - Coming Soon</div>} />
           <Route path="/site-audit" element={<div>Site Audit - Coming Soon</div>} />
