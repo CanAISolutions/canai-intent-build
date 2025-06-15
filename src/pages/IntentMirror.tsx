@@ -545,69 +545,64 @@ const IntentMirror = () => {
         </div>
       </div>
 
-      {/* Enhanced Edit Confirmation Modal with Premium Styling */}
+      {/* Enhanced Edit Confirmation Modal with Clean Brand Styling */}
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-        <DialogContent className="bg-gradient-to-br from-canai-blue-card/95 to-canai-blue-card/90 backdrop-blur-xl border-2 border-canai-primary/50 text-canai-light max-w-lg mx-auto shadow-2xl shadow-canai-primary/20">
-          <DialogHeader className="text-center space-y-2 pb-2">
-            <DialogTitle className="text-3xl font-bold text-canai-light bg-gradient-to-r from-canai-primary to-canai-cyan bg-clip-text text-transparent">
+        <DialogContent className="bg-canai-blue-card/95 backdrop-blur-xl border border-canai-primary/30 text-canai-light max-w-md mx-auto shadow-2xl rounded-2xl overflow-hidden">
+          <DialogHeader className="text-center pb-6 border-b border-canai-primary/20">
+            <DialogTitle className="text-2xl font-bold text-canai-light mb-2">
               Edit Your Details
             </DialogTitle>
-            <div className="w-16 h-1 bg-gradient-to-r from-canai-primary to-canai-cyan rounded-full mx-auto"></div>
+            <div className="w-12 h-0.5 bg-canai-primary rounded-full mx-auto"></div>
           </DialogHeader>
           
-          <div className="space-y-8 p-8">
-            {/* Enhanced Icon Section */}
-            <div className="text-center space-y-6">
-              <div className="relative mx-auto w-20 h-20">
-                <div className="absolute inset-0 bg-gradient-to-br from-canai-primary/30 to-canai-cyan/20 rounded-full animate-pulse"></div>
-                <div className="relative w-20 h-20 bg-gradient-to-br from-canai-primary/40 to-canai-cyan/30 rounded-full flex items-center justify-center border-2 border-canai-primary/50 shadow-lg shadow-canai-primary/30">
-                  <Edit2 className="w-10 h-10 text-canai-primary drop-shadow-lg" />
-                </div>
+          <div className="p-6 space-y-6">
+            {/* Clean Icon Section */}
+            <div className="text-center">
+              <div className="w-16 h-16 bg-canai-primary/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-canai-primary/40">
+                <Edit2 className="w-8 h-8 text-canai-primary" />
               </div>
               
-              {/* Enhanced Content */}
-              <div className="space-y-4">
-                <div className="bg-gradient-to-br from-black/30 to-black/10 rounded-xl p-6 border border-canai-primary/30">
-                  <p className="text-white text-xl font-semibold leading-relaxed">
-                    You'll return to the detailed input form to update your{" "}
-                    <span className="font-bold text-canai-primary bg-canai-primary/10 px-2 py-1 rounded-lg">
-                      {editField.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                    </span>{" "}
-                    information.
-                  </p>
-                </div>
+              {/* Clean Content */}
+              <div className="space-y-3">
+                <p className="text-white text-lg font-medium leading-relaxed">
+                  You'll return to the detailed input form to update your{" "}
+                  <span className="font-semibold text-canai-primary">
+                    {editField.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                  </span>{" "}
+                  information.
+                </p>
                 
-                <div className="flex items-center justify-center gap-3 text-canai-light/75">
-                  <Shield className="w-4 h-4 text-canai-primary" />
-                  <span className="text-sm font-medium">Your progress will be saved automatically</span>
+                <div className="flex items-center justify-center gap-2 text-canai-light/60 text-sm">
+                  <Shield className="w-4 h-4 text-canai-primary/60" />
+                  <span>Your progress will be saved automatically</span>
                 </div>
               </div>
             </div>
             
-            {/* Enhanced Action Buttons */}
-            <div className="flex flex-col gap-4">
+            {/* Clean Action Buttons */}
+            <div className="space-y-3 pt-4">
               <Button
                 variant="canai"
                 onClick={handleEditConfirm}
-                className="w-full py-4 text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+                className="w-full h-12 text-base font-semibold"
               >
-                <Edit2 className="w-5 h-5 mr-3" />
+                <Edit2 className="w-4 h-4 mr-2" />
                 Continue to Edit
               </Button>
               
               <Button
                 variant="outline"
                 onClick={() => setShowEditModal(false)}
-                className="w-full bg-gradient-to-br from-transparent to-black/10 border-2 border-canai-primary/50 text-canai-light hover:bg-canai-primary/20 hover:border-canai-cyan/60 py-4 text-lg font-semibold transition-all duration-300 backdrop-blur-sm"
+                className="w-full h-12 bg-transparent border border-canai-primary/40 text-canai-light hover:bg-canai-primary/10 hover:border-canai-primary/60 text-base font-medium"
               >
                 Cancel
               </Button>
             </div>
             
-            {/* Additional Context */}
-            <div className="text-center pt-4 border-t border-canai-primary/20">
-              <div className="flex items-center justify-center gap-2 text-canai-light/60 text-sm">
-                <Clock className="w-4 h-4" />
+            {/* Clean Footer */}
+            <div className="text-center pt-3 border-t border-canai-primary/20">
+              <div className="flex items-center justify-center gap-2 text-canai-light/50 text-sm">
+                <Clock className="w-3 h-3" />
                 <span>Takes less than 30 seconds</span>
               </div>
             </div>
