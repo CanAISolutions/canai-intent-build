@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/discovery-funnel" element={<DiscoveryFunnel />} />
           <Route path="/spark-layer" element={<SparkLayer />} />
           <Route path="/purchase" element={<PurchaseFlow />} />
+          <Route path="/purchase-flow" element={<PurchaseFlow />} />
           <Route path="/detailed-input" element={<DetailedInput />} />
           <Route path="/intent-mirror" element={<IntentMirror />} />
           <Route path="/deliverable" element={<DeliverableGeneration />} />
