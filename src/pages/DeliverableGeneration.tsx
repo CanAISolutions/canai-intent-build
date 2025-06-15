@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -55,8 +56,6 @@ const DeliverableGeneration: React.FC = () => {
     vision: "Become the go-to celebration destination for meaningful moments"
   };
 
-  const startTime = Date.now();
-
   useEffect(() => {
     // PostHog tracking
     console.log('PostHog: deliverable_generation_started', { 
@@ -89,32 +88,19 @@ const DeliverableGeneration: React.FC = () => {
     }, 15000);
 
     try {
-      // TODO: GET /v1/generation-status
-      // Simulate API call - replace with actual endpoint
-      const response = await fetch('/api/v1/generate-deliverable', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('memberstack_token')}`
-        },
-        body: JSON.stringify({
-          productType,
-          promptId,
-          inputData: exampleData
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Generation failed');
-      }
-
-      const result = await response.json();
+      // Simulate generation process since API endpoints don't exist yet
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Hume AI emotional resonance validation
-      const humeResponse = await validateEmotionalResonance(result.content);
+      // Mock emotional resonance validation
+      const humeResponse = {
+        arousal: 0.7,
+        valence: 0.8,
+        score: (0.7 * 0.4) + (0.8 * 0.6),
+        isValid: true
+      };
       
       const deliverableData: DeliverableData = {
-        id: result.id || `del-${Date.now()}`,
+        id: `del-${Date.now()}`,
         content: getTemplateContent(productType),
         productType,
         promptId,
@@ -124,7 +110,7 @@ const DeliverableGeneration: React.FC = () => {
       };
 
       // Supabase: comparisons.canai_output
-      await storeInSupabase(deliverableData);
+      console.log('Storing in Supabase comparisons table:', deliverableData);
 
       setDeliverable(deliverableData);
       setProgress(100);
@@ -135,11 +121,11 @@ const DeliverableGeneration: React.FC = () => {
         promptId,
         deliverableId: deliverableData.id,
         emotionalResonance: humeResponse?.score,
-        generationTime: Date.now() - startTime
+        generationTime: 2000
       });
 
       // SAAP updates project status
-      await updateProjectStatus(deliverableData.id, 'completed');
+      console.log('SAAP: Updating project status to completed');
 
     } catch (error) {
       console.error('Generation error:', error);
@@ -151,67 +137,6 @@ const DeliverableGeneration: React.FC = () => {
     }
   };
 
-  const validateEmotionalResonance = async (content: string) => {
-    try {
-      // Hume AI validation (arousal >0.5, valence >0.6, weighted 0.4/0.6)
-      const response = await fetch('/api/hume/validate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content })
-      });
-      
-      const result = await response.json();
-      const { arousal, valence } = result;
-      const score = (arousal * 0.4) + (valence * 0.6);
-      
-      return {
-        arousal,
-        valence,
-        score,
-        isValid: arousal > 0.5 && valence > 0.6
-      };
-    } catch (error) {
-      console.error('Hume AI validation failed:', error);
-      return null;
-    }
-  };
-
-  const storeInSupabase = async (data: DeliverableData) => {
-    try {
-      // Supabase: comparisons.canai_output
-      const response = await fetch('/api/supabase/comparisons', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt_id: data.promptId,
-          canai_output: data.content,
-          trust_delta: data.emotionalResonance?.score || 0,
-          emotional_resonance: data.emotionalResonance,
-          created_at: data.generatedAt
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to store in Supabase');
-      }
-    } catch (error) {
-      console.error('Supabase storage failed:', error);
-    }
-  };
-
-  const updateProjectStatus = async (deliverableId: string, status: string) => {
-    try {
-      // SAAP updates project status
-      await fetch('/api/make/update-project-status', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ deliverableId, status })
-      });
-    } catch (error) {
-      console.error('Project status update failed:', error);
-    }
-  };
-
   const handleRevision = async () => {
     if (!revisionText.trim() || !deliverable) return;
 
@@ -219,24 +144,14 @@ const DeliverableGeneration: React.FC = () => {
     
     try {
       // TODO: POST /v1/request-revision
-      const response = await fetch('/api/v1/request-revision', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          deliverableId: deliverable.id,
-          revisionRequest: revisionText
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Revision request failed');
-      }
-
-      const result = await response.json();
+      console.log('Sending revision request:', { deliverableId: deliverable.id, revisionRequest: revisionText });
+      
+      // Simulate revision processing
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       setDeliverable(prev => prev ? {
         ...prev,
-        content: result.content,
+        content: prev.content + `\n\n[REVISED: ${revisionText}]`,
         revisionCount: prev.revisionCount + 1
       } : null);
 
@@ -280,24 +195,14 @@ const DeliverableGeneration: React.FC = () => {
     
     try {
       // TODO: POST /v1/regenerate-deliverable
-      const response = await fetch('/api/v1/regenerate-deliverable', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          deliverableId: deliverable?.id,
-          attempt: regenerationCount + 1
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Regeneration failed');
-      }
-
-      const result = await response.json();
+      console.log('Regenerating deliverable:', { deliverableId: deliverable?.id, attempt: regenerationCount + 1 });
+      
+      // Simulate regeneration
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
       setDeliverable(prev => prev ? {
         ...prev,
-        content: result.content,
+        content: getTemplateContent(productType),
         generatedAt: new Date().toISOString()
       } : null);
 
@@ -323,25 +228,18 @@ const DeliverableGeneration: React.FC = () => {
   const handleDownloadPDF = async () => {
     try {
       // Make.com generates PDF (<1s download)
-      const response = await fetch('/api/make/generate-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          deliverableId: deliverable?.id,
-          content: deliverable?.content,
-          productType
-        })
+      console.log('Generating PDF via Make.com:', {
+        deliverableId: deliverable?.id,
+        productType
       });
 
-      if (!response.ok) {
-        throw new Error('PDF generation failed');
-      }
-
-      const blob = await response.blob();
+      // Simulate PDF generation
+      const pdfContent = `CanAI ${productType.replace('_', ' ')} Deliverable\n\n${deliverable?.content}`;
+      const blob = new Blob([pdfContent], { type: 'text/plain' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${productType.toLowerCase()}-${Date.now()}.pdf`;
+      a.download = `${productType.toLowerCase()}-${Date.now()}.txt`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -530,7 +428,7 @@ These improvements will position Sprinkle Haven as the premium artisanal choice 
 
   if (timeoutError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-canai-primary-blue-dark via-canai-primary-blue to-canai-primary p-4">
+      <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] via-[#1a237e] to-[#00B2E3] p-4">
         <div className="max-w-4xl mx-auto pt-8">
           <div className="error-fallback bg-red-500/20 border border-red-500/40 rounded-xl p-8 text-center">
             <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
@@ -538,7 +436,7 @@ These improvements will position Sprinkle Haven as the premium artisanal choice 
             <p className="text-red-200 mb-6">
               The deliverable generation process took longer than expected. Please try again.
             </p>
-            <Button onClick={() => window.location.reload()} variant="canai">
+            <Button onClick={() => window.location.reload()} className="bg-[#00CFFF] hover:bg-[#00F0FF] text-black">
               Try Again
             </Button>
           </div>
@@ -548,30 +446,30 @@ These improvements will position Sprinkle Haven as the premium artisanal choice 
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-canai-primary-blue-dark via-canai-primary-blue to-canai-primary p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] via-[#1a237e] to-[#00B2E3] p-4">
       <div className="max-w-4xl mx-auto pt-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">
+          <h1 className="text-4xl font-bold text-[#E6F6FF] mb-2">
             {productType.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase())} Generation
           </h1>
-          <p className="text-canai-light">
+          <p className="text-[#E6F6FF]/80">
             Creating your personalized {productType.toLowerCase().replace('_', ' ')} deliverable
           </p>
         </div>
 
         {/* Generation Progress */}
         {isGenerating && (
-          <Card className="bg-canai-blue-card/90 border-canai-primary/40 mb-8">
+          <Card className="bg-white/10 border-[#00CFFF]/40 mb-8">
             <CardHeader>
-              <CardTitle className="text-canai-light flex items-center gap-3">
-                <Clock className="w-6 h-6 text-canai-primary animate-spin" />
+              <CardTitle className="text-[#E6F6FF] flex items-center gap-3">
+                <Clock className="w-6 h-6 text-[#00CFFF] animate-spin" />
                 Generating Your Deliverable...
               </CardTitle>
             </CardHeader>
             <CardContent>
               <Progress value={progress} className="mb-4" />
-              <p className="text-canai-light-soft">
+              <p className="text-[#E6F6FF]/70">
                 Our AI is crafting your personalized content using advanced emotional resonance analysis...
               </p>
             </CardContent>
@@ -582,9 +480,9 @@ These improvements will position Sprinkle Haven as the premium artisanal choice 
         {deliverable && !isGenerating && (
           <div className="space-y-6">
             {/* Deliverable Content */}
-            <Card className="bg-canai-blue-card/90 border-canai-primary/40">
+            <Card className="bg-white/10 border-[#00CFFF]/40">
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-canai-light flex items-center gap-3">
+                <CardTitle className="text-[#E6F6FF] flex items-center gap-3">
                   <CheckCircle className="w-6 h-6 text-green-400" />
                   Your {productType.replace('_', ' ')} Deliverable
                 </CardTitle>
@@ -595,15 +493,16 @@ These improvements will position Sprinkle Haven as the premium artisanal choice 
                     size="sm"
                     onClick={handleRegenerate}
                     disabled={isRegenerating || regenerationCount >= 2}
-                    className="border-canai-primary text-canai-light hover:bg-canai-primary/20"
+                    className="border-[#00CFFF] text-[#E6F6FF] hover:bg-[#00CFFF]/20"
                   >
                     <RefreshCw className={`w-4 h-4 mr-1 ${isRegenerating ? 'animate-spin' : ''}`} />
                     Regenerate ({regenerationCount}/2)
                   </Button>
                   <Button
-                    variant="canai"
+                    variant="default"
                     size="sm"
                     onClick={handleDownloadPDF}
+                    className="bg-[#00CFFF] hover:bg-[#00F0FF] text-black"
                   >
                     <Download className="w-4 h-4 mr-1" />
                     Download PDF
@@ -643,10 +542,10 @@ These improvements will position Sprinkle Haven as the premium artisanal choice 
             </Card>
 
             {/* Revision Request */}
-            <Card className="bg-canai-blue-card/90 border-canai-primary/40">
+            <Card className="bg-white/10 border-[#00CFFF]/40">
               <CardHeader>
-                <CardTitle className="text-canai-light flex items-center gap-3">
-                  <Edit3 className="w-6 h-6 text-canai-primary" />
+                <CardTitle className="text-[#E6F6FF] flex items-center gap-3">
+                  <Edit3 className="w-6 h-6 text-[#00CFFF]" />
                   Request Revision
                 </CardTitle>
               </CardHeader>
@@ -656,15 +555,14 @@ These improvements will position Sprinkle Haven as the premium artisanal choice 
                   placeholder="Describe what you'd like to change or improve in your deliverable..."
                   value={revisionText}
                   onChange={(e) => setRevisionText(e.target.value)}
-                  className="mb-4 bg-white/10 border-canai-primary/30 text-white"
+                  className="mb-4 bg-white/10 border-[#00CFFF]/30 text-white"
                   rows={4}
                 />
                 <Button
                   id="revision-btn"
-                  variant="canai"
                   onClick={handleRevision}
                   disabled={!revisionText.trim() || isRevising}
-                  className="w-full"
+                  className="w-full bg-[#00CFFF] hover:bg-[#00F0FF] text-black"
                 >
                   {isRevising ? (
                     <>
@@ -682,32 +580,32 @@ These improvements will position Sprinkle Haven as the premium artisanal choice 
             </Card>
 
             {/* Deliverable Metadata */}
-            <Card className="bg-canai-blue-card/90 border-canai-primary/40">
+            <Card className="bg-white/10 border-[#00CFFF]/40">
               <CardContent className="pt-6">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                   <div>
-                    <div className="text-canai-primary font-bold text-lg">
+                    <div className="text-[#00CFFF] font-bold text-lg">
                       {deliverable.revisionCount}
                     </div>
-                    <div className="text-canai-light-soft text-sm">Revisions</div>
+                    <div className="text-[#E6F6FF]/70 text-sm">Revisions</div>
                   </div>
                   <div>
-                    <div className="text-canai-primary font-bold text-lg">
+                    <div className="text-[#00CFFF] font-bold text-lg">
                       {regenerationCount}/2
                     </div>
-                    <div className="text-canai-light-soft text-sm">Regenerations</div>
+                    <div className="text-[#E6F6FF]/70 text-sm">Regenerations</div>
                   </div>
                   <div>
-                    <div className="text-canai-primary font-bold text-lg">
+                    <div className="text-[#00CFFF] font-bold text-lg">
                       {deliverable.content.split(' ').length}
                     </div>
-                    <div className="text-canai-light-soft text-sm">Words</div>
+                    <div className="text-[#E6F6FF]/70 text-sm">Words</div>
                   </div>
                   <div>
-                    <div className="text-canai-primary font-bold text-lg">
+                    <div className="text-[#00CFFF] font-bold text-lg">
                       {new Date(deliverable.generatedAt).toLocaleTimeString()}
                     </div>
-                    <div className="text-canai-light-soft text-sm">Generated</div>
+                    <div className="text-[#E6F6FF]/70 text-sm">Generated</div>
                   </div>
                 </div>
               </CardContent>
