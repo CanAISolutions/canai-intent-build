@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import StandardBackground from "@/components/StandardBackground";
 import Hero from "@/components/DiscoveryHook/Hero";
 import TrustIndicatorsSection from "@/components/DiscoveryHook/TrustIndicatorsSection";
 import ProductCardsSection from "@/components/DiscoveryHook/ProductCardsSection";
@@ -50,9 +51,8 @@ const DiscoveryHook = () => {
   // }
 
   return (
-    <>
+    <StandardBackground>
       {/* Memberstack login button (top right) */}
-      {/* TODO: Memberstack real integration (see src/components/DiscoveryHook/MemberstackLoginButton.tsx) */}
       <MemberstackLoginButton />
 
       {/* START: Modal Placeholders */}
@@ -63,14 +63,12 @@ const DiscoveryHook = () => {
         className="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center"
         data-component="login-modal"
       >
-        {/* TODO: Memberstack integration */}
         <div className="bg-white rounded-xl p-8 shadow-xl text-center w-[350px] max-w-[90vw]">
           <h2 className="text-xl font-bold mb-2 text-canai-dark">Login Required</h2>
           <p className="mb-4 text-canai-dark">Please log in to continue.</p>
           <button
             className="bg-[#00CFFF] text-white font-semibold px-8 py-3 rounded-lg"
             aria-label="Log In"
-            // TODO: Connect this to Memberstack
           >
             Log In
           </button>
@@ -114,40 +112,13 @@ const DiscoveryHook = () => {
       </div>
       {/* END: Modal Placeholders */}
       <main
-        className="min-h-screen w-full flex flex-col items-center justify-center"
-        style={{
-          background: `radial-gradient(ellipse at 55% 24%, #152647 0%, #091023 65%, #052947 100%)`,
-          backgroundColor: "#0A1535",
-          position: "relative",
-          overflow: "hidden",
-        }}
+        className="flex-1 w-full flex flex-col items-center justify-center"
         aria-label="CanAI Emotional Sovereignty Platform Landing"
       >
-        {/* Subtle starfield overlay (SVG for cosmic feel) */}
-        <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-60" style={{zIndex:0}} viewBox="0 0 1920 1080" preserveAspectRatio="none">
-          <defs>
-            <radialGradient id="spotlight" cx="55%" cy="25%" r="0.7">
-              <stop offset="0%" stopColor="#36d1fe22" />
-              <stop offset="70%" stopColor="transparent" />
-            </radialGradient>
-          </defs>
-          <rect width="1920" height="1080" fill="url(#spotlight)" />
-          {/* Random subtle twinkling stars */}
-          <g>
-            <circle cx="220" cy="180" r="1.2" fill="#e6f6ff" opacity="0.08"/>
-            <circle cx="430" cy="400" r="1.6" fill="#36d1fe" opacity="0.11"/>
-            <circle cx="1520" cy="250" r="1" fill="#e6f6ff" opacity="0.08"/>
-            <circle cx="770" cy="850" r="0.7" fill="#00f0ff" opacity="0.09"/>
-            <circle cx="1430" cy="960" r="1.4" fill="#e6f6ff" opacity="0.07"/>
-            <circle cx="1190" cy="780" r="1.1" fill="#36d1fe" opacity="0.13"/>
-          </g>
-        </svg>
         {/* HERO */}
         <Hero
           userName={isLoggedIn ? userName : undefined}
           onStart={() => {
-            // TODO: Interaction logging, see POST /v1/log-interaction, Supabase session_logs
-            // logInteraction('start_journey');
             window.location.assign("/discovery-funnel");
           }}
         />
@@ -166,7 +137,7 @@ const DiscoveryHook = () => {
         <PricingModal isOpen={isPricingOpen} onClose={() => setPricingOpen(false)} />
         <PreviewModal isOpen={isPreviewOpen} onClose={() => setPreviewOpen(false)} />
       </main>
-    </>
+    </StandardBackground>
   );
 };
 

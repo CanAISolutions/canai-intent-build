@@ -5,12 +5,18 @@ import CanAILogo from './CanAILogo';
 
 interface PageHeaderProps {
   showBackButton?: boolean;
+  logoSize?: 'sm' | 'md' | 'lg';
+  showTagline?: boolean;
   className?: string;
+  rightContent?: React.ReactNode;
 }
 
 const PageHeader: React.FC<PageHeaderProps> = ({ 
-  showBackButton = true, 
-  className = "" 
+  showBackButton = true,
+  logoSize = 'sm',
+  showTagline = false,
+  className = "",
+  rightContent
 }) => {
   const navigate = useNavigate();
 
@@ -20,30 +26,33 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         className="cursor-pointer hover:scale-105 transition-transform duration-300"
         onClick={() => navigate('/')}
       >
-        <CanAILogo size="sm" showTagline={false} />
+        <CanAILogo size={logoSize} showTagline={showTagline} />
       </div>
       
-      {showBackButton && (
-        <button
-          onClick={() => navigate(-1)}
-          className="
-            text-[#cce7fa] 
-            hover:text-white 
-            font-manrope 
-            font-medium 
-            text-sm 
-            px-4 py-2 
-            rounded-lg 
-            border border-[rgba(54,209,254,0.3)]
-            hover:border-[#36d1fe]
-            transition-all 
-            duration-200
-            hover:bg-[rgba(54,209,254,0.1)]
-          "
-        >
-          ← Back
-        </button>
-      )}
+      <div className="flex items-center gap-4">
+        {rightContent}
+        {showBackButton && (
+          <button
+            onClick={() => navigate(-1)}
+            className="
+              text-[#cce7fa] 
+              hover:text-white 
+              font-manrope 
+              font-medium 
+              text-sm 
+              px-4 py-2 
+              rounded-lg 
+              border border-[rgba(54,209,254,0.3)]
+              hover:border-[#36d1fe]
+              transition-all 
+              duration-200
+              hover:bg-[rgba(54,209,254,0.1)]
+            "
+          >
+            ← Back
+          </button>
+        )}
+      </div>
     </header>
   );
 };

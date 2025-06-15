@@ -3,7 +3,9 @@ import React from "react";
 import { FileText, MessageSquare, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import StandardBackground from "@/components/StandardBackground";
 import PageHeader from "@/components/PageHeader";
+import StandardCard from "@/components/StandardCard";
 import SampleMetricBadge from "@/components/Samples/SampleMetricBadge";
 
 // Card data lives here so that it's scalable to future additions/changes.
@@ -95,14 +97,11 @@ const sampleCards = [
 
 const Samples = () => {
   const navigate = useNavigate();
+  
   return (
-    <div 
-      className="min-h-screen w-full flex flex-col"
-      style={{
-        background: "linear-gradient(135deg, #0A0F1C 0%, #14274E 50%, #0A0F1C 100%)"
-      }}
-    >
+    <StandardBackground>
       <PageHeader showBackButton className="max-w-7xl mx-auto pt-6 pb-4 px-4" />
+      
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 pb-20 pt-2">
         <section className="max-w-6xl mx-auto space-y-12">
           <header className="text-center pb-6">
@@ -121,26 +120,28 @@ const Samples = () => {
             {sampleCards.map((card, idx) => (
               <article
                 key={card.title}
-                className="group flex flex-col h-full rounded-3xl bg-gradient-to-br from-[#193c65] via-[#1e4a73] to-[#12294a] border-2 border-[#36d1fe] shadow-[0_0_40px_rgba(54,209,254,0.3)] hover:shadow-[0_0_60px_rgba(54,209,254,0.5)] transition-all duration-300 hover:scale-[1.02] animate-fade-in overflow-hidden"
+                className="group flex flex-col h-full animate-fade-in overflow-hidden"
                 style={{ minHeight: 520, animationDelay: `${idx * 0.15 + 0.02}s` }}
                 tabIndex={0}
                 role="region"
                 aria-labelledby={`sample-title-${idx}`}
               >
-                <header className="flex items-center gap-5 mb-4 pt-8 px-8">
-                  <div className="relative">
-                    <div className="rounded-2xl bg-gradient-to-br from-[#36d1fe] to-[#00B2E3] p-4 flex items-center justify-center shadow-lg border border-[rgba(255,255,255,0.2)] shadow-[0_0_20px_rgba(54,209,254,0.4)]">
-                      {card.icon}
+                <StandardCard className="h-full flex flex-col">
+                  <header className="flex items-center gap-5 mb-4 pt-8 px-8">
+                    <div className="relative">
+                      <div className="rounded-2xl bg-gradient-to-br from-[#36d1fe] to-[#00B2E3] p-4 flex items-center justify-center shadow-lg border border-[rgba(255,255,255,0.2)] shadow-[0_0_20px_rgba(54,209,254,0.4)]">
+                        {card.icon}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex-1">
-                    <h2 id={`sample-title-${idx}`} className="font-playfair font-bold text-2xl text-white tracking-wide leading-tight drop-shadow-lg">{card.title}</h2>
-                    <span className="block text-[#36d1fe] text-sm font-semibold mt-1 tracking-wide">{card.subtitle}</span>
-                  </div>
-                </header>
-                <section className="bg-[rgba(25,60,101,0.4)] rounded-2xl p-8 mx-6 mb-8 text-[#cce7fa] flex-1 shadow-lg border border-[rgba(54,209,254,0.2)] space-y-2">
-                  {card.content}
-                </section>
+                    <div className="flex-1">
+                      <h2 id={`sample-title-${idx}`} className="font-playfair font-bold text-2xl text-white tracking-wide leading-tight drop-shadow-lg">{card.title}</h2>
+                      <span className="block text-[#36d1fe] text-sm font-semibold mt-1 tracking-wide">{card.subtitle}</span>
+                    </div>
+                  </header>
+                  <section className="bg-[rgba(25,60,101,0.4)] rounded-2xl p-8 mx-6 mb-8 text-[#cce7fa] flex-1 shadow-lg border border-[rgba(54,209,254,0.2)] space-y-2">
+                    {card.content}
+                  </section>
+                </StandardCard>
               </article>
             ))}
           </div>
@@ -172,7 +173,7 @@ const Samples = () => {
           </footer>
         </section>
       </main>
-    </div>
+    </StandardBackground>
   );
 };
 
