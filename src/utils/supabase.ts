@@ -1,11 +1,10 @@
 /**
  * Supabase client configuration for CanAI Platform
- * TODO: Replace with actual Supabase project credentials
  */
 
 import { createClient } from '@supabase/supabase-js';
 
-// TODO: Replace with actual Supabase URL and anon key
+// Supabase configuration using Vite environment variables
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://your-project.supabase.co';
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key';
 

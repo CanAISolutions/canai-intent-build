@@ -13,7 +13,7 @@ export interface MakecomWebhookPayload {
   data: Record<string, any>;
 }
 
-// Make.com webhook URLs (TODO: Replace with actual webhook URLs)
+// Make.com webhook URLs
 const MAKECOM_WEBHOOKS = {
   SESSION_LOG: import.meta.env.VITE_MAKECOM_SESSION_WEBHOOK || 'https://hook.integromat.com/your-session-webhook',
   USER_INTERACTION: import.meta.env.VITE_MAKECOM_INTERACTION_WEBHOOK || 'https://hook.integromat.com/your-interaction-webhook',

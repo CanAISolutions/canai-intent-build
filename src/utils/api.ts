@@ -1,4 +1,3 @@
-
 import { generateCorrelationId, retryWithBackoff } from './tracing';
 import { insertSessionLog, insertErrorLog } from './supabase';
 import { logSessionToMakecom } from './makecom';
@@ -35,7 +34,7 @@ export interface PreviewSparkResponse {
 }
 
 // Base API configuration
-const API_BASE = process.env.VITE_API_BASE || '/v1';
+const API_BASE = import.meta.env.VITE_API_BASE || '/v1';
 const DEFAULT_TIMEOUT = 5000;
 
 // Generic fetch wrapper with retry logic and correlation ID
