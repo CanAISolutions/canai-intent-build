@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -56,6 +55,8 @@ const DeliverableGeneration: React.FC = () => {
     vision: "Become the go-to celebration destination for meaningful moments"
   };
 
+  const startTime = Date.now();
+
   useEffect(() => {
     // PostHog tracking
     console.log('PostHog: deliverable_generation_started', { 
@@ -88,7 +89,7 @@ const DeliverableGeneration: React.FC = () => {
     }, 15000);
 
     try {
-      <!-- TODO: GET /v1/generation-status -->
+      // TODO: GET /v1/generation-status
       // Simulate API call - replace with actual endpoint
       const response = await fetch('/api/v1/generate-deliverable', {
         method: 'POST',
@@ -217,7 +218,7 @@ const DeliverableGeneration: React.FC = () => {
     setIsRevising(true);
     
     try {
-      <!-- TODO: POST /v1/request-revision -->
+      // TODO: POST /v1/request-revision
       const response = await fetch('/api/v1/request-revision', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -278,7 +279,7 @@ const DeliverableGeneration: React.FC = () => {
     setIsRegenerating(true);
     
     try {
-      <!-- TODO: POST /v1/regenerate-deliverable -->
+      // TODO: POST /v1/regenerate-deliverable
       const response = await fetch('/api/v1/regenerate-deliverable', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
