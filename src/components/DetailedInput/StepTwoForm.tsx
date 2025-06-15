@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -5,21 +6,15 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { HelpCircle, Loader2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { FormData } from "@/pages/DetailedInput";
+import { StepTwoFormProps } from "@/types/formTypes";
 import { generateTooltipContent } from "@/utils/api";
 import { trackEvent, POSTHOG_EVENTS } from "@/utils/analytics";
-
-interface StepTwoFormProps {
-  formData: FormData;
-  setFormData: (data: FormData) => void;
-  errors: Partial<FormData>;
-}
 
 const StepTwoForm: React.FC<StepTwoFormProps> = ({ formData, setFormData, errors }) => {
   const [tooltipLoading, setTooltipLoading] = useState<string | null>(null);
   const [enhancedTooltips, setEnhancedTooltips] = useState<Record<string, string>>({});
 
-  const handleInputChange = (field: keyof FormData, value: string) => {
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData({
       ...formData,
       [field]: value
@@ -97,24 +92,24 @@ const StepTwoForm: React.FC<StepTwoFormProps> = ({ formData, setFormData, errors
         {/* Business Description - Featured first with enhanced styling */}
         <div className="space-y-4">
           <div className="flex items-center gap-3 mb-4">
-            <Label htmlFor="desc-input" className="text-canai-light font-bold text-lg">
+            <Label htmlFor="desc-input" className="text-white font-bold text-lg">
               Business Description * (10-50 words)
             </Label>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center">
                   {tooltipLoading === 'businessDescription' ? (
-                    <Loader2 className="w-5 h-5 text-canai-primary animate-spin" />
+                    <Loader2 className="w-5 h-5 text-[#36d1fe] animate-spin" />
                   ) : (
                     <HelpCircle 
                       id="desc-tooltip"
-                      className="w-5 h-5 text-canai-primary cursor-help hover:text-canai-cyan transition-colors duration-200"
+                      className="w-5 h-5 text-[#36d1fe] cursor-help hover:text-[#00F0FF] transition-colors duration-200"
                       onClick={() => handleTooltipClick('businessDescription')}
                     />
                   )}
                 </div>
               </TooltipTrigger>
-              <TooltipContent className="bg-canai-deep border-canai-primary/50 text-canai-light max-w-xs p-3 rounded-lg shadow-lg">
+              <TooltipContent className="bg-[#0A0F1C] border-[#36d1fe]/50 text-white max-w-xs p-3 rounded-lg shadow-lg">
                 <p className="text-sm">
                   {getTooltipContent('businessDescription', "E.g., \"Artisanal bakery serving Denver with organic pastries and community gathering space\"")}
                 </p>
@@ -126,12 +121,12 @@ const StepTwoForm: React.FC<StepTwoFormProps> = ({ formData, setFormData, errors
             value={formData.businessDescription}
             onChange={(e) => handleInputChange('businessDescription', e.target.value)}
             placeholder="e.g., Artisanal bakery serving Denver with organic pastries and community gathering space"
-            className="bg-canai-deep/60 border-2 border-canai-primary/50 text-canai-light placeholder:text-canai-light-blue/70 focus:border-canai-primary focus:ring-2 focus:ring-canai-primary/30 min-h-[140px] text-base rounded-xl p-4 resize-none transition-all duration-200 hover:border-canai-primary/70"
+            className="bg-[#0A0F1C]/60 border-2 border-[#36d1fe]/50 text-white placeholder:text-white/70 focus:border-[#36d1fe] focus:ring-2 focus:ring-[#36d1fe]/30 min-h-[140px] text-base rounded-xl p-4 resize-none transition-all duration-200 hover:border-[#36d1fe]/70"
             maxLength={400}
           />
           <div className="flex justify-between items-center text-sm">
-            <span className="text-canai-light-blue font-medium">
-              Word count: <span className="text-canai-primary font-bold">{countWords(formData.businessDescription)}/50</span>
+            <span className="text-white font-medium">
+              Word count: <span className="text-[#36d1fe] font-bold">{countWords(formData.businessDescription)}/50</span>
             </span>
             {errors.businessDescription && (
               <span className="text-red-400 font-medium">{errors.businessDescription}</span>
@@ -142,29 +137,29 @@ const StepTwoForm: React.FC<StepTwoFormProps> = ({ formData, setFormData, errors
         {/* Plan Purpose - Enhanced styling */}
         <div className="space-y-4">
           <div className="flex items-center gap-3 mb-3">
-            <Label htmlFor="purpose-select" className="text-canai-light font-bold text-lg">
+            <Label htmlFor="purpose-select" className="text-white font-bold text-lg">
               Plan Purpose *
             </Label>
             <Tooltip>
               <TooltipTrigger asChild>
                 <HelpCircle 
-                  className="w-5 h-5 text-canai-primary cursor-help hover:text-canai-cyan transition-colors duration-200"
+                  className="w-5 h-5 text-[#36d1fe] cursor-help hover:text-[#00F0FF] transition-colors duration-200"
                   onClick={() => handleTooltipClick('planPurpose')}
                 />
               </TooltipTrigger>
-              <TooltipContent className="bg-canai-deep border-canai-primary/50 text-canai-light max-w-xs p-3 rounded-lg shadow-lg">
+              <TooltipContent className="bg-[#0A0F1C] border-[#36d1fe]/50 text-white max-w-xs p-3 rounded-lg shadow-lg">
                 <p className="text-sm">Will you use this for investors or internal planning?</p>
               </TooltipContent>
             </Tooltip>
           </div>
           <Select value={formData.planPurpose} onValueChange={(value) => handleInputChange('planPurpose', value)}>
-            <SelectTrigger id="purpose-select" className="bg-canai-deep/60 border-2 border-canai-primary/50 text-canai-light h-14 text-base rounded-xl px-4 hover:border-canai-primary/70 focus:border-canai-primary focus:ring-2 focus:ring-canai-primary/30 transition-all duration-200">
+            <SelectTrigger id="purpose-select" className="bg-[#0A0F1C]/60 border-2 border-[#36d1fe]/50 text-white h-14 text-base rounded-xl px-4 hover:border-[#36d1fe]/70 focus:border-[#36d1fe] focus:ring-2 focus:ring-[#36d1fe]/30 transition-all duration-200">
               <SelectValue placeholder="Select plan purpose" />
             </SelectTrigger>
-            <SelectContent className="bg-canai-deep border-2 border-canai-primary/50 rounded-xl shadow-xl">
-              <SelectItem value="investor" className="text-canai-light hover:bg-canai-primary/30 focus:bg-canai-primary/30 rounded-lg mx-1 my-1">Investor Presentation</SelectItem>
-              <SelectItem value="internal" className="text-canai-light hover:bg-canai-primary/30 focus:bg-canai-primary/30 rounded-lg mx-1 my-1">Internal Planning</SelectItem>
-              <SelectItem value="loan" className="text-canai-light hover:bg-canai-primary/30 focus:bg-canai-primary/30 rounded-lg mx-1 my-1">Loan Application</SelectItem>
+            <SelectContent className="bg-[#0A0F1C] border-2 border-[#36d1fe]/50 rounded-xl shadow-xl">
+              <SelectItem value="investor" className="text-white hover:bg-[#36d1fe]/30 focus:bg-[#36d1fe]/30 rounded-lg mx-1 my-1">Investor Presentation</SelectItem>
+              <SelectItem value="internal" className="text-white hover:bg-[#36d1fe]/30 focus:bg-[#36d1fe]/30 rounded-lg mx-1 my-1">Internal Planning</SelectItem>
+              <SelectItem value="loan" className="text-white hover:bg-[#36d1fe]/30 focus:bg-[#36d1fe]/30 rounded-lg mx-1 my-1">Loan Application</SelectItem>
             </SelectContent>
           </Select>
           {errors.planPurpose && (
@@ -177,24 +172,24 @@ const StepTwoForm: React.FC<StepTwoFormProps> = ({ formData, setFormData, errors
           {/* Resource Constraints */}
           <div className="space-y-4">
             <div className="flex items-center gap-3 mb-3">
-              <Label htmlFor="constraints-input" className="text-canai-light font-semibold text-base">
+              <Label htmlFor="constraints-input" className="text-white font-semibold text-base">
                 Resource Constraints
               </Label>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="flex items-center">
                     {tooltipLoading === 'resourceConstraints' ? (
-                      <Loader2 className="w-5 h-5 text-canai-primary animate-spin" />
+                      <Loader2 className="w-5 h-5 text-[#36d1fe] animate-spin" />
                     ) : (
                       <HelpCircle 
                         id="constraints-tooltip"
-                        className="w-5 h-5 text-canai-primary cursor-help hover:text-canai-cyan transition-colors duration-200"
+                        className="w-5 h-5 text-[#36d1fe] cursor-help hover:text-[#00F0FF] transition-colors duration-200"
                         onClick={() => handleTooltipClick('resourceConstraints')}
                       />
                     )}
                   </div>
                 </TooltipTrigger>
-                <TooltipContent className="bg-canai-deep border-canai-primary/50 text-canai-light max-w-xs p-3 rounded-lg shadow-lg">
+                <TooltipContent className="bg-[#0A0F1C] border-[#36d1fe]/50 text-white max-w-xs p-3 rounded-lg shadow-lg">
                   <p className="text-sm">
                     {getTooltipContent('resourceConstraints', "E.g., \"$50k budget; team of 3; 6 months timeline\"")}
                   </p>
@@ -206,7 +201,7 @@ const StepTwoForm: React.FC<StepTwoFormProps> = ({ formData, setFormData, errors
               value={formData.resourceConstraints}
               onChange={(e) => handleInputChange('resourceConstraints', e.target.value)}
               placeholder="e.g., $50k budget; team of 3; 6 months timeline"
-              className="bg-canai-deep/60 border-2 border-canai-primary/50 text-canai-light placeholder:text-canai-light-blue/70 focus:border-canai-primary focus:ring-2 focus:ring-canai-primary/30 min-h-[120px] text-base rounded-xl p-4 resize-none transition-all duration-200 hover:border-canai-primary/70"
+              className="bg-[#0A0F1C]/60 border-2 border-[#36d1fe]/50 text-white placeholder:text-white/70 focus:border-[#36d1fe] focus:ring-2 focus:ring-[#36d1fe]/30 min-h-[120px] text-base rounded-xl p-4 resize-none transition-all duration-200 hover:border-[#36d1fe]/70"
               maxLength={200}
             />
           </div>
@@ -214,17 +209,17 @@ const StepTwoForm: React.FC<StepTwoFormProps> = ({ formData, setFormData, errors
           {/* Current Status */}
           <div className="space-y-4">
             <div className="flex items-center gap-3 mb-3">
-              <Label htmlFor="status-input" className="text-canai-light font-semibold text-base">
+              <Label htmlFor="status-input" className="text-white font-semibold text-base">
                 Current Status
               </Label>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <HelpCircle 
-                    className="w-5 h-5 text-canai-primary cursor-help hover:text-canai-cyan transition-colors duration-200"
+                    className="w-5 h-5 text-[#36d1fe] cursor-help hover:text-[#00F0FF] transition-colors duration-200"
                     onClick={() => handleTooltipClick('currentStatus')}
                   />
                 </TooltipTrigger>
-                <TooltipContent className="bg-canai-deep border-canai-primary/50 text-canai-light max-w-xs p-3 rounded-lg shadow-lg">
+                <TooltipContent className="bg-[#0A0F1C] border-[#36d1fe]/50 text-white max-w-xs p-3 rounded-lg shadow-lg">
                   <p className="text-sm">E.g., "Planning phase - researched location, need business plan for loan"</p>
                 </TooltipContent>
               </Tooltip>
@@ -234,7 +229,7 @@ const StepTwoForm: React.FC<StepTwoFormProps> = ({ formData, setFormData, errors
               value={formData.currentStatus}
               onChange={(e) => handleInputChange('currentStatus', e.target.value)}
               placeholder="e.g., Planning phase - researched location"
-              className="bg-canai-deep/60 border-2 border-canai-primary/50 text-canai-light placeholder:text-canai-light-blue/70 focus:border-canai-primary focus:ring-2 focus:ring-canai-primary/30 min-h-[120px] text-base rounded-xl p-4 resize-none transition-all duration-200 hover:border-canai-primary/70"
+              className="bg-[#0A0F1C]/60 border-2 border-[#36d1fe]/50 text-white placeholder:text-white/70 focus:border-[#36d1fe] focus:ring-2 focus:ring-[#36d1fe]/30 min-h-[120px] text-base rounded-xl p-4 resize-none transition-all duration-200 hover:border-[#36d1fe]/70"
               maxLength={120}
             />
           </div>
@@ -243,24 +238,24 @@ const StepTwoForm: React.FC<StepTwoFormProps> = ({ formData, setFormData, errors
         {/* Revenue Model - Enhanced single column */}
         <div className="space-y-4">
           <div className="flex items-center gap-3 mb-3">
-            <Label htmlFor="revenue-input" className="text-canai-light font-semibold text-base">
+            <Label htmlFor="revenue-input" className="text-white font-semibold text-base">
               Revenue Model
             </Label>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center">
                   {tooltipLoading === 'revenueModel' ? (
-                    <Loader2 className="w-5 h-5 text-canai-primary animate-spin" />
+                    <Loader2 className="w-5 h-5 text-[#36d1fe] animate-spin" />
                   ) : (
                     <HelpCircle 
                       id="revenue-tooltip"
-                      className="w-5 h-5 text-canai-primary cursor-help hover:text-canai-cyan transition-colors duration-200"
+                      className="w-5 h-5 text-[#36d1fe] cursor-help hover:text-[#00F0FF] transition-colors duration-200"
                       onClick={() => handleTooltipClick('revenueModel')}
                     />
                   )}
                 </div>
               </TooltipTrigger>
-              <TooltipContent className="bg-canai-deep border-canai-primary/50 text-canai-light max-w-xs p-3 rounded-lg shadow-lg">
+              <TooltipContent className="bg-[#0A0F1C] border-[#36d1fe]/50 text-white max-w-xs p-3 rounded-lg shadow-lg">
                 <p className="text-sm">
                   {getTooltipContent('revenueModel', "E.g., \"Bakery sales, events, catering services\"")}
                 </p>
@@ -272,30 +267,32 @@ const StepTwoForm: React.FC<StepTwoFormProps> = ({ formData, setFormData, errors
             value={formData.revenueModel}
             onChange={(e) => handleInputChange('revenueModel', e.target.value)}
             placeholder="e.g., Bakery sales, events, catering services"
-            className="bg-canai-deep/60 border-2 border-canai-primary/50 text-canai-light placeholder:text-canai-light-blue/70 focus:border-canai-primary focus:ring-2 focus:ring-canai-primary/30 h-14 text-base rounded-xl px-4 transition-all duration-200 hover:border-canai-primary/70"
+            className="bg-[#0A0F1C]/60 border-2 border-[#36d1fe]/50 text-white placeholder:text-white/70 focus:border-[#36d1fe] focus:ring-2 focus:ring-[#36d1fe]/30 h-14 text-base rounded-xl px-4 transition-all duration-200 hover:border-[#36d1fe]/70"
             maxLength={150}
           />
         </div>
 
         {/* Additional Context - Optional with enhanced styling */}
-        <div className="pt-6 border-t-2 border-canai-primary/30 space-y-4">
+        <div className="pt-6 border-t-2 border-[#36d1fe]/30 space-y-4">
           <div className="flex items-center gap-3 mb-3">
-            <Label htmlFor="feedback-text" className="text-canai-light font-semibold text-base">
-              Additional Context <span className="text-canai-light-blue text-sm font-normal">(Optional)</span>
+            <Label htmlFor="feedback-text" className="text-white font-semibold text-base">
+              Additional Context <span className="text-white text-sm font-normal">(Optional)</span>
             </Label>
             <Tooltip>
               <TooltipTrigger asChild>
-                <HelpCircle className="w-5 h-5 text-canai-primary cursor-help hover:text-canai-cyan transition-colors duration-200" />
+                <HelpCircle className="w-5 h-5 text-[#36d1fe] cursor-help hover:text-[#00F0FF] transition-colors duration-200" />
               </TooltipTrigger>
-              <TooltipContent className="bg-canai-deep border-canai-primary/50 text-canai-light max-w-xs p-3 rounded-lg shadow-lg">
+              <TooltipContent className="bg-[#0A0F1C] border-[#36d1fe]/50 text-white max-w-xs p-3 rounded-lg shadow-lg">
                 <p className="text-sm">Any other important details about your bakery business?</p>
               </TooltipContent>
             </Tooltip>
           </div>
           <Textarea
             id="feedback-text"
+            value={formData.additionalContext}
+            onChange={(e) => handleInputChange('additionalContext', e.target.value)}
             placeholder="e.g., Family recipes passed down 3 generations, partnership with local farms established"
-            className="bg-canai-deep/60 border-2 border-canai-primary/50 text-canai-light placeholder:text-canai-light-blue/70 focus:border-canai-primary focus:ring-2 focus:ring-canai-primary/30 min-h-[120px] text-base rounded-xl p-4 resize-none transition-all duration-200 hover:border-canai-primary/70"
+            className="bg-[#0A0F1C]/60 border-2 border-[#36d1fe]/50 text-white placeholder:text-white/70 focus:border-[#36d1fe] focus:ring-2 focus:ring-[#36d1fe]/30 min-h-[120px] text-base rounded-xl p-4 resize-none transition-all duration-200 hover:border-[#36d1fe]/70"
             maxLength={300}
           />
         </div>

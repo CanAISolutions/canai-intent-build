@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sparkles, RefreshCw, ArrowRight, Star } from 'lucide-react';
 
 // API and analytics imports
-import { generateSparks, regenerateSparks } from '@/utils/sparkLayerApi';
+import { generateSparks, regenerateSparks, SparkData } from '@/utils/sparkLayerApi';
 import { trackPageView, trackFunnelStep, trackSparkSelected, trackSparksRegenerated } from '@/utils/analytics';
 import { logInteraction } from '@/utils/api';
 
@@ -43,12 +43,20 @@ const SparkLayer = () => {
         businessType: 'Family Bakery',
         tone: 'warm',
         outcome: 'community_connection',
-        attempt_count: 1
+        attemptCount: 1
       });
 
       if (response.sparks) {
-        setSparks(response.sparks);
-        console.log('[Spark Layer] Initial sparks loaded:', response.sparks);
+        // Convert SparkData to Spark with additional properties
+        const convertedSparks: Spark[] = response.sparks.map((spark, index) => ({
+          id: `spark_${index + 1}`,
+          title: spark.title,
+          tagline: spark.tagline,
+          productTrack: 'business_builder' as const
+        }));
+        
+        setSparks(convertedSparks);
+        console.log('[Spark Layer] Initial sparks loaded:', convertedSparks);
       } else {
         // Fallback sparks
         setSparks([
@@ -97,21 +105,29 @@ const SparkLayer = () => {
     const newAttemptCount = attemptCount + 1;
 
     try {
-      trackSparksRegenerated(newAttemptCount, trustScore);
+      trackSparksRegenerated(newAttemptCount);
 
       const response = await regenerateSparks({
         businessType: 'Family Bakery',
         tone: 'warm',
         outcome: 'community_connection',
-        attempt_count: newAttemptCount,
+        attemptCount: newAttemptCount,
         feedback: feedback.trim() || undefined
       });
 
       if (response.sparks) {
-        setSparks(response.sparks);
+        // Convert SparkData to Spark with additional properties
+        const convertedSparks: Spark[] = response.sparks.map((spark, index) => ({
+          id: `regenerated_${index + 1}`,
+          title: spark.title,
+          tagline: spark.tagline,
+          productTrack: 'business_builder' as const
+        }));
+        
+        setSparks(convertedSparks);
         setAttemptCount(newAttemptCount);
         setFeedback('');
-        console.log('[Spark Layer] Sparks regenerated:', response.sparks);
+        console.log('[Spark Layer] Sparks regenerated:', convertedSparks);
       }
 
     } catch (error) {
@@ -126,7 +142,7 @@ const SparkLayer = () => {
     const spark = sparks.find(s => s.id === sparkId);
     
     if (spark) {
-      trackSparkSelected(sparkId, spark.productTrack, Date.now());
+      trackSparkSelected(sparkId);
       
       logInteraction({
         user_id: 'demo-user-id',

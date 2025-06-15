@@ -6,16 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { HelpCircle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { FormData } from "@/pages/DetailedInput";
-
-interface StepOneFormProps {
-  formData: FormData;
-  setFormData: (data: FormData) => void;
-  errors: Partial<FormData>;
-}
+import { StepOneFormProps } from "@/types/formTypes";
 
 const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors }) => {
-  const handleInputChange = (field: keyof FormData, value: string) => {
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData({
       ...formData,
       [field]: value
@@ -32,17 +26,17 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
         {/* Business Name */}
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <Label htmlFor="name-input" className="text-canai-light font-semibold text-base">
+            <Label htmlFor="name-input" className="text-white font-semibold text-base">
               Business Name *
             </Label>
             <Tooltip>
               <TooltipTrigger asChild>
                 <HelpCircle 
-                  className="w-5 h-5 text-canai-primary cursor-help hover:text-canai-cyan transition-colors"
+                  className="w-5 h-5 text-[#36d1fe] cursor-help hover:text-[#00F0FF] transition-colors"
                   onClick={() => handleTooltipClick('businessName')}
                 />
               </TooltipTrigger>
-              <TooltipContent className="bg-canai-deep border-canai-primary text-canai-light max-w-xs">
+              <TooltipContent className="bg-[#0A0F1C] border-[#36d1fe] text-white max-w-xs">
                 <p>E.g., "Sprinkle Haven Bakery" - Your official business name (3-50 characters)</p>
               </TooltipContent>
             </Tooltip>
@@ -52,7 +46,7 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
             value={formData.businessName}
             onChange={(e) => handleInputChange('businessName', e.target.value)}
             placeholder="e.g., Sprinkle Haven Bakery"
-            className="bg-canai-deep/50 border-canai-primary/40 text-canai-light placeholder:text-canai-light-blue/60 focus:border-canai-primary focus:ring-2 focus:ring-canai-primary/20 h-12 text-base rounded-lg"
+            className="bg-[#0A0F1C]/50 border-[#36d1fe]/40 text-white placeholder:text-white/60 focus:border-[#36d1fe] focus:ring-2 focus:ring-[#36d1fe]/20 h-12 text-base rounded-lg"
             maxLength={50}
           />
           {errors.businessName && (
@@ -63,17 +57,17 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
         {/* Target Audience */}
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <Label htmlFor="audience-input" className="text-canai-light font-semibold text-base">
+            <Label htmlFor="audience-input" className="text-white font-semibold text-base">
               Target Audience *
             </Label>
             <Tooltip>
               <TooltipTrigger asChild>
                 <HelpCircle 
-                  className="w-5 h-5 text-canai-primary cursor-help hover:text-canai-cyan transition-colors"
+                  className="w-5 h-5 text-[#36d1fe] cursor-help hover:text-[#00F0FF] transition-colors"
                   onClick={() => handleTooltipClick('targetAudience')}
                 />
               </TooltipTrigger>
-              <TooltipContent className="bg-canai-deep border-canai-primary text-canai-light max-w-xs">
+              <TooltipContent className="bg-[#0A0F1C] border-[#36d1fe] text-white max-w-xs">
                 <p>E.g., "Denver families with young children who value organic, artisanal baked goods"</p>
               </TooltipContent>
             </Tooltip>
@@ -83,7 +77,7 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
             value={formData.targetAudience}
             onChange={(e) => handleInputChange('targetAudience', e.target.value)}
             placeholder="e.g., Denver families with young children who value organic, artisanal baked goods"
-            className="bg-canai-deep/50 border-canai-primary/40 text-canai-light placeholder:text-canai-light-blue/60 focus:border-canai-primary focus:ring-2 focus:ring-canai-primary/20 min-h-[100px] text-base rounded-lg resize-none"
+            className="bg-[#0A0F1C]/50 border-[#36d1fe]/40 text-white placeholder:text-white/60 focus:border-[#36d1fe] focus:ring-2 focus:ring-[#36d1fe]/20 min-h-[100px] text-base rounded-lg resize-none"
             maxLength={200}
           />
           {errors.targetAudience && (
@@ -94,29 +88,29 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
         {/* Primary Goal */}
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <Label htmlFor="goal-select" className="text-canai-light font-semibold text-base">
+            <Label htmlFor="goal-select" className="text-white font-semibold text-base">
               Primary Goal *
             </Label>
             <Tooltip>
               <TooltipTrigger asChild>
                 <HelpCircle 
-                  className="w-5 h-5 text-canai-primary cursor-help hover:text-canai-cyan transition-colors"
+                  className="w-5 h-5 text-[#36d1fe] cursor-help hover:text-[#00F0FF] transition-colors"
                   onClick={() => handleTooltipClick('primaryGoal')}
                 />
               </TooltipTrigger>
-              <TooltipContent className="bg-canai-deep border-canai-primary text-canai-light max-w-xs">
+              <TooltipContent className="bg-[#0A0F1C] border-[#36d1fe] text-white max-w-xs">
                 <p>What's your main objective for this business plan?</p>
               </TooltipContent>
             </Tooltip>
           </div>
           <Select value={formData.primaryGoal} onValueChange={(value) => handleInputChange('primaryGoal', value)}>
-            <SelectTrigger id="goal-select" className="bg-canai-deep/50 border-canai-primary/40 text-canai-light h-12 text-base rounded-lg">
+            <SelectTrigger id="goal-select" className="bg-[#0A0F1C]/50 border-[#36d1fe]/40 text-white h-12 text-base rounded-lg">
               <SelectValue placeholder="Select your primary goal" />
             </SelectTrigger>
-            <SelectContent className="bg-canai-deep border-canai-primary">
-              <SelectItem value="funding" className="text-canai-light hover:bg-canai-primary/20 focus:bg-canai-primary/20">Secure Funding</SelectItem>
-              <SelectItem value="growth" className="text-canai-light hover:bg-canai-primary/20 focus:bg-canai-primary/20">Business Growth</SelectItem>
-              <SelectItem value="operations" className="text-canai-light hover:bg-canai-primary/20 focus:bg-canai-primary/20">Operational Planning</SelectItem>
+            <SelectContent className="bg-[#0A0F1C] border-[#36d1fe]">
+              <SelectItem value="funding" className="text-white hover:bg-[#36d1fe]/20 focus:bg-[#36d1fe]/20">Secure Funding</SelectItem>
+              <SelectItem value="growth" className="text-white hover:bg-[#36d1fe]/20 focus:bg-[#36d1fe]/20">Business Growth</SelectItem>
+              <SelectItem value="operations" className="text-white hover:bg-[#36d1fe]/20 focus:bg-[#36d1fe]/20">Operational Planning</SelectItem>
             </SelectContent>
           </Select>
           {errors.primaryGoal && (
@@ -129,17 +123,17 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
           {/* Competitive Context */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Label htmlFor="context-input" className="text-canai-light font-semibold text-base">
+              <Label htmlFor="context-input" className="text-white font-semibold text-base">
                 Competitive Context
               </Label>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <HelpCircle 
-                    className="w-5 h-5 text-canai-primary cursor-help hover:text-canai-cyan transition-colors"
+                    className="w-5 h-5 text-[#36d1fe] cursor-help hover:text-[#00F0FF] transition-colors"
                     onClick={() => handleTooltipClick('competitiveContext')}
                   />
                 </TooltipTrigger>
-                <TooltipContent className="bg-canai-deep border-canai-primary text-canai-light max-w-xs">
+                <TooltipContent className="bg-[#0A0F1C] border-[#36d1fe] text-white max-w-xs">
                   <p>E.g., "Blue Moon Bakery dominates downtown, but lacks organic options"</p>
                 </TooltipContent>
               </Tooltip>
@@ -149,7 +143,7 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
               value={formData.competitiveContext}
               onChange={(e) => handleInputChange('competitiveContext', e.target.value)}
               placeholder="e.g., Blue Moon Bakery dominates downtown"
-              className="bg-canai-deep/50 border-canai-primary/40 text-canai-light placeholder:text-canai-light-blue/60 focus:border-canai-primary focus:ring-2 focus:ring-canai-primary/20 h-12 text-base rounded-lg"
+              className="bg-[#0A0F1C]/50 border-[#36d1fe]/40 text-white placeholder:text-white/60 focus:border-[#36d1fe] focus:ring-2 focus:ring-[#36d1fe]/20 h-12 text-base rounded-lg"
               maxLength={100}
             />
           </div>
@@ -157,33 +151,33 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
           {/* Brand Voice */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Label htmlFor="voice-select" className="text-canai-light font-semibold text-base">
+              <Label htmlFor="voice-select" className="text-white font-semibold text-base">
                 Brand Voice
               </Label>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <HelpCircle 
-                    className="w-5 h-5 text-canai-primary cursor-help hover:text-canai-cyan transition-colors"
+                    className="w-5 h-5 text-[#36d1fe] cursor-help hover:text-[#00F0FF] transition-colors"
                     onClick={() => handleTooltipClick('brandVoice')}
                   />
                 </TooltipTrigger>
-                <TooltipContent className="bg-canai-deep border-canai-primary text-canai-light max-w-xs">
+                <TooltipContent className="bg-[#0A0F1C] border-[#36d1fe] text-white max-w-xs">
                   <p>How should your brand communicate? "Warm" works great for community bakeries</p>
                 </TooltipContent>
               </Tooltip>
             </div>
             <Select value={formData.brandVoice} onValueChange={(value) => handleInputChange('brandVoice', value)}>
-              <SelectTrigger id="voice-select" className="bg-canai-deep/50 border-canai-primary/40 text-canai-light h-12 text-base rounded-lg">
+              <SelectTrigger id="voice-select" className="bg-[#0A0F1C]/50 border-[#36d1fe]/40 text-white h-12 text-base rounded-lg">
                 <SelectValue placeholder="Select brand voice" />
               </SelectTrigger>
-              <SelectContent className="bg-canai-deep border-canai-primary">
-                <SelectItem value="warm" className="text-canai-light hover:bg-canai-primary/20 focus:bg-canai-primary/20">Warm</SelectItem>
-                <SelectItem value="bold" className="text-canai-light hover:bg-canai-primary/20 focus:bg-canai-primary/20">Bold</SelectItem>
-                <SelectItem value="optimistic" className="text-canai-light hover:bg-canai-primary/20 focus:bg-canai-primary/20">Optimistic</SelectItem>
-                <SelectItem value="professional" className="text-canai-light hover:bg-canai-primary/20 focus:bg-canai-primary/20">Professional</SelectItem>
-                <SelectItem value="playful" className="text-canai-light hover:bg-canai-primary/20 focus:bg-canai-primary/20">Playful</SelectItem>
-                <SelectItem value="inspirational" className="text-canai-light hover:bg-canai-primary/20 focus:bg-canai-primary/20">Inspirational</SelectItem>
-                <SelectItem value="custom" className="text-canai-light hover:bg-canai-primary/20 focus:bg-canai-primary/20">Custom</SelectItem>
+              <SelectContent className="bg-[#0A0F1C] border-[#36d1fe]">
+                <SelectItem value="warm" className="text-white hover:bg-[#36d1fe]/20 focus:bg-[#36d1fe]/20">Warm</SelectItem>
+                <SelectItem value="bold" className="text-white hover:bg-[#36d1fe]/20 focus:bg-[#36d1fe]/20">Bold</SelectItem>
+                <SelectItem value="optimistic" className="text-white hover:bg-[#36d1fe]/20 focus:bg-[#36d1fe]/20">Optimistic</SelectItem>
+                <SelectItem value="professional" className="text-white hover:bg-[#36d1fe]/20 focus:bg-[#36d1fe]/20">Professional</SelectItem>
+                <SelectItem value="playful" className="text-white hover:bg-[#36d1fe]/20 focus:bg-[#36d1fe]/20">Playful</SelectItem>
+                <SelectItem value="inspirational" className="text-white hover:bg-[#36d1fe]/20 focus:bg-[#36d1fe]/20">Inspirational</SelectItem>
+                <SelectItem value="custom" className="text-white hover:bg-[#36d1fe]/20 focus:bg-[#36d1fe]/20">Custom</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -192,17 +186,17 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
         {/* Location */}
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <Label htmlFor="location-input" className="text-canai-light font-semibold text-base">
+            <Label htmlFor="location-input" className="text-white font-semibold text-base">
               Location *
             </Label>
             <Tooltip>
               <TooltipTrigger asChild>
                 <HelpCircle 
-                  className="w-5 h-5 text-canai-primary cursor-help hover:text-canai-cyan transition-colors"
+                  className="w-5 h-5 text-[#36d1fe] cursor-help hover:text-[#00F0FF] transition-colors"
                   onClick={() => handleTooltipClick('location')}
                 />
               </TooltipTrigger>
-              <TooltipContent className="bg-canai-deep border-canai-primary text-canai-light max-w-xs">
+              <TooltipContent className="bg-[#0A0F1C] border-[#36d1fe] text-white max-w-xs">
                 <p>E.g., "Denver, CO" - Where your business operates or will operate</p>
               </TooltipContent>
             </Tooltip>
@@ -212,7 +206,7 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
             value={formData.location}
             onChange={(e) => handleInputChange('location', e.target.value)}
             placeholder="e.g., Denver, CO"
-            className="bg-canai-deep/50 border-canai-primary/40 text-canai-light placeholder:text-canai-light-blue/60 focus:border-canai-primary focus:ring-2 focus:ring-canai-primary/20 h-12 text-base rounded-lg"
+            className="bg-[#0A0F1C]/50 border-[#36d1fe]/40 text-white placeholder:text-white/60 focus:border-[#36d1fe] focus:ring-2 focus:ring-[#36d1fe]/20 h-12 text-base rounded-lg"
             maxLength={100}
           />
           {errors.location && (
@@ -223,17 +217,17 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
         {/* Unique Value */}
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <Label htmlFor="unique-value-input" className="text-canai-light font-semibold text-base">
+            <Label htmlFor="unique-value-input" className="text-white font-semibold text-base">
               Unique Value Proposition *
             </Label>
             <Tooltip>
               <TooltipTrigger asChild>
                 <HelpCircle 
-                  className="w-5 h-5 text-canai-primary cursor-help hover:text-canai-cyan transition-colors"
+                  className="w-5 h-5 text-[#36d1fe] cursor-help hover:text-[#00F0FF] transition-colors"
                   onClick={() => handleTooltipClick('uniqueValue')}
                 />
               </TooltipTrigger>
-              <TooltipContent className="bg-canai-deep border-canai-primary text-canai-light max-w-xs">
+              <TooltipContent className="bg-[#0A0F1C] border-[#36d1fe] text-white max-w-xs">
                 <p>E.g., "Organic, community-focused pastries with locally-sourced ingredients"</p>
               </TooltipContent>
             </Tooltip>
@@ -243,7 +237,7 @@ const StepOneForm: React.FC<StepOneFormProps> = ({ formData, setFormData, errors
             value={formData.uniqueValue}
             onChange={(e) => handleInputChange('uniqueValue', e.target.value)}
             placeholder="e.g., Organic, community-focused pastries with locally-sourced ingredients"
-            className="bg-canai-deep/50 border-canai-primary/40 text-canai-light placeholder:text-canai-light-blue/60 focus:border-canai-primary focus:ring-2 focus:ring-canai-primary/20 min-h-[100px] text-base rounded-lg resize-none"
+            className="bg-[#0A0F1C]/50 border-[#36d1fe]/40 text-white placeholder:text-white/60 focus:border-[#36d1fe] focus:ring-2 focus:ring-[#36d1fe]/20 min-h-[100px] text-base rounded-lg resize-none"
             maxLength={200}
           />
           {errors.uniqueValue && (

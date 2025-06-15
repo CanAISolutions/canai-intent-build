@@ -33,11 +33,11 @@ const SparkSplit = () => {
         // Track page view
         trackPageView('spark_split');
         trackFunnelStep('spark_split_viewed');
-        trackSparkSplitView('page_load');
+        trackSparkSplitView();
 
         // Generate comparison outputs
         const response = await generateSparkSplit({
-          businessType: 'Family Bakery',
+          businessName: 'Family Bakery',
           tone: 'warm',
           outcome: 'community_connection'
         });
@@ -142,18 +142,18 @@ A bakery can be a profitable business with proper planning and execution.`);
     initializeSparkSplit();
   }, []);
 
-  const handleFeedbackSubmit = async (rating: number, comment: string) => {
+  const handleFeedbackSubmit = async (formData: { rating: number; comment: string }) => {
     try {
-      trackFeedbackSubmission('spark_split', rating);
+      trackFeedbackSubmission('spark_split', formData.rating);
       
       await submitFeedback({
-        rating,
-        comment,
+        rating: formData.rating,
+        comment: formData.comment,
         trust_delta: trustDelta,
         emotional_resonance: emotionalResonance
       });
 
-      console.log('[SparkSplit] Feedback submitted:', { rating, comment });
+      console.log('[SparkSplit] Feedback submitted:', formData);
       
       // Navigate to feedback page after submission
       setTimeout(() => {
@@ -215,10 +215,7 @@ A bakery can be a profitable business with proper planning and execution.`);
 
         {/* Trust Delta Display */}
         <div className="mb-8">
-          <TrustDeltaDisplay 
-            trustDelta={trustDelta}
-            emotionalResonance={emotionalResonance}
-          />
+          <TrustDeltaDisplay />
         </div>
 
         {/* Comparison Container */}

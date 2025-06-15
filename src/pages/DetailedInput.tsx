@@ -9,26 +9,12 @@ import StepTwoForm from '@/components/DetailedInput/StepTwoForm';
 import AutoSaveIndicator from '@/components/DetailedInput/AutoSaveIndicator';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
+import { FormData } from '@/types/formTypes';
 
 // API and analytics imports
 import { saveDetailedInput, validateDetailedInput } from '@/utils/detailedInputIntegration';
 import { trackPageView, trackFormStep } from '@/utils/analytics';
 import { logInteraction } from '@/utils/api';
-
-export interface FormData {
-  businessName: string;
-  businessDescription: string;
-  targetAudience: string;
-  keyProducts: string;
-  uniqueValueProp: string;
-  location: string;
-  primaryGoals: string;
-  secondaryGoals: string;
-  timeline: string;
-  budget: string;
-  successMetrics: string;
-  additionalContext: string;
-}
 
 const DetailedInput = () => {
   const navigate = useNavigate();
@@ -48,8 +34,18 @@ const DetailedInput = () => {
     timeline: '',
     budget: '',
     successMetrics: '',
-    additionalContext: ''
+    additionalContext: '',
+    primaryGoal: '',
+    competitiveContext: '',
+    brandVoice: '',
+    uniqueValue: '',
+    planPurpose: '',
+    resourceConstraints: '',
+    currentStatus: '',
+    revenueModel: ''
   });
+
+  const [errors, setErrors] = useState<Partial<FormData>>({});
 
   useEffect(() => {
     trackPageView('detailed_input');
@@ -82,20 +78,6 @@ const DetailedInput = () => {
       console.log('[Detailed Input] Auto-saved at:', new Date().toISOString());
     } catch (error) {
       console.error('[Detailed Input] Auto-save failed:', error);
-    }
-  };
-
-  const handleInputChange = async (field: keyof FormData, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-
-    // Validate input
-    try {
-      await validateDetailedInput(field, value);
-    } catch (error) {
-      console.error('[Detailed Input] Validation failed:', error);
     }
   };
 
@@ -178,7 +160,7 @@ const DetailedInput = () => {
 
         {/* Auto-save indicator */}
         <div className="mb-6">
-          <AutoSaveIndicator lastSaved={lastSaved} />
+          <AutoSaveIndicator lastSaved={lastSaved} isAutoSaving={false} />
         </div>
 
         {/* Form Steps */}
@@ -191,13 +173,9 @@ const DetailedInput = () => {
                   Step 1: Business Foundation
                 </SectionTitle>
                 <StepOneForm 
-                  businessName={formData.businessName}
-                  businessDescription={formData.businessDescription}
-                  targetAudience={formData.targetAudience}
-                  keyProducts={formData.keyProducts}
-                  uniqueValueProp={formData.uniqueValueProp}
-                  location={formData.location}
-                  onChange={handleInputChange}
+                  formData={formData}
+                  setFormData={setFormData}
+                  errors={errors}
                 />
                 <div className="flex justify-end mt-8">
                   <StandardButton
@@ -220,13 +198,9 @@ const DetailedInput = () => {
                   Step 2: Goals & Strategy
                 </SectionTitle>
                 <StepTwoForm 
-                  primaryGoals={formData.primaryGoals}
-                  secondaryGoals={formData.secondaryGoals}
-                  timeline={formData.timeline}
-                  budget={formData.budget}
-                  successMetrics={formData.successMetrics}
-                  additionalContext={formData.additionalContext}
-                  onChange={handleInputChange}
+                  formData={formData}
+                  setFormData={setFormData}
+                  errors={errors}
                 />
                 <div className="flex justify-between mt-8">
                   <StandardButton
