@@ -9,6 +9,8 @@ import DiscoveryHook from "./pages/DiscoveryHook";
 import Samples from "./pages/Samples";
 import NotFound from "./pages/NotFound";
 import DiscoveryFunnel from "./pages/DiscoveryFunnel";
+import DetailedInput from "./pages/DetailedInput";
+import SparkLayer from "./pages/SparkLayer";
 import PurchaseFlow from "./pages/PurchaseFlow";
 
 const queryClient = new QueryClient();
@@ -25,9 +27,9 @@ const App = () => (
           <Route path="/samples" element={<Samples />} />
           {/* Future CanAI routes will be added here */}
           <Route path="/discovery-funnel" element={<DiscoveryFunnel />} />
-          <Route path="/detailed-input" element={<div>Detailed Input - Coming Soon</div>} />
+          <Route path="/detailed-input" element={<DetailedInput />} />
           <Route path="/intent-mirror" element={<div>Intent Mirror - Coming Soon</div>} />
-          <Route path="/spark-layer" element={<div>Spark Layer - Coming Soon</div>} />
+          <Route path="/spark-layer" element={<SparkLayer />} />
           <Route path="/purchase" element={<PurchaseFlow />} />
           <Route path="/checkout" element={<div>Checkout - Coming Soon</div>} />
           <Route path="/generating" element={<div>Generating - Coming Soon</div>} />
