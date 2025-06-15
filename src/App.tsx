@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +7,7 @@ import Index from "./pages/Index";
 import DiscoveryHook from "./pages/DiscoveryHook";
 import Samples from "./pages/Samples";
 import NotFound from "./pages/NotFound";
+import DiscoveryFunnel from "./pages/DiscoveryFunnel";
 
 const queryClient = new QueryClient();
 
@@ -22,7 +22,7 @@ const App = () => (
           <Route path="/discovery-hook" element={<DiscoveryHook />} />
           <Route path="/samples" element={<Samples />} />
           {/* Future CanAI routes will be added here */}
-          <Route path="/discovery-funnel" element={<div>Discovery Funnel - Coming Soon</div>} />
+          <Route path="/discovery-funnel" element={<DiscoveryFunnel />} />
           <Route path="/detailed-input" element={<div>Detailed Input - Coming Soon</div>} />
           <Route path="/intent-mirror" element={<div>Intent Mirror - Coming Soon</div>} />
           <Route path="/spark-layer" element={<div>Spark Layer - Coming Soon</div>} />
