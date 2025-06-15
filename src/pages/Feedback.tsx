@@ -62,8 +62,6 @@ const FeedbackPage: React.FC = () => {
   const [comment, setComment] = useState("");
   const [email, setEmail] = useState("");
   const [referModalOpen, setReferModalOpen] = useState(false);
-
-  // Simulate prompt_id passed in query or context
   const prompt_id = "SPRINKLE_PROMPT_ID"; // TODO: get real one from context
 
   // Effects: PostHog page view
@@ -75,14 +73,11 @@ const FeedbackPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     window.posthog?.capture("feedback_form_submit", { prompt_id, rating, comment });
-
-    // Minimal sentiment (very naive, replace with real):
     const sentiment = rating >= 4
       ? "positive"
       : rating === 3
       ? "neutral"
       : "negative";
-
     try {
       const res = await fetch("/v1/feedback", {
         method: "POST",
@@ -90,12 +85,7 @@ const FeedbackPage: React.FC = () => {
         body: JSON.stringify({ prompt_id, rating, comment, sentiment }),
       });
       if (!res.ok) throw new Error("Submission failed");
-
-      // Log to feedback_logs
-      // (On the real app, supabase triggers/logs this; here is frontend context)
       toast({ description: "Feedback received." });
-
-      // Log to error_logs if poor
       if (rating < 3) {
         window.posthog?.capture("poor_rating", { rating, prompt_id });
         await fetch("/v1/log-error", {
@@ -108,9 +98,6 @@ const FeedbackPage: React.FC = () => {
           }),
         });
       }
-
-      // Schedule follow-up via Make.com (simulate success)
-      // In real: call Make.com webhook here for automation
       window.posthog?.capture("followup_scheduled", {
         prompt_id,
         date: "2025-06-22T10:26:00-06:00",
