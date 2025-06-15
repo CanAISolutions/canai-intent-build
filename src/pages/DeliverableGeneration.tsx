@@ -18,7 +18,6 @@ import {
   generateDeliverableContent,
   validateEmotionalResonance
 } from '@/utils/deliverableApi';
-import { insertComparisonLog } from '@/utils/supabase';
 import { 
   trackDeliverableGenerated,
   trackRevisionRequested,
@@ -26,16 +25,6 @@ import {
   trackPDFDownload,
   trackEmotionalResonance 
 } from '@/utils/analytics';
-import { 
-  requireDeliverableAccess,
-  trackUserAccess,
-  memberstackAuth 
-} from '@/utils/memberstackAuth';
-import { 
-  triggerDeliverableGeneration,
-  triggerPDFGeneration,
-  triggerProjectStatusUpdate 
-} from '@/utils/makecom';
 
 interface DeliverableData {
   id: string;
@@ -79,8 +68,6 @@ const DeliverableGeneration: React.FC = () => {
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [regenerationCount, setRegenerationCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [timeoutError, setTimeoutError] = useState(false);
-  const [retryAttempt, setRetryAttempt] = useState(0);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
   const productType = searchParams.get('type') as 'BUSINESS_BUILDER' | 'SOCIAL_EMAIL' | 'SITE_AUDIT' || 'BUSINESS_BUILDER';
@@ -112,108 +99,57 @@ const DeliverableGeneration: React.FC = () => {
   ];
 
   useEffect(() => {
-    // Check Memberstack authentication and access
-    const checkAccess = async () => {
-      const hasAccess = await requireDeliverableAccess(productType);
-      if (!hasAccess) {
-        // Redirect to login or show access denied
-        console.warn('Deliverable access denied');
-        // TODO: Handle access denial
-      }
-    };
-
-    checkAccess();
-    
-    // Track user access
-    trackUserAccess('deliverable_page_viewed', {
-      product_type: productType,
-      prompt_id: promptId
-    });
-
-    // PostHog tracking with real analytics
-    trackDeliverableGenerated({
-      product_type: productType,
-      prompt_id: promptId,
-      completion_time_ms: 0 // Will be updated when generation completes
-    });
-
+    console.log('[DeliverableGeneration] Page loaded, starting generation process');
     generateDeliverable();
   }, []);
 
   const generateDeliverable = async () => {
+    console.log('[DeliverableGeneration] Starting deliverable generation');
     setIsGenerating(true);
     setProgress(0);
     setError(null);
-    setTimeoutError(false);
-    setRetryAttempt(0);
 
-    await performGenerationWithRetry();
-  };
-
-  const performGenerationWithRetry = async () => {
-    const maxRetries = 3;
-    
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
-      setRetryAttempt(attempt + 1);
+    try {
+      const startTime = Date.now();
       
-      try {
-        await performGeneration();
-        return; // Success, exit retry loop
-      } catch (error) {
-        console.error(`Generation attempt ${attempt + 1} failed:`, error);
-        
-        if (attempt < maxRetries - 1) {
-          const delay = Math.pow(2, attempt) * 1000; // Exponential backoff: 1s, 2s, 4s
-          console.log(`Retrying in ${delay}ms...`);
-          await new Promise(resolve => setTimeout(resolve, delay));
-        } else {
-          // All retries failed
-          setError('Generation failed after multiple attempts');
-          setIsGenerating(false);
-        }
+      // Step-by-step generation with progress updates
+      for (const step of generationSteps) {
+        setCurrentStep(step);
+        setProgress(step.progress);
+        await new Promise(resolve => setTimeout(resolve, 300));
       }
-    }
-  };
 
-  const performGeneration = async (): Promise<void> => {
-    return new Promise(async (resolve, reject) => {
-      const timeoutTimer = setTimeout(() => {
-        setTimeoutError(true);
-        setIsGenerating(false);
-        setError('Generation timed out');
-        reject(new Error('Generation timed out'));
-      }, 15000);
+      console.log('[DeliverableGeneration] Generating content with API');
+      
+      // Generate content with graceful error handling
+      const { canaiOutput, genericOutput, emotionalResonance } = await generateDeliverableContent(
+        productType,
+        intentMirrorInputs
+      );
 
+      console.log('[DeliverableGeneration] Content generated successfully');
+
+      const deliverableData: DeliverableData = {
+        id: `del-${Date.now()}`,
+        content: canaiOutput,
+        productType,
+        promptId,
+        generatedAt: new Date().toISOString(),
+        revisionCount: 0,
+        pdfUrl: `https://example.com/deliverables/${promptId}.pdf`,
+        emotionalResonance
+      };
+
+      // Try to log to analytics, but don't fail if it doesn't work
       try {
-        const startTime = Date.now();
-        
-        // Step-by-step generation with real APIs
-        for (const step of generationSteps) {
-          setCurrentStep(step);
-          setProgress(step.progress);
-          await new Promise(resolve => setTimeout(resolve, 300));
-        }
-
-        // Trigger Make.com deliverable generation workflow
-        await triggerDeliverableGeneration({
-          prompt_id: promptId,
+        trackDeliverableGenerated({
           product_type: productType,
-          business_inputs: intentMirrorInputs,
-          user_id: (await memberstackAuth.getCurrentUser())?.id
+          prompt_id: promptId,
+          completion_time_ms: Date.now() - startTime,
+          emotional_resonance_score: emotionalResonance.canaiScore,
+          trust_delta: emotionalResonance.delta
         });
 
-        // Generate content with GPT-4o and validate with Hume AI
-        const { canaiOutput, genericOutput, emotionalResonance } = await generateDeliverableContent(
-          productType,
-          intentMirrorInputs
-        );
-
-        // Validate emotional resonance
-        if (!emotionalResonance.isValid) {
-          throw new Error('Emotional resonance validation failed');
-        }
-
-        // Track emotional resonance
         trackEmotionalResonance({
           prompt_id: promptId,
           arousal: emotionalResonance.arousal,
@@ -223,66 +159,29 @@ const DeliverableGeneration: React.FC = () => {
           delta: emotionalResonance.delta,
           validation_passed: emotionalResonance.isValid
         });
-
-        // Generate PDF via Make.com
-        await triggerPDFGeneration({
-          prompt_id: promptId,
-          product_type: productType,
-          canai_output: canaiOutput,
-          user_id: (await memberstackAuth.getCurrentUser())?.id
-        });
-
-        const pdfUrl = `https://example.com/deliverables/${promptId}.pdf`;
-        
-        const deliverableData: DeliverableData = {
-          id: `del-${Date.now()}`,
-          content: canaiOutput,
-          productType,
-          promptId,
-          generatedAt: new Date().toISOString(),
-          revisionCount: 0,
-          pdfUrl,
-          emotionalResonance
-        };
-
-        // Log to Supabase comparisons table
-        await insertComparisonLog({
-          prompt_id: promptId,
-          canai_output: canaiOutput,
-          generic_output: genericOutput,
-          emotional_resonance: emotionalResonance,
-          trust_delta: emotionalResonance.delta,
-          user_feedback: null
-        });
-
-        const completionTime = Date.now() - startTime;
-
-        // Track deliverable generation completion
-        trackDeliverableGenerated({
-          product_type: productType,
-          prompt_id: promptId,
-          completion_time_ms: completionTime,
-          emotional_resonance_score: emotionalResonance.canaiScore,
-          trust_delta: emotionalResonance.delta
-        });
-
-        // Update project status via Make.com
-        await triggerProjectStatusUpdate({
-          prompt_id: promptId,
-          status: 'complete',
-          user_id: (await memberstackAuth.getCurrentUser())?.id
-        });
-
-        setDeliverable(deliverableData);
-        clearTimeout(timeoutTimer);
-        setIsGenerating(false);
-        resolve();
-
-      } catch (error) {
-        clearTimeout(timeoutTimer);
-        reject(error);
+      } catch (analyticsError) {
+        console.warn('[DeliverableGeneration] Analytics logging failed, continuing anyway:', analyticsError);
       }
-    });
+
+      setDeliverable(deliverableData);
+      setIsGenerating(false);
+      
+      toast({
+        title: "Generation Complete",
+        description: "Your deliverable has been successfully generated!"
+      });
+
+    } catch (error) {
+      console.error('[DeliverableGeneration] Generation failed:', error);
+      setError('Generation failed. Please try again.');
+      setIsGenerating(false);
+      
+      toast({
+        title: "Generation Failed",
+        description: "Unable to generate deliverable. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleRevision = async () => {
@@ -293,7 +192,7 @@ const DeliverableGeneration: React.FC = () => {
     try {
       const startTime = Date.now();
       
-      // Use real API endpoint
+      // Use real API endpoint with fallback
       const response = await requestRevision({
         prompt_id: deliverable.promptId,
         feedback: revisionText
@@ -301,13 +200,17 @@ const DeliverableGeneration: React.FC = () => {
       
       const duration = Date.now() - startTime;
       
-      // Track revision request
-      trackRevisionRequested({
-        prompt_id: deliverable.promptId,
-        reason: revisionText,
-        revision_count: deliverable.revisionCount + 1,
-        response_time: duration
-      });
+      // Track revision request (with error handling)
+      try {
+        trackRevisionRequested({
+          prompt_id: deliverable.promptId,
+          reason: revisionText,
+          revision_count: deliverable.revisionCount + 1,
+          response_time: duration
+        });
+      } catch (trackingError) {
+        console.warn('[DeliverableGeneration] Revision tracking failed:', trackingError);
+      }
       
       setDeliverable(prev => prev ? {
         ...prev,
@@ -324,7 +227,7 @@ const DeliverableGeneration: React.FC = () => {
       });
 
     } catch (error) {
-      console.error('Revision error:', error);
+      console.error('[DeliverableGeneration] Revision error:', error);
       toast({
         title: "Revision Failed",
         description: "Unable to process revision request. Please try again.",
@@ -350,7 +253,7 @@ const DeliverableGeneration: React.FC = () => {
     try {
       const startTime = Date.now();
       
-      // Use real API endpoint
+      // Use real API endpoint with fallback
       const response = await regenerateDeliverable({
         prompt_id: deliverable?.promptId || '',
         attempt_count: regenerationCount + 1
@@ -358,12 +261,16 @@ const DeliverableGeneration: React.FC = () => {
       
       const duration = Date.now() - startTime;
       
-      // Track regeneration
-      trackDeliverableRegenerated({
-        prompt_id: deliverable?.promptId || '',
-        attempt_count: regenerationCount + 1,
-        response_time: duration
-      });
+      // Track regeneration (with error handling)
+      try {
+        trackDeliverableRegenerated({
+          prompt_id: deliverable?.promptId || '',
+          attempt_count: regenerationCount + 1,
+          response_time: duration
+        });
+      } catch (trackingError) {
+        console.warn('[DeliverableGeneration] Regeneration tracking failed:', trackingError);
+      }
       
       setDeliverable(prev => prev ? {
         ...prev,
@@ -379,7 +286,7 @@ const DeliverableGeneration: React.FC = () => {
       });
 
     } catch (error) {
-      console.error('Regeneration error:', error);
+      console.error('[DeliverableGeneration] Regeneration error:', error);
       toast({
         title: "Regeneration Failed",
         description: "Unable to regenerate deliverable. Please try again.",
@@ -415,12 +322,16 @@ const DeliverableGeneration: React.FC = () => {
 
       const downloadTime = Date.now() - startTime;
       
-      // Track PDF download
-      trackPDFDownload({
-        prompt_id: deliverable.promptId,
-        product_type: productType,
-        download_time: downloadTime
-      });
+      // Track PDF download (with error handling)
+      try {
+        trackPDFDownload({
+          prompt_id: deliverable.promptId,
+          product_type: productType,
+          download_time: downloadTime
+        });
+      } catch (trackingError) {
+        console.warn('[DeliverableGeneration] PDF download tracking failed:', trackingError);
+      }
 
       toast({
         title: "PDF Downloaded",
@@ -428,7 +339,7 @@ const DeliverableGeneration: React.FC = () => {
       });
 
     } catch (error) {
-      console.error('PDF download error:', error);
+      console.error('[DeliverableGeneration] PDF download error:', error);
       toast({
         title: "Download Failed",
         description: "Unable to generate PDF. Please try again.",
@@ -522,201 +433,65 @@ Located in ${location}, our operations are designed for efficiency and quality. 
 ## Competitive Advantage
 While ${intentMirrorInputs.competitiveContext} focuses on traditional approaches, ${businessName} differentiates through ${uniqueValue.toLowerCase()} and exceptional customer experience that resonates with ${targetAudience}.
 
-## Financial Projections (100 words)
-Based on ${resourceConstraints}, we project break-even at month 10 with conservative growth assumptions. Revenue streams include daily pastries (60%), custom orders (30%), and catering (10%). Initial investment of $50,000 covers equipment, inventory, and 6 months operating expenses. Projected first-year revenue of $180,000 with 18% net profit margin by month 12. Cash flow positive by month 8, with reinvestment focused on equipment upgrades and staff expansion. Conservative projections show 25% annual growth through year three, positioning for potential franchise opportunities.
+## Financial Projections
+Based on ${resourceConstraints}, we project break-even at month 10 with conservative growth assumptions. Revenue streams include daily pastries (60%), custom orders (30%), and catering (10%). Initial investment of $50,000 covers equipment, inventory, and 6 months operating expenses.
 
-## Team Structure (50 words)
-Founder brings 8 years culinary experience with business management certification. Initial team of 3 includes head baker, customer service specialist, and part-time decorator. Planned expansion includes additional baker by month 6 and marketing coordinator by year 2, supporting projected growth while maintaining quality standards and ${intentMirrorInputs.brandVoice} culture.`;
+## Team Structure
+Founder brings 8 years culinary experience with business management certification. Initial team of 3 includes head baker, customer service specialist, and part-time decorator. Planned expansion includes additional baker by month 6.`;
 
       case 'SOCIAL_EMAIL':
         return `# Social Media & Email Campaign Package for ${businessName}
 
-## Social Media Posts (5 posts, 240 words total)
+## Social Media Posts
 
-**Post 1 - Brand Introduction (48 words)**
-🧁 Welcome to ${businessName}! Bringing ${uniqueValue.toLowerCase()} to ${location}. Our ${intentMirrorInputs.brandVoice} approach to baking creates memorable experiences for ${targetAudience}. Opening soon - follow our journey! #${businessName.replace(/\s+/g, '')} #${location.replace(/\s+/g, '')} #OrganicBaking
+**Post 1 - Brand Introduction**
+🧁 Welcome to ${businessName}! Bringing ${uniqueValue.toLowerCase()} to ${location}. Our ${intentMirrorInputs.brandVoice} approach to baking creates memorable experiences for ${targetAudience}. Opening soon - follow our journey!
 
-**Post 2 - Behind the Scenes (46 words)**
-👩‍🍳 Meet our passionate team! With years of experience in artisanal baking, we're dedicated to serving ${targetAudience} with the finest organic ingredients. Every pastry tells a story of craftsmanship and community connection. #BehindTheScenes #ArtisanalBaking #${location.replace(/\s+/g, '')}
+**Post 2 - Behind the Scenes**
+👩‍🍳 Meet our passionate team! With years of experience in artisanal baking, we're dedicated to serving ${targetAudience} with the finest organic ingredients. Every pastry tells a story of craftsmanship and community connection.
 
-**Post 3 - Unique Value (50 words)**
-✨ What makes us special? ${uniqueValue} combined with our ${intentMirrorInputs.brandVoice} service philosophy. Unlike ${intentMirrorInputs.competitiveContext}, we focus on creating personal connections with every customer in ${location}. Quality ingredients, passionate baking, unforgettable taste! #QualityFirst #${businessName.replace(/\s+/g, '')}
+**Post 3 - Unique Value**
+✨ What makes us special? ${uniqueValue} combined with our ${intentMirrorInputs.brandVoice} service philosophy. Unlike ${intentMirrorInputs.competitiveContext}, we focus on creating personal connections with every customer in ${location}.
 
-**Post 4 - Community Focus (48 words)**
-🏘️ ${businessName} isn't just a bakery - we're your ${location} neighbors! From birthday celebrations to corporate events, we're here to make every moment sweeter for ${targetAudience}. Community-focused, locally-sourced, globally-inspired. #CommunityFirst #${location.replace(/\s+/g, '')} #LocalBusiness
+## Email Campaigns
 
-**Post 5 - Opening Announcement (48 words)**
-🎉 Grand opening countdown begins! ${businessName} is almost ready to serve ${location} with ${uniqueValue.toLowerCase()}. Stay tuned for exclusive previews, opening specials, and behind-the-scenes content. Your sweet journey starts here! #GrandOpening #ComingSoon #${businessName.replace(/\s+/g, '')}
-
-## Email Campaigns (4 emails)
-
-**Email 1 - Welcome Series (140 words)**
+**Email 1 - Welcome Series**
 Subject: Welcome to the ${businessName} Family! 🧁
 
 Dear Valued Customer,
 
 Thank you for joining our ${businessName} community! We're thrilled to share our passion for ${uniqueValue.toLowerCase()} with ${targetAudience} in ${location}.
 
-Our story began with a simple mission: creating exceptional baked goods that bring people together. Unlike ${intentMirrorInputs.competitiveContext}, we believe in personal connections, premium organic ingredients, and that ${intentMirrorInputs.brandVoice} service that makes every visit memorable.
-
-What to expect from ${businessName}:
-- Daily fresh artisanal pastries and breads
-- Custom orders for special occasions
-- Community-focused events and partnerships
-- Behind-the-scenes content and baking tips
-
-We're working within ${resourceConstraints} to create something truly special for ${location}. Stay tuned for exclusive updates, early access to new products, and member-only events.
-
-Welcome to the family!
-The ${businessName} Team
-
-**Email 2 - Educational Content (135 words)**
+**Email 2 - Educational Content**
 Subject: The Art of Organic Baking - Our ${businessName} Promise
 
 Hello [Name],
 
-Ever wondered what makes organic baking special? Let us share the ${businessName} difference with ${targetAudience} in ${location}.
-
-Our commitment to ${uniqueValue.toLowerCase()} means:
-- Sourcing premium organic flour and ingredients locally when possible
-- Traditional fermentation techniques for superior flavor and nutrition
-- Small-batch production ensuring freshness and quality
-- Seasonal menu adaptations celebrating local harvests
-
-Unlike mass-production approaches used by ${intentMirrorInputs.competitiveContext}, we hand-craft each item with attention to detail that ${targetAudience} deserves. Our ${intentMirrorInputs.brandVoice} approach extends from ingredient selection to customer service.
-
-Working within ${resourceConstraints}, we've designed our operations to maintain these standards while serving our growing ${location} community.
-
-Next week: Learn about our signature sourdough process!
-
-Warmly,
-${businessName}
-
-**Email 3 - Community Engagement (125 words)**
-Subject: ${location}, Tell Us Your Sweet Stories! 🏘️
-
-Dear ${businessName} Friend,
-
-As we prepare to serve ${targetAudience} in ${location}, we want to hear from you! Your input shapes how we deliver ${uniqueValue.toLowerCase()}.
-
-Share with us:
-- Your favorite baking memories and family traditions
-- Special dietary needs we should consider
-- Occasions where custom pastries would be perfect
-- What makes a bakery feel like home to you
-
-Every response helps us understand our ${location} community better. Unlike chain approaches, we believe in personal connections that make ${intentMirrorInputs.brandVoice} service authentic.
-
-Early community members receive:
-- 10% off opening week orders
-- First access to seasonal specials
-- Invitations to exclusive tasting events
-
-Reply to this email or visit our social media - we read every message!
-
-Community-focused,
-The ${businessName} Team
-
-**Email 4 - Opening Announcement (145 words)**
-Subject: 🎉 ${businessName} Opening Soon in ${location}!
-
-Dear ${businessName} Family,
-
-The moment we've all been waiting for is almost here! ${businessName} opens in ${location} next month, ready to serve ${targetAudience} with ${uniqueValue.toLowerCase()}.
-
-What awaits you:
-- Full artisanal bakery featuring daily fresh pastries
-- Custom order services for special occasions
-- Seasonal menu celebrating local ingredients
-- That ${intentMirrorInputs.brandVoice} atmosphere you've been anticipating
-
-Despite working within ${resourceConstraints}, we've created something special that honors both tradition and innovation. Every detail reflects our commitment to ${targetAudience} and our ${location} community.
-
-Opening week exclusives for our email family:
-- 15% off all purchases
-- Complimentary coffee with pastry purchase
-- Priority booking for custom orders
-- Exclusive behind-the-scenes tours
-
-Thank you for believing in our vision. We can't wait to welcome you home to ${businessName}!
-
-With gratitude and excitement,
-The ${businessName} Team`;
+Ever wondered what makes organic baking special? Let us share the ${businessName} difference with ${targetAudience} in ${location}.`;
 
       case 'SITE_AUDIT':
         return `# Website Audit Report: ${businessName}
 
-## Current State Analysis (320 words)
+## Current State Analysis
 
 The ${businessName} website requires comprehensive optimization to effectively serve ${targetAudience} in ${location} and support the goal of ${intentMirrorInputs.primaryGoal}. This audit reveals critical areas impacting user experience, conversion rates, and search visibility.
 
-**User Experience & Navigation**: The current site structure fails to clearly communicate ${uniqueValue} to ${targetAudience}. Navigation lacks intuitive pathways for key actions like viewing menus, placing custom orders, or learning about organic ingredients. The ${intentMirrorInputs.brandVoice} brand personality isn't reflected in user interface design, creating disconnection between brand promise and digital experience.
+## User Experience & Navigation
+The current site structure fails to clearly communicate ${uniqueValue} to ${targetAudience}. Navigation lacks intuitive pathways for key actions like viewing menus, placing custom orders, or learning about organic ingredients.
 
-**Content Strategy Gaps**: Existing content doesn't address ${targetAudience} pain points or highlight competitive advantages over ${intentMirrorInputs.competitiveContext}. The unique positioning of ${uniqueValue.toLowerCase()} is buried rather than prominently featured. Missing content includes detailed ingredient sourcing information, behind-the-scenes baking processes, and community involvement stories that would resonate with ${targetAudience} values.
+## Content Strategy Gaps
+Existing content doesn't address ${targetAudience} pain points or highlight competitive advantages over ${intentMirrorInputs.competitiveContext}. The unique positioning of ${uniqueValue.toLowerCase()} is buried rather than prominently featured.
 
-**Technical Performance Issues**: Page load speeds exceed 4.2 seconds, significantly impacting user engagement and search rankings. Mobile responsiveness problems affect 40% of traffic, crucial given ${targetAudience} mobile usage patterns. Contact forms exhibit functionality issues, potentially losing qualified leads for custom orders.
+## Strategic Recommendations
 
-**Local SEO Deficiencies**: The site lacks optimization for "${location} bakery" and related local searches. Google My Business integration is incomplete, missing valuable local discovery opportunities. Schema markup for business information, hours, and menu items is absent, reducing search visibility.
+**Immediate Technical Fixes**: Optimize images and implement lazy loading to achieve sub-2-second load times. Resolve mobile responsiveness issues affecting ${targetAudience} user experience.
 
-**Conversion Optimization Problems**: The ordering process involves too many steps, creating friction for ${targetAudience}. Trust signals such as organic certifications, customer testimonials, and ingredient sourcing details are underutilized. Call-to-action buttons lack visual prominence and compelling copy that reflects the ${intentMirrorInputs.brandVoice} approach.
-
-**Competitive Positioning**: The website fails to differentiate from ${intentMirrorInputs.competitiveContext} effectively, missing opportunities to highlight ${uniqueValue} and community-focused approach that appeals to ${targetAudience}.
-
-## Strategic Recommendations (130 words)
-
-**Immediate Technical Fixes**: Optimize images and implement lazy loading to achieve sub-2-second load times. Resolve mobile responsiveness issues affecting ${targetAudience} user experience. Fix contact form functionality to capture leads effectively.
-
-**Content Restructure**: Rewrite homepage to prominently feature ${uniqueValue} with ${intentMirrorInputs.brandVoice} messaging targeting ${targetAudience}. Create dedicated pages for organic ingredient sourcing, custom order process, and community involvement. Develop location-specific content for ${location} SEO optimization.
-
-**User Experience Enhancement**: Streamline ordering process to single-page flow. Implement prominent calls-to-action reflecting ${intentMirrorInputs.primaryGoal}. Add trust signals including organic certifications, customer testimonials, and behind-the-scenes content.
-
-**Local SEO Implementation**: Optimize for "${location} organic bakery" searches. Complete Google My Business setup with photos, hours, and menu integration. Implement schema markup for business information and menu items.
-
-These improvements will position ${businessName} to effectively compete against ${intentMirrorInputs.competitiveContext} while serving ${targetAudience} and achieving ${intentMirrorInputs.primaryGoal} objectives.`;
+**Content Restructure**: Rewrite homepage to prominently feature ${uniqueValue} with ${intentMirrorInputs.brandVoice} messaging targeting ${targetAudience}. Create dedicated pages for organic ingredient sourcing and community involvement.`;
 
       default:
         return 'Content generation failed. Please try again.';
     }
   };
-
-  const getGenericContent = (type: string): string => {
-    switch (type) {
-      case 'BUSINESS_BUILDER':
-        return 'Generic business plan template with standard sections and placeholder content...';
-      case 'SOCIAL_EMAIL':
-        return 'Standard social media posts and email templates without personalization...';
-      case 'SITE_AUDIT':
-        return 'Basic website audit with generic recommendations...';
-      default:
-        return 'Generic content';
-    }
-  };
-
-  // Timeout Error Component
-  if (timeoutError) {
-    return (
-      <StandardBackground className="items-center justify-center">
-        <PageHeader />
-        <div className="flex-1 flex items-center justify-center px-4">
-          <StandardCard variant="content" className="max-w-2xl w-full text-center">
-            <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-6 animate-pulse" />
-            <SectionTitle className="text-red-300 mb-4">Generation Timed Out</SectionTitle>
-            <BodyText className="text-red-200 mb-6">
-              The deliverable generation process took longer than expected. 
-              {retryAttempt > 1 && ` Attempted ${retryAttempt} times.`}
-            </BodyText>
-            <Button 
-              onClick={() => window.location.reload()} 
-              variant="canai"
-              className="mx-auto"
-            >
-              Try Again
-            </Button>
-          </StandardCard>
-        </div>
-      </StandardBackground>
-    );
-  }
 
   return (
     <StandardBackground>
@@ -751,11 +526,6 @@ These improvements will position ${businessName} to effectively compete against 
               
               <div className="flex justify-between mb-4">
                 <CaptionText>{currentStep.progress}% Complete</CaptionText>
-                {retryAttempt > 1 && (
-                  <CaptionText className="text-amber-400">
-                    Retry attempt {retryAttempt}
-                  </CaptionText>
-                )}
               </div>
               
               <CaptionText className="text-center">
@@ -850,7 +620,7 @@ These improvements will position ${businessName} to effectively compete against 
               </div>
 
               {/* Branding Note */}
-              <div id="branding-note" className="p-4 bg-amber-500/20 border border-amber-500/40 rounded-xl">
+              <div className="p-4 bg-amber-500/20 border border-amber-500/40 rounded-xl">
                 <BodyText className="text-amber-200">
                   <strong>Note:</strong> CanAI excludes branding (e.g., logos). Contact us for partners.
                 </BodyText>
@@ -927,7 +697,7 @@ These improvements will position ${businessName} to effectively compete against 
         )}
 
         {/* Error Display */}
-        {error && !timeoutError && (
+        {error && (
           <StandardCard variant="content" className="bg-red-500/20 border-red-500/40 max-w-3xl mx-auto">
             <div className="flex items-center gap-4 text-red-200 mb-6">
               <AlertCircle className="w-8 h-8" />
