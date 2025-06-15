@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { AlertCircle, Edit2, HelpCircle, CheckCircle, ArrowLeft } from "lucide-react";
+import { AlertCircle, Edit2, HelpCircle, CheckCircle, ArrowLeft, Shield, Clock, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -246,28 +245,56 @@ const IntentMirror = () => {
       }}
     >
       <div className="w-full max-w-4xl mx-auto">
-        {/* Header */}
+        {/* Enhanced Header with Trust Indicators */}
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold text-canai-light mb-4 animate-text-glow">
             Review Your Business Summary
           </h1>
-          <p className="text-white text-lg opacity-90 font-medium">
+          <p className="text-white text-lg opacity-90 font-medium mb-6">
             We've analyzed your details. Please confirm this summary captures your vision.
           </p>
+          
+          {/* Trust Indicators */}
+          <div className="flex justify-center items-center gap-6 text-sm text-canai-light opacity-75">
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-canai-primary" />
+              <span>AI-Analyzed</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-canai-primary" />
+              <span>30s to Review</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-canai-primary" />
+              <span>Expert Backed</span>
+            </div>
+          </div>
         </div>
 
-        {/* Summary Card */}
-        <Card className="bg-canai-blue-card/80 border-2 border-canai-primary/30 backdrop-blur-sm mb-8 shadow-2xl">
+        {/* Enhanced Summary Card */}
+        <Card className="bg-canai-blue-card/90 border-2 border-canai-primary/40 backdrop-blur-md mb-8 shadow-2xl hover:shadow-canai-primary/20 transition-all duration-300">
           <CardHeader className="pb-4">
-            <CardTitle className="text-2xl text-canai-light text-center font-bold">
+            <CardTitle className="text-2xl text-canai-light text-center font-bold flex items-center justify-center gap-3">
+              <CheckCircle className="w-6 h-6 text-canai-primary" />
               Business Intent Summary
             </CardTitle>
           </CardHeader>
           
-          <CardContent className="space-y-6 px-8 pb-8">
-            {/* Summary Text */}
-            <div className="bg-black/20 rounded-xl p-6 border border-canai-primary/20">
-              <h3 className="text-lg font-semibold text-canai-light mb-3">Your Business Plan Focus:</h3>
+          <CardContent className="space-y-8 px-8 pb-8">
+            {/* Enhanced Summary Text with Visual Hierarchy */}
+            <div className="bg-gradient-to-br from-black/30 to-black/10 rounded-xl p-8 border border-canai-primary/30 hover:border-canai-primary/50 transition-all duration-300">
+              <div className="flex items-start justify-between mb-4">
+                <h3 className="text-xl font-semibold text-canai-light">Your Business Plan Focus:</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleEdit('summary')}
+                  className="text-canai-primary hover:text-canai-cyan hover:bg-canai-primary/10 opacity-75 hover:opacity-100 transition-all duration-200"
+                >
+                  <Edit2 className="w-4 h-4 mr-1" />
+                  Edit
+                </Button>
+              </div>
               <p 
                 id="summary-text"
                 className="text-white text-lg leading-relaxed"
@@ -276,71 +303,115 @@ const IntentMirror = () => {
               </p>
             </div>
 
-            {/* Confidence Gauge */}
-            <div className="bg-black/20 rounded-xl p-6 border border-canai-primary/20">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-semibold text-canai-light">Confidence Score</h3>
-                <span className="text-2xl font-bold text-canai-primary">
-                  {(intentData.confidenceScore * 100).toFixed(0)}%
-                </span>
+            {/* Enhanced Confidence Gauge with Better Visual Feedback */}
+            <div className="bg-gradient-to-br from-black/30 to-black/10 rounded-xl p-8 border border-canai-primary/30">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-semibold text-canai-light">Confidence Score</h3>
+                <div className="flex items-center gap-2">
+                  <span className={`text-3xl font-bold ${
+                    intentData.confidenceScore >= 0.8 ? 'text-green-400' : 
+                    intentData.confidenceScore >= 0.6 ? 'text-yellow-400' : 'text-red-400'
+                  }`}>
+                    {(intentData.confidenceScore * 100).toFixed(0)}%
+                  </span>
+                  {intentData.confidenceScore >= 0.8 && <CheckCircle className="w-6 h-6 text-green-400" />}
+                </div>
               </div>
               <Progress 
                 id="confidence-gauge"
                 value={intentData.confidenceScore * 100} 
-                className="h-4 bg-canai-primary-blue-dark rounded-full overflow-hidden mb-2"
+                className="h-6 bg-canai-primary-blue-dark rounded-full overflow-hidden mb-3"
               />
-              <p className="text-sm text-canai-light opacity-75">
-                {intentData.confidenceScore >= 0.8 
-                  ? "High confidence - ready to proceed!" 
-                  : "Lower confidence - we recommend clarification"}
-              </p>
+              <div className="flex justify-between items-center">
+                <p className={`text-sm font-medium ${
+                  intentData.confidenceScore >= 0.8 ? 'text-green-300' : 
+                  intentData.confidenceScore >= 0.6 ? 'text-yellow-300' : 'text-red-300'
+                }`}>
+                  {intentData.confidenceScore >= 0.8 
+                    ? "High confidence - ready to proceed!" 
+                    : intentData.confidenceScore >= 0.6
+                    ? "Good confidence - minor refinements suggested"
+                    : "Lower confidence - we recommend clarification"}
+                </p>
+                {intentData.confidenceScore < 0.8 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleEdit('general')}
+                    className="text-yellow-400 hover:text-yellow-300 hover:bg-yellow-400/10"
+                  >
+                    <Edit2 className="w-4 h-4 mr-1" />
+                    Improve
+                  </Button>
+                )}
+              </div>
             </div>
 
-            {/* Clarifying Questions (if confidence < 0.8) */}
+            {/* Enhanced Clarifying Questions */}
             {showLowConfidenceHelp && (
-              <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-6">
-                <div className="flex items-start gap-3">
-                  <HelpCircle className="w-6 h-6 text-amber-400 mt-1 flex-shrink-0" />
-                  <div>
-                    <h3 className="text-lg font-semibold text-amber-200 mb-3">
+              <div className="bg-gradient-to-br from-amber-500/20 to-amber-600/10 border-2 border-amber-500/40 rounded-xl p-8 hover:border-amber-400/60 transition-all duration-300">
+                <div className="flex items-start gap-4">
+                  <HelpCircle className="w-7 h-7 text-amber-400 mt-1 flex-shrink-0" />
+                  <div className="flex-1">
+                    <h3 className="text-xl font-semibold text-amber-200 mb-4">
                       Help us understand better:
                     </h3>
-                    <div id="clarify-text" className="space-y-2">
+                    <div id="clarify-text" className="space-y-3 mb-6">
                       {intentData.clarifyingQuestions.length > 0 ? (
                         intentData.clarifyingQuestions.map((question, index) => (
-                          <p key={index} className="text-amber-100">• {question}</p>
+                          <div key={index} className="flex items-start gap-2">
+                            <span className="text-amber-400 font-bold">•</span>
+                            <p className="text-amber-100 text-lg">{question}</p>
+                          </div>
                         ))
                       ) : (
-                        <p className="text-amber-100">
-                          • Could you provide more specific details about your target market?<br/>
-                          • What makes your business unique compared to competitors?<br/>
-                          • What are your primary revenue goals for the first year?
-                        </p>
+                        <>
+                          <div className="flex items-start gap-2">
+                            <span className="text-amber-400 font-bold">•</span>
+                            <p className="text-amber-100 text-lg">Could you provide more specific details about your target market?</p>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <span className="text-amber-400 font-bold">•</span>
+                            <p className="text-amber-100 text-lg">What makes your business unique compared to competitors?</p>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <span className="text-amber-400 font-bold">•</span>
+                            <p className="text-amber-100 text-lg">What are your primary revenue goals for the first year?</p>
+                          </div>
+                        </>
                       )}
                     </div>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleEdit('clarification')}
+                      className="bg-amber-500/20 border-amber-400 text-amber-200 hover:bg-amber-500/30 hover:border-amber-300"
+                    >
+                      <Edit2 className="w-4 h-4 mr-2" />
+                      Provide More Details
+                    </Button>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-canai-primary/20">
+            {/* Enhanced Primary Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t-2 border-canai-primary/30">
               <div className="flex-1">
                 <Button
                   id="confirm-btn"
                   variant="canai"
                   onClick={handleConfirm}
                   disabled={isConfirming}
-                  className="w-full py-4 text-lg"
+                  className="w-full py-6 text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   {isConfirming ? (
                     <>
-                      <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                      Generating...
+                      <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-3"></div>
+                      Generating Your Plan...
                     </>
                   ) : (
                     <>
-                      <CheckCircle className="w-5 h-5 mr-2" />
+                      <CheckCircle className="w-6 h-6 mr-3" />
                       Looks Perfect - Create My Plan
                     </>
                   )}
@@ -351,81 +422,96 @@ const IntentMirror = () => {
                 id="edit-btn"
                 variant="outline"
                 onClick={() => handleEdit('general')}
-                className="bg-transparent border-canai-primary text-canai-light hover:bg-canai-primary/20 hover:border-canai-cyan transition-all duration-200 py-4"
+                className="bg-transparent border-2 border-canai-primary text-canai-light hover:bg-canai-primary/20 hover:border-canai-cyan transition-all duration-300 py-6 text-lg font-semibold"
               >
-                <Edit2 className="w-4 h-4 mr-2" />
+                <Edit2 className="w-5 h-5 mr-3" />
                 Edit Details
               </Button>
             </div>
 
-            {/* Field-specific edit buttons */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {Object.entries(intentData.originalData).slice(0, 6).map(([key, value]) => (
-                <Button
-                  key={key}
-                  id={`edit-field-${key}`}
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleEdit(key)}
-                  className="text-canai-light hover:bg-canai-primary/10 text-xs p-2 h-auto"
-                >
-                  <Edit2 className="w-3 h-3 mr-1" />
-                  {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                </Button>
-              ))}
+            {/* Enhanced Field-specific Edit Buttons with Better Organization */}
+            <div className="bg-gradient-to-br from-black/20 to-black/5 rounded-xl p-6 border border-canai-primary/20">
+              <h4 className="text-lg font-semibold text-canai-light mb-4 text-center">Quick Edit Specific Fields</h4>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {Object.entries(intentData.originalData).slice(0, 6).map(([key, value]) => (
+                  <Button
+                    key={key}
+                    id={`edit-field-${key}`}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleEdit(key)}
+                    className="text-canai-light hover:bg-canai-primary/15 hover:text-canai-primary text-sm p-3 h-auto rounded-lg border border-transparent hover:border-canai-primary/30 transition-all duration-200 group"
+                  >
+                    <Edit2 className="w-3 h-3 mr-2 group-hover:text-canai-cyan transition-colors" />
+                    <span className="truncate">
+                      {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                    </span>
+                  </Button>
+                ))}
+              </div>
             </div>
 
-            {/* Support Link (after 2 low-confidence attempts) */}
+            {/* Enhanced Support Link */}
             {showSupportLink && (
-              <div className="text-center pt-4 border-t border-canai-primary/20">
-                <p className="text-canai-light opacity-75 mb-3 text-sm">
-                  Having trouble with the summary?
-                </p>
-                <Button
-                  id="support-link"
-                  variant="link"
-                  onClick={handleSupportRequest}
-                  className="text-canai-primary hover:text-canai-cyan underline"
-                >
-                  Get help from our team
-                </Button>
+              <div className="text-center pt-6 border-t border-canai-primary/20">
+                <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-xl p-6 border border-blue-400/30">
+                  <HelpCircle className="w-8 h-8 text-blue-400 mx-auto mb-3" />
+                  <p className="text-canai-light mb-4 text-lg">
+                    Having trouble with the summary?
+                  </p>
+                  <p className="text-white opacity-75 mb-4 text-sm">
+                    Our team can help refine your business summary for better results
+                  </p>
+                  <Button
+                    id="support-link"
+                    variant="outline"
+                    onClick={handleSupportRequest}
+                    className="bg-blue-500/20 border-blue-400 text-blue-200 hover:bg-blue-500/30 hover:border-blue-300 transition-all duration-200"
+                  >
+                    <Users className="w-4 h-4 mr-2" />
+                    Get help from our team
+                  </Button>
+                </div>
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* Back Link */}
+        {/* Enhanced Back Link */}
         <div className="text-center">
           <Button
             variant="ghost"
             onClick={() => window.location.href = `/detailed-input?prompt_id=${promptId}`}
-            className="text-canai-light-blue hover:text-canai-primary transition-colors duration-200"
+            className="text-canai-light-blue hover:text-canai-primary transition-colors duration-200 text-lg"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="w-5 h-5 mr-2" />
             Back to Edit Details
           </Button>
         </div>
       </div>
 
-      {/* Edit Confirmation Modal */}
+      {/* Enhanced Edit Confirmation Modal */}
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-        <DialogContent className="bg-canai-blue-card border-canai-primary/30 text-canai-light">
+        <DialogContent className="bg-canai-blue-card border-2 border-canai-primary/30 text-canai-light max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-canai-light">
+            <DialogTitle className="text-2xl font-bold text-canai-light text-center">
               Edit Your Details
             </DialogTitle>
           </DialogHeader>
-          <div className="py-4">
-            <p className="text-white mb-4">
-              You'll return to the detailed input form to update your{" "}
-              <span className="font-semibold text-canai-primary">
-                {editField.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-              </span>{" "}
-              information.
-            </p>
-            <p className="text-canai-light opacity-75 text-sm mb-6">
-              Your progress will be saved automatically as you make changes.
-            </p>
+          <div className="py-6">
+            <div className="text-center mb-6">
+              <Edit2 className="w-12 h-12 text-canai-primary mx-auto mb-4" />
+              <p className="text-white text-lg mb-2">
+                You'll return to the detailed input form to update your{" "}
+                <span className="font-semibold text-canai-primary">
+                  {editField.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                </span>{" "}
+                information.
+              </p>
+              <p className="text-canai-light opacity-75 text-sm">
+                Your progress will be saved automatically as you make changes.
+              </p>
+            </div>
             <div className="flex gap-3">
               <Button
                 variant="canai"
