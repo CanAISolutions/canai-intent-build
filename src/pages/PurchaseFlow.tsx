@@ -103,6 +103,14 @@ const PurchaseFlow = () => {
         setPurchaseComplete(true);
         
         console.log('[PostHog] Purchase completed:', selectedProduct);
+        
+        // Navigate to Detailed Input Collection after purchase
+        setTimeout(() => {
+          const urlParams = new URLSearchParams(window.location.search);
+          const promptId = urlParams.get('prompt_id') || 'demo-prompt-id';
+          window.location.href = `/detailed-input?prompt_id=${promptId}&product=${selectedProduct}`;
+        }, 2000);
+        
       }, 2000);
 
     } catch (error) {

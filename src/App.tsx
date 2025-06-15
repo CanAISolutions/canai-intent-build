@@ -28,17 +28,18 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/discovery-hook" element={<DiscoveryHook />} />
           <Route path="/samples" element={<Samples />} />
-          {/* Future CanAI routes will be added here */}
           <Route path="/discovery-funnel" element={<DiscoveryFunnel />} />
-          <Route path="/detailed-input" element={<DetailedInput />} />
-          <Route path="/intent-mirror" element={<IntentMirror />} />
           <Route path="/spark-layer" element={<SparkLayer />} />
           <Route path="/purchase" element={<PurchaseFlow />} />
+          <Route path="/detailed-input" element={<DetailedInput />} />
+          <Route path="/intent-mirror" element={<IntentMirror />} />
           <Route path="/deliverable" element={<DeliverableGeneration />} />
-          <Route path="/checkout" element={<div>Checkout - Coming Soon</div>} />
-          <Route path="/generating" element={<div>Generating - Coming Soon</div>} />
           <Route path="/spark-split" element={<SparkSplit />} />
           <Route path="/feedback" element={<FeedbackPage />} />
+          
+          {/* Legacy/placeholder routes */}
+          <Route path="/checkout" element={<div>Redirecting to purchase...</div>} />
+          <Route path="/generating" element={<div>Redirecting to deliverable...</div>} />
           <Route path="/business-builder" element={<div>Business Builder - Coming Soon</div>} />
           <Route path="/social-email" element={<div>Social Email - Coming Soon</div>} />
           <Route path="/site-audit" element={<div>Site Audit - Coming Soon</div>} />

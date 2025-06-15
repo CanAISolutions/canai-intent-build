@@ -143,8 +143,9 @@ const IntentMirror = () => {
         description: "Moving to deliverable generation...",
       });
       
+      // Navigate to Deliverable Generation instead of /generating
       setTimeout(() => {
-        window.location.href = `/generating?prompt_id=${promptId}`;
+        window.location.href = `/deliverable?prompt_id=${promptId}`;
       }, 1500);
       
     } catch (error) {

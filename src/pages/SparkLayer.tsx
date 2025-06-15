@@ -1,312 +1,172 @@
-
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Loader2, RefreshCw, Sparkles, ArrowRight } from "lucide-react";
-import { toast } from "sonner";
-import StandardCard from "@/components/StandardCard";
+import { Sparkles, CheckCircle, AlertCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import StandardBackground from "@/components/StandardBackground";
+import StandardCard from "@/components/StandardCard";
+import { PageTitle, BodyText } from "@/components/StandardTypography";
 import PageHeader from "@/components/PageHeader";
-import { PageTitle, SectionTitle, BodyText, CaptionText } from "@/components/StandardTypography";
 
-// Types for spark data
-interface Spark {
-  id: string;
+interface SparkData {
   title: string;
-  tagline: string;
-  productTrack: 'business_builder' | 'social_email' | 'site_audit';
+  description: string;
 }
 
-interface SparkLayerProps {
-  // Will be populated from previous steps
-  businessType?: string;
-  tone?: string;
-  outcome?: string;
-  trustScore?: number;
-}
+const mockSparks: SparkData[] = [
+  {
+    title: "Investor-Ready Business Plan",
+    description: "A comprehensive plan to attract investors and secure funding."
+  },
+  {
+    title: "Growth-Focused Marketing Strategy",
+    description: "A detailed strategy to expand your customer base and increase sales."
+  },
+  {
+    title: "Streamlined Operations Blueprint",
+    description: "A clear blueprint to optimize your business operations and improve efficiency."
+  }
+];
 
-const SparkLayer: React.FC<SparkLayerProps> = ({
-  businessType = "bakery",
-  tone = "warm",
-  outcome = "community_connection",
-  trustScore = 75
-}) => {
-  const navigate = useNavigate();
-  const [sparks, setSparks] = useState<Spark[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedSpark, setSelectedSpark] = useState<string | null>(null);
-  const [regenerateCount, setRegenerateCount] = useState(0);
-  const [feedback, setFeedback] = useState("");
-  const [showGenericComparison, setShowGenericComparison] = useState(false);
+const SparkLayer = () => {
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedSpark, setSelectedSpark] = useState<number | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  const maxRegenerations = trustScore < 50 ? 4 : 3;
+  // Get prompt_id from URL params
+  const urlParams = new URLSearchParams(window.location.search);
+  const promptId = urlParams.get('prompt_id') || 'demo-prompt-id';
 
-  // Mock spark data for demo
-  const mockSparks: Spark[] = [
-    {
-      id: "community_spark",
-      title: "BUSINESS_BUILDER: The Community Spark",
-      tagline: "Unite Denver families with a cozy bakery experience",
-      productTrack: "business_builder"
-    },
-    {
-      id: "tradition_spark", 
-      title: "BUSINESS_BUILDER: The Tradition Spark",
-      tagline: "Blend heritage recipes with modern neighborhood charm",
-      productTrack: "business_builder"
-    },
-    {
-      id: "wellness_spark",
-      title: "BUSINESS_BUILDER: The Wellness Spark", 
-      tagline: "Nourish your community with wholesome, artisan breads",
-      productTrack: "business_builder"
-    }
-  ];
-
-  // Initialize sparks on component mount
   useEffect(() => {
-    generateSparks();
-    
-    // TODO: PostHog event for page view
-    // posthog.capture('funnel_step', { step: 'spark_layer_viewed' });
-  }, []);
-
-  const generateSparks = async (isRegeneration = false) => {
-    setIsLoading(true);
-    
-    try {
-      // TODO: API call to generate sparks
-      // Mock API delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // Mock response for demo
-      setSparks(mockSparks);
-      
-      if (isRegeneration) {
-        setRegenerateCount(prev => prev + 1);
-        
-        // TODO: PostHog event for regeneration
-        if (trustScore < 50 && regenerateCount === 2) {
-          // TODO: PostHog event for extra regeneration
-        }
-      }
-      
-    } catch (error) {
-      console.error('Failed to generate sparks:', error);
-      
-      // Fallback to localStorage or mock data
-      const cachedSparks = localStorage.getItem('cached_sparks');
-      if (cachedSparks) {
-        setSparks(JSON.parse(cachedSparks));
-      } else {
-        setSparks(mockSparks);
-      }
-      
-      toast.error("Using cached sparks due to connection issue");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSparkSelection = async (spark: Spark) => {
-    setSelectedSpark(spark.id);
-    
-    try {
-      // TODO: Supabase logging
-      
-      // Navigate to purchase flow
-      setTimeout(() => {
-        navigate('/purchase', { 
-          state: { 
-            selectedProduct: spark.productTrack,
-            sparkId: spark.id,
-            sparkTitle: spark.title 
-          }
+    const loadSparks = async () => {
+      setIsLoading(true);
+      try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Failed to load sparks:", error);
+        setLoadError("Failed to load options. Please try again.");
+        toast({
+          title: "Loading failed",
+          description: "Unable to load your spark options. Please try again.",
+          variant: "destructive"
         });
-      }, 500);
+        setIsLoading(false);
+      }
+    };
+
+    loadSparks();
+  }, [toast]);
+
+  const handleSparkSelect = async (sparkIndex: number) => {
+    setSelectedSpark(sparkIndex);
+    setIsSubmitting(true);
+    
+    try {
+      const selectedSparkData = mockSparks[sparkIndex];
+      
+      // Log the spark selection
+      console.log('Spark selected:', { 
+        promptId, 
+        sparkIndex, 
+        sparkData: selectedSparkData 
+      });
+      
+      // Show success feedback
+      toast({
+        title: "Perfect choice!",
+        description: `"${selectedSparkData.title}" selected. Moving to purchase...`,
+      });
+      
+      // Navigate to Purchase Flow instead of Detailed Input
+      setTimeout(() => {
+        window.location.href = `/purchase?prompt_id=${promptId}&spark_index=${sparkIndex}`;
+      }, 1500);
       
     } catch (error) {
-      console.error('Failed to log spark selection:', error);
-      toast.error("Selection saved locally");
-      
-      // Fallback to localStorage
-      localStorage.setItem('selected_spark', JSON.stringify(spark));
-      navigate('/purchase');
+      console.error('Spark selection failed:', error);
+      toast({
+        title: "Selection failed",
+        description: "Please try selecting your spark again.",
+        variant: "destructive"
+      });
+      setIsSubmitting(false);
     }
   };
 
-  const handleRegenerate = () => {
-    if (regenerateCount >= maxRegenerations) {
-      toast.error("Maximum regenerations reached");
-      return;
-    }
-    
-    generateSparks(true);
-    setFeedback("");
-  };
+  if (isLoading) {
+    return (
+      <StandardBackground className="items-center justify-center">
+        <PageHeader />
+        <div className="text-center animate-fade-in">
+          <div className="animate-spin w-12 h-12 border-4 border-[#36d1fe] border-t-transparent rounded-full mx-auto mb-4"></div>
+          <PageTitle className="text-2xl mb-2">Analyzing Your Business</PageTitle>
+          <BodyText className="opacity-75">Finding the perfect spark for your business...</BodyText>
+        </div>
+      </StandardBackground>
+    );
+  }
 
-  const getProductPrice = (productTrack: string) => {
-    const prices = {
-      business_builder: '$99',
-      social_email: '$49', 
-      site_audit: '$79'
-    };
-    return prices[productTrack as keyof typeof prices] || '$99';
-  };
+  if (loadError) {
+    return (
+      <StandardBackground className="items-center justify-center">
+        <PageHeader />
+        <div className="error-fallback text-center animate-fade-in">
+          <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+          <PageTitle className="text-2xl mb-2">Loading Failed</PageTitle>
+          <BodyText className="opacity-75 mb-6">{loadError}</BodyText>
+          <Button variant="canai" onClick={() => window.location.reload()}>
+            Try Again
+          </Button>
+        </div>
+      </StandardBackground>
+    );
+  }
 
   return (
-    <StandardBackground>
-      <PageHeader showBackButton={true} logoSize="sm" showTagline={false} />
+    <StandardBackground className="items-center justify-center">
+      <PageHeader />
       
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Header */}
-        <div className="text-center mb-16 animate-fade-in">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <Sparkles className="w-8 h-8 text-[#36d1fe] animate-pulse" />
-            <PageTitle className="mb-0">Your AI Sparks</PageTitle>
-            <Sparkles className="w-8 h-8 text-[#36d1fe] animate-pulse" />
-          </div>
-          
-          <BodyText className="text-xl mb-6 max-w-2xl mx-auto">
-            Which spark feels most like you?
+      <div className="w-full max-w-4xl mx-auto px-4 py-8">
+        <div className="text-center mb-8 animate-fade-in">
+          <PageTitle className="mb-4">Choose Your Business Spark</PageTitle>
+          <BodyText className="text-lg opacity-90">
+            Select the option that best fits your goals. Each spark is designed to ignite your business potential.
           </BodyText>
-          
-          <StandardCard variant="glass" padding="md" className="inline-block">
-            <CaptionText className="text-[#36d1fe] font-semibold mb-0">
-              💡 Take 30 seconds to feel which direction resonates with your vision
-            </CaptionText>
-          </StandardCard>
         </div>
 
-        {/* Loading State */}
-        {isLoading && (
-          <div className="flex items-center justify-center gap-3 mb-12 animate-fade-in">
-            <Loader2 className="w-6 h-6 text-[#36d1fe] animate-spin" />
-            <BodyText className="text-lg mb-0">Generating your sparks...</BodyText>
-          </div>
-        )}
-
-        {/* Spark Cards */}
-        {!isLoading && sparks.length > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
-            {sparks.map((spark, index) => (
-              <div 
-                key={spark.id}
-                className="animate-fade-in"
-                style={{ animationDelay: `${index * 200}ms` }}
-              >
-                <StandardCard
-                  variant="product"
-                  padding="lg"
-                  className={`hover:scale-[1.02] transition-all duration-300 cursor-pointer h-full ${
-                    selectedSpark === spark.id ? 'ring-4 ring-[#36d1fe]/50' : ''
-                  }`}
-                >
-                  <div className="flex flex-col h-full min-h-[450px] text-center">
-                    {/* Title */}
-                    <div className="mb-6">
-                      <SectionTitle className="text-[#36d1fe] text-lg font-manrope leading-tight mb-0 px-2 break-words hyphens-auto">
-                        {spark.title}
-                      </SectionTitle>
-                    </div>
-                    
-                    {/* Tagline */}
-                    <div className="flex-1 mb-6">
-                      <BodyText className="text-base leading-relaxed px-2 break-words hyphens-auto mb-0">
-                        {spark.tagline}
-                      </BodyText>
-                    </div>
-                    
-                    {/* Price */}
-                    <div className="mb-8">
-                      <span className="text-3xl font-bold text-[#36d1fe] font-manrope">
-                        {getProductPrice(spark.productTrack)}
-                      </span>
-                    </div>
-                    
-                    {/* Button */}
-                    <div className="mt-auto">
-                      <Button
-                        variant="default"
-                        size="lg"
-                        className="w-full py-3 text-base font-semibold bg-[#36d1fe] hover:bg-[#00f0ff] text-white border-0 transition-all duration-200"
-                        onClick={() => handleSparkSelection(spark)}
-                        disabled={isLoading}
-                      >
-                        <span>Select and Purchase</span>
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </div>
-                  </div>
-                </StandardCard>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Regenerate Section */}
-        {!isLoading && (
-          <StandardCard variant="form" className="mb-12 animate-fade-in">
-            <div className="text-center mb-6">
-              <SectionTitle className="text-lg mb-2 text-white">
-                Not feeling the spark?
-              </SectionTitle>
-              <CaptionText className="text-[#cce7fa] mb-0">
-                {regenerateCount >= maxRegenerations 
-                  ? "Maximum regenerations reached"
-                  : `${maxRegenerations - regenerateCount} regenerations remaining`
-                }
-              </CaptionText>
-            </div>
-            
-            {regenerateCount < maxRegenerations && (
-              <>
-                <Textarea
-                  placeholder="Tell us what's off about these sparks (e.g., 'I'd prefer a bolder tone')"
-                  value={feedback}
-                  onChange={(e) => setFeedback(e.target.value)}
-                  className="mb-6 bg-[rgba(25,60,101,0.4)] border-[#36d1fe]/30 text-[#E6F6FF] placeholder:text-[#cce7fa]/70 backdrop-blur-sm"
-                  rows={3}
-                />
-                
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="w-full border-2 border-[#36d1fe] text-[#36d1fe] bg-[rgba(25,60,101,0.4)] hover:bg-[#36d1fe]/20 hover:border-[#00f0ff] hover:text-[#00f0ff] backdrop-blur-sm"
-                  onClick={handleRegenerate}
-                  disabled={isLoading}
-                >
-                  <RefreshCw className="w-5 h-5 mr-2" />
-                  Regenerate Sparks
-                </Button>
-              </>
-            )}
-          </StandardCard>
-        )}
-
-        {/* Edge Toggle */}
-        {!isLoading && (
-          <div className="text-center animate-fade-in">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-[#cce7fa] hover:text-[#36d1fe] mb-4"
-              onClick={() => setShowGenericComparison(!showGenericComparison)}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
+          {mockSparks.map((spark, index) => (
+            <StandardCard
+              key={index}
+              variant="interactive"
+              onClick={() => handleSparkSelect(index)}
+              className={`group flex flex-col items-center justify-center p-6 rounded-2xl transition-all duration-300 hover:scale-105 ${selectedSpark === index ? 'border-4 border-[#36d1fe] shadow-[0_0_20px_rgba(54,209,254,0.5)]' : 'border border-white/10'}`}
             >
-              {showGenericComparison ? "Hide" : "See"} CanAI's Edge
-            </Button>
-            
-            {showGenericComparison && (
-              <StandardCard variant="glass" padding="md" className="max-w-2xl mx-auto">
-                <CaptionText className="mb-0">
-                  🤖 <strong>Generic AI:</strong> "Start a bakery business"<br/>
-                  ✨ <strong>CanAI:</strong> "Unite Denver families with a cozy bakery experience"
-                </CaptionText>
-              </StandardCard>
-            )}
-          </div>
-        )}
+              {selectedSpark === index && (
+                <div className="absolute top-2 right-2">
+                  <CheckCircle className="text-green-500 w-6 h-6 animate-pulse" />
+                </div>
+              )}
+              <Sparkles className="text-[#36d1fe] w-8 h-8 mb-4 group-hover:scale-110 transition-transform" />
+              <h3 className="text-xl font-semibold text-white mb-2">{spark.title}</h3>
+              <BodyText className="text-center opacity-80">{spark.description}</BodyText>
+            </StandardCard>
+          ))}
+        </div>
+
+        <div className="text-center mt-8 animate-fade-in">
+          <Button
+            variant="ghost"
+            onClick={() => window.location.href = `/discovery-funnel?prompt_id=${promptId}`}
+            className="text-[#36d1fe] hover:text-[#00f0ff] hover:bg-[#36d1fe]/10 transition-colors duration-200 text-lg px-6 py-3"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Loading...' : '← Back to Edit Details'}
+          </Button>
+        </div>
       </div>
     </StandardBackground>
   );
