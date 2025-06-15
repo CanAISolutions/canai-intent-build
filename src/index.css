@@ -493,3 +493,127 @@
   - PostHog event tracking
   - API error handling
 */
+
+/* Spark Layer Specific Styles */
+@layer components {
+  .spark-card-enter {
+    animation: spark-fade-in 0.6s cubic-bezier(0.4,0,0.2,1) both;
+  }
+  
+  @keyframes spark-fade-in {
+    from { 
+      opacity: 0; 
+      transform: translateY(20px) scale(0.95);
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  .spark-selection-glow {
+    animation: selection-pulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes selection-pulse {
+    0%, 100% { 
+      box-shadow: 0 0 20px rgba(0, 207, 255, 0.4);
+    }
+    50% { 
+      box-shadow: 0 0 40px rgba(0, 207, 255, 0.8);
+    }
+  }
+  
+  /* Enhanced spark card hover */
+  .canai-product-card:hover {
+    transform: scale(1.02);
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+}
+
+/* Regeneration feedback styling */
+@layer utilities {
+  .text-regenerate-count {
+    color: #cce7fa;
+    font-size: 0.875rem;
+  }
+  
+  .bg-feedback-input {
+    background: rgba(25, 60, 101, 0.3);
+    border-color: rgba(54, 209, 254, 0.3);
+  }
+}
+
+/* API Integration Comments for Spark Layer */
+/*
+  TODO: Supabase spark_logs schema implementation:
+  
+  CREATE TABLE spark_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    initial_prompt_id UUID REFERENCES initial_prompt_logs(id),
+    selected_spark JSONB NOT NULL,
+    product_track TEXT CHECK (product_track IN ('business_builder', 'social_email', 'site_audit')),
+    feedback TEXT,
+    attempt_count INTEGER DEFAULT 1,
+    trust_score NUMERIC,
+    created_at TIMESTAMPTZ DEFAULT now()
+  );
+  
+  Example selected_spark JSONB:
+  {
+    "id": "community_spark",
+    "title": "BUSINESS_BUILDER: The Community Spark", 
+    "tagline": "Unite Denver families with a cozy bakery experience",
+    "productTrack": "business_builder"
+  }
+*/
+
+/*
+  TODO: PostHog Event Mapping for Spark Layer:
+  
+  - spark_selected: { spark_id: string, product: string, selection_time: number }
+  - sparks_regenerated: { attempt_count: number, trust_score: number }
+  - sparks_regenerated_extra: { attempt_count: number, trust_score: number }
+  - funnel_step: { step: 'spark_layer_viewed' | 'spark_selected' | 'regeneration_used' }
+*/
+
+/*
+  TODO: API Endpoints for Spark Layer:
+  
+  POST /v1/generate-sparks
+  Request: { 
+    businessType: string, 
+    tone: string, 
+    outcome: string,
+    attempt_count?: number 
+  }
+  Response: { 
+    sparks: [{ title: string, tagline: string, id: string }], 
+    error: null 
+  }
+  
+  POST /v1/regenerate-sparks  
+  Request: { 
+    businessType: string, 
+    tone: string, 
+    outcome: string, 
+    attempt_count: number,
+    feedback?: string 
+  }
+  Response: { 
+    sparks: [{ title: string, tagline: string, id: string }], 
+    error: null 
+  }
+*/
+
+/*
+  TODO: Jest Tests for Spark Layer (F3-tests):
+  
+  - Spark generation and rendering (<1.5s)
+  - Card selection and purchase navigation
+  - Regeneration with attempt limits (3/4 based on trust score)
+  - Feedback collection and submission
+  - LocalStorage fallback on API failure
+  - PostHog event tracking validation
+  - Edge toggle functionality
+*/
