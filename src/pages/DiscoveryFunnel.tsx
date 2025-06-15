@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -270,12 +269,15 @@ function DiscoveryFunnel() {
         </div>
 
         <StandardCard variant="form" className="animate-scale-in">
-          {/* Enhanced Progress bar */}
+          {/* Fixed Progress bar with better step formatting */}
           <div className="flex items-center mb-8 gap-4">
-            <div className="flex items-baseline gap-1">
+            <div className="flex items-center gap-2">
               <CaptionText className="font-bold text-[#36d1fe]">Step</CaptionText>
-              <span className="text-3xl font-black text-[#36d1fe]">{step}</span>
-              <span className="text-xl font-medium text-[#E6F6FF]">/2</span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-black text-[#36d1fe]">{step}</span>
+                <span className="text-2xl font-medium text-[#E6F6FF]">/</span>
+                <span className="text-2xl font-medium text-[#E6F6FF]">2</span>
+              </div>
             </div>
             <div className="flex-1 h-3 bg-[#19334a] rounded-full overflow-hidden">
               <div
@@ -364,7 +366,7 @@ function DiscoveryFunnel() {
                   variant="outline"
                   ref={quizButtonRef}
                   onClick={handleQuizOpen}
-                  className="border-[#36d1fe] text-[#36d1fe] hover:bg-[#36d1fe]/20 hover:border-[#00f0ff] hover:text-[#00f0ff] px-6 py-3 text-lg transition-all duration-200"
+                  className="border-2 border-[#36d1fe] text-[#36d1fe] bg-[rgba(25,60,101,0.4)] hover:bg-[#36d1fe]/20 hover:border-[#00f0ff] hover:text-[#00f0ff] px-6 py-3 text-lg transition-all duration-200 backdrop-blur-sm"
                 >
                   Help Me Decide
                 </Button>
@@ -458,7 +460,7 @@ function DiscoveryFunnel() {
                   type="button"
                   variant="outline"
                   onClick={handleBack}
-                  className="border-[#36d1fe] text-[#36d1fe] hover:bg-[#36d1fe]/20 hover:border-[#00f0ff] hover:text-[#00f0ff] px-6 py-3 text-lg transition-all duration-200"
+                  className="border-2 border-[#36d1fe] text-[#36d1fe] bg-[rgba(25,60,101,0.4)] hover:bg-[#36d1fe]/20 hover:border-[#00f0ff] hover:text-[#00f0ff] px-6 py-3 text-lg transition-all duration-200 backdrop-blur-sm"
                 >
                   Back
                 </Button>
@@ -541,7 +543,7 @@ function DiscoveryFunnel() {
               <Button
                 variant="outline"
                 onClick={handleQuizClose}
-                className="w-full py-3 border-[#36d1fe] text-[#36d1fe] hover:bg-[#36d1fe]/10"
+                className="w-full py-3 border-2 border-[#36d1fe] text-[#36d1fe] bg-[rgba(25,60,101,0.4)] hover:bg-[#36d1fe]/10 backdrop-blur-sm"
               >
                 Cancel
               </Button>

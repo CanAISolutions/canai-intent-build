@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -127,7 +126,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
       )}
 
       {/* Primary Actions */}
-      <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t-2 border-canai-primary/30">
+      <div className="flex flex-col lg:flex-row gap-4 pt-8 border-t-2 border-canai-primary/30">
         <div className="flex-1">
           <Button
             id="confirm-btn"
@@ -149,15 +148,17 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
             )}
           </Button>
         </div>
-        <Button
-          id="edit-btn"
-          variant="outline"
-          onClick={() => onEdit('general')}
-          className="bg-transparent border-2 border-canai-primary text-canai-light hover:bg-canai-primary/20 hover:border-canai-cyan transition-all duration-300 py-6 text-lg font-semibold"
-        >
-          <Edit2 className="w-5 h-5 mr-3" />
-          Edit Details
-        </Button>
+        <div className="lg:w-auto">
+          <Button
+            id="edit-btn"
+            variant="outline"
+            onClick={() => onEdit('general')}
+            className="w-full lg:w-auto bg-transparent border-2 border-canai-primary text-canai-light hover:bg-canai-primary/20 hover:border-canai-cyan transition-all duration-300 py-6 px-8 text-lg font-semibold whitespace-nowrap"
+          >
+            <Edit2 className="w-5 h-5 mr-3" />
+            Edit Details
+          </Button>
+        </div>
       </div>
       {/* Quick Edit Fields */}
       <div className="bg-gradient-to-br from-black/20 to-black/5 rounded-xl p-6 border border-canai-primary/20">
