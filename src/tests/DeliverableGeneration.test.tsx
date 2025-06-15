@@ -1,4 +1,3 @@
-
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -198,7 +197,7 @@ describe('F7-tests: Enhanced Deliverable Generation Tests', () => {
     fireEvent.click(revisionButton);
     
     // Verify the input shows enhanced placeholder text
-    expect(revisionInput.placeholder).toMatch(/Make tone bolder/);
+    expect((revisionInput as HTMLTextAreaElement).placeholder).toMatch(/Make tone bolder/);
     
     await waitFor(() => {
       expect(screen.getByText(/Applying Revision/i)).toBeInTheDocument();
