@@ -138,6 +138,45 @@ export const logInteraction = async (data: LogInteractionRequest): Promise<ApiRe
   }
 };
 
+// Generate contextual spark based on business context
+const generateContextualSpark = (data: PreviewSparkRequest): { title: string; tagline: string } => {
+  const businessType = data.business_type?.toLowerCase() || '';
+  const challenge = data.challenge?.toLowerCase() || '';
+  
+  // Generate contextual sparks based on business type and challenge
+  if (businessType.includes('bakery') || businessType.includes('food')) {
+    return {
+      title: "Sweet Success Strategy",
+      tagline: "Recipe for bakery growth and community connection"
+    };
+  } else if (businessType.includes('tech') || businessType.includes('software')) {
+    return {
+      title: "Digital Innovation Blueprint",
+      tagline: "Scale your tech vision with strategic planning"
+    };
+  } else if (businessType.includes('retail') || businessType.includes('store')) {
+    return {
+      title: "Retail Excellence Plan",
+      tagline: "Transform your store into a customer magnet"
+    };
+  } else if (challenge?.includes('funding') || challenge?.includes('investment')) {
+    return {
+      title: "Investor-Ready Strategy",
+      tagline: "Position your business for successful funding"
+    };
+  } else if (challenge?.includes('growth') || challenge?.includes('scale')) {
+    return {
+      title: "Growth Acceleration Plan",
+      tagline: "Strategic roadmap for sustainable expansion"
+    };
+  } else {
+    return {
+      title: "Business Success Blueprint",
+      tagline: "Comprehensive strategy for your unique venture"
+    };
+  }
+};
+
 export const generatePreviewSpark = async (data: PreviewSparkRequest): Promise<PreviewSparkResponse> => {
   console.log('[API] POST /v1/generate-preview-spark called with:', data);
   
