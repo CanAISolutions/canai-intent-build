@@ -1,5 +1,6 @@
+
 import { generateCorrelationId, retryWithBackoff } from './tracing';
-import { insertSessionLog, insertErrorLog } from './supabase';
+import { insertSessionLog, insertErrorLog, insertPromptLog } from './supabase';
 import { logSessionToMakecom } from './makecom';
 
 // API Response Types
