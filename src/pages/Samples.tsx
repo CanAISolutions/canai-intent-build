@@ -9,7 +9,7 @@ import SampleMetricBadge from "@/components/Samples/SampleMetricBadge";
 // Card data lives here so that it's scalable to future additions/changes.
 const sampleCards = [
   {
-    icon: <FileText className="text-canai-primary drop-shadow-xl" size={34} />,
+    icon: <FileText className="text-white drop-shadow-lg" size={36} />,
     title: "Business Plan Sample",
     subtitle: "EcoClean Solutions (BUSINESS_BUILDER)",
     content: (
@@ -38,7 +38,7 @@ const sampleCards = [
     ),
   },
   {
-    icon: <MessageSquare className="text-canai-primary drop-shadow-xl" size={34} />,
+    icon: <MessageSquare className="text-white drop-shadow-lg" size={36} />,
     title: "Social & Email Campaign",
     subtitle: "For SMB Owners (SOCIAL_EMAIL)",
     content: (
@@ -68,7 +68,7 @@ const sampleCards = [
     ),
   },
   {
-    icon: <Search className="text-canai-primary drop-shadow-xl" size={34} />,
+    icon: <Search className="text-white drop-shadow-lg" size={36} />,
     title: "Website Audit Results",
     subtitle: "Homepage (SITE_AUDIT)",
     content: (
@@ -127,13 +127,15 @@ const Samples = () => {
                 role="region"
                 aria-labelledby={`sample-title-${idx}`}
               >
-                <header className="flex items-center gap-4 mb-3 pt-8 px-8">
-                  <span className="rounded-2xl bg-[rgba(25,60,101,0.6)] p-3 flex items-center justify-center shadow-lg border border-[rgba(54,209,254,0.3)]">
-                    {card.icon}
-                  </span>
-                  <div>
-                    <h2 id={`sample-title-${idx}`} className="font-manrope font-bold text-xl text-white tracking-wide leading-tight">{card.title}</h2>
-                    <span className="block text-[#cce7fa] text-sm font-medium">{card.subtitle}</span>
+                <header className="flex items-center gap-5 mb-4 pt-8 px-8">
+                  <div className="relative">
+                    <div className="rounded-2xl bg-gradient-to-br from-[#36d1fe] to-[#00B2E3] p-4 flex items-center justify-center shadow-lg border border-[rgba(255,255,255,0.2)] shadow-[0_0_20px_rgba(54,209,254,0.4)]">
+                      {card.icon}
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <h2 id={`sample-title-${idx}`} className="font-playfair font-bold text-2xl text-white tracking-wide leading-tight drop-shadow-lg">{card.title}</h2>
+                    <span className="block text-[#36d1fe] text-sm font-semibold mt-1 tracking-wide">{card.subtitle}</span>
                   </div>
                 </header>
                 <section className="bg-[rgba(25,60,101,0.4)] rounded-2xl p-8 mx-6 mb-8 text-[#cce7fa] flex-1 shadow-lg border border-[rgba(54,209,254,0.2)] space-y-2">
