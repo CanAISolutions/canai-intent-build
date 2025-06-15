@@ -5,10 +5,11 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '@/components/PageHeader';
 
+// Accent metric pill
 const SampleMetric = ({
   label,
   value,
-  color = "bg-gray-700",
+  color = "bg-gradient-to-r from-blue-400 to-cyan-500",
   emoji,
   className = "",
 }: {
@@ -18,101 +19,96 @@ const SampleMetric = ({
   emoji?: string;
   className?: string;
 }) => (
-  <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full font-semibold text-base ${color} bg-opacity-85 shadow font-manrope ${className}`}>
+  <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full font-semibold text-base ${color} shadow animate-fade-in font-manrope ${className}`}>
     {emoji && <span className="text-lg">{emoji}</span>}
-    <span className="text-white">{label}:</span>
+    <span className="text-white/90">{label}</span>
     <span className="ml-1 text-white font-bold">{value}</span>
   </span>
 );
 
+// Sample output cards
 const sampleCards = [
   {
-    icon: <FileText className="text-canai-primary drop-shadow-lg" size={30} />,
-    title: "Business Plan Sample (BUSINESS_BUILDER)",
+    icon: <FileText className="text-canai-primary drop-shadow-lg" size={32} />,
+    title: "Business Plan Sample",
+    subtitle: "EcoClean Solutions (BUSINESS_BUILDER)",
     content: (
       <div>
-        <h3 className="text-2xl font-extrabold mb-3 text-white drop-shadow font-playfair">
-          EcoClean Solutions – Executive Summary
+        <h3 className="text-xl font-bold text-canai-cyan mb-2 font-playfair">
+          Disrupting the $330B Cleaning Market
         </h3>
-        <p className="mb-3 text-white/90 text-base">
-          <strong className="font-semibold text-canai-cyan">EcoClean Solutions</strong> revolutionizes commercial cleaning through sustainable practices and technology. Our eco-first approach reduces environmental impact by <span className="font-bold text-canai-primary">89%</span>, delivering superior results for offices, retailers, and healthcare facilities.
-        </p>
-        <p className="mb-2 text-white/85 text-base">
-          Founded in 2024, we address demand for truly responsible cleaning in the <span className="font-semibold">global $330B market</span>. Our proprietary botanical agents & IoT-enabled monitoring cut time by <span className="font-bold text-canai-primary">40%</span> and reduce costs by <span className="font-bold text-canai-primary">25%</span>.
-        </p>
-        <div className="flex flex-wrap gap-2 my-5">
-          <SampleMetric label="Projected Revenue (Year 1)" value="$2.4M" color="bg-gradient-to-r from-cyan-600 to-blue-400" emoji="📊" />
-          <SampleMetric label="Target Clients" value="150" color="bg-gradient-to-r from-fuchsia-600 to-pink-400" emoji="🎯" />
-          <SampleMetric label="ROI" value="340%" color="bg-gradient-to-r from-green-500 to-lime-400" emoji="💡" />
+        <div className="space-y-2 text-canai-light">
+          <p>
+            <span className="font-semibold text-canai-primary">EcoClean Solutions</span> brings next-gen, sustainable cleaning powered by botanicals and IoT. Our <b className="text-canai-cyan">eco-first</b> technology delivers <b>89% less waste</b> with <b>40% less labor</b>, cutting costs <b>25%</b> for offices, retail, and healthcare.
+          </p>
+          <p>
+            Founded in 2024, we're built for scale. <span className="font-semibold">Proprietary green agents</span> and smart sensors keep quality high <span className="text-canai-cyan">and the planet safe.</span>
+          </p>
         </div>
-        <p className="text-sm text-canai-light/80 italic pt-1">
-          [Excerpt from a full 750-word plan including projections, market analysis & next steps]
+        <div className="flex flex-wrap gap-2 mt-4 mb-3">
+          <SampleMetric label="Year 1 Revenue" value="$2.4M" color="bg-gradient-to-r from-sky-500 to-blue-400" emoji="💰" />
+          <SampleMetric label="Target Clients" value="150" color="bg-gradient-to-r from-fuchsia-600 to-pink-400" emoji="🎯" />
+          <SampleMetric label="ROI" value="340%" color="bg-gradient-to-r from-green-500 to-lime-400" emoji="📈" />
+        </div>
+        <p className="text-canai-light/80 italic pt-1 text-sm">
+          [Excerpt from a full plan: projections, analysis, next steps]
         </p>
       </div>
-    )
+    ),
   },
   {
-    icon: <MessageSquare className="text-canai-primary drop-shadow-lg" size={30} />,
-    title: "Social Media Posts (SOCIAL_EMAIL)",
+    icon: <MessageSquare className="text-canai-primary drop-shadow-lg" size={32} />,
+    title: "Social & Email Campaign",
+    subtitle: "For SMB Owners (SOCIAL_EMAIL)",
     content: (
-      <div className="flex flex-col gap-5">
-        <div className="mb-1">
-          <p className="uppercase text-xs text-canai-cyan/70 tracking-wider mb-1">LinkedIn Post</p>
-          <div className="bg-[rgba(21,44,71,0.9)] border-l-4 border-canai-primary/70 rounded-xl px-4 py-3 mb-1">
-            <p className="text-white font-medium text-base mb-1">
-              🌱 <span className="font-extrabold text-canai-primary">Small changes, big impact!</span>
-              <br />
-              Switching to eco-friendly cleaning isn’t just better for the planet—it’s better for your team’s health and your bottom line.
-              <span className="block mt-1">
-                Clients see <span className="font-semibold text-canai-cyan">25% cost savings</span> + <span className="font-semibold text-canai-cyan">40% faster results</span>.
-                Ready to make the change? <span className="opacity-80">#EcoFriendly #SmallBusiness</span>
-              </span>
-            </p>
+      <div className="space-y-5">
+        <div>
+          <p className="uppercase text-xs text-canai-cyan tracking-wider font-semibold mb-1">LinkedIn Post</p>
+          <div className="bg-[rgba(21,44,71,0.93)] border-l-4 border-canai-primary rounded-lg px-5 py-3">
+            <span className="font-bold text-canai-primary">🌱 Small changes, big impact!</span>
+            <span className="block text-canai-light/90">
+              Switch to eco-cleaning for savings <b className="text-canai-cyan">25% lower costs</b> <span aria-hidden="true">|</span> <b className="text-canai-cyan">40% faster</b>.
+              <br />Ready to make the change? <span className="opacity-70">#EcoFriendly #SMB</span>
+            </span>
           </div>
         </div>
         <div>
-          <p className="uppercase text-xs text-pink-400 tracking-wider mb-1">Email Subject</p>
-          <div className="bg-[rgba(44,21,71,0.89)] border-l-4 border-pink-400/70 rounded-xl px-4 py-3">
-            <span className="text-white font-medium">
-              “How Sarah Cut Her Cleaning Costs by <span className="font-semibold text-canai-primary">25%</span> (and helped save the planet)”
-            </span>
+          <p className="uppercase text-xs text-pink-400 tracking-wider font-semibold mb-1">Email Subject</p>
+          <div className="bg-[rgba(44,21,71,0.92)] border-l-4 border-pink-400 rounded-lg px-5 py-3 text-canai-light font-medium">
+            “How Sarah Cut Cleaning Costs <span className="text-canai-primary font-bold">25%</span> (and helped the planet)”
           </div>
         </div>
-        <p className="text-sm text-canai-light/80 italic pt-1 font-medium">
-          [Sample from 5 posts + 3 targeted emails with eye-catching CTAs]
-        </p>
+        <div>
+          <span className="inline-flex items-center gap-1 text-canai-light/80 text-xs italic">
+            [Includes 5 post templates & 3 persuasive emails]
+          </span>
+        </div>
       </div>
-    )
+    ),
   },
   {
-    icon: <Search className="text-canai-primary drop-shadow-lg" size={30} />,
-    title: "Website Audit Sample (SITE_AUDIT)",
+    icon: <Search className="text-canai-primary drop-shadow-lg" size={32} />,
+    title: "Website Audit Results",
+    subtitle: "Homepage (SITE_AUDIT)",
     content: (
-      <div className="flex flex-col gap-4">
-        <h3 className="text-lg font-bold text-white mb-1">Homepage Performance Analysis</h3>
-        <div className="flex flex-col gap-2 mb-2">
-          <div className="flex gap-2">
-            <span className="inline-flex items-center justify-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-pink-600 to-red-400 text-white font-bold text-base shadow-md">
-              Conversion Rate <span className="ml-2 text-red-200">2.1% 📉</span>
-            </span>
-            <span className="inline-flex items-center justify-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 text-white font-bold text-base shadow-md">
-              Page Load Speed <span className="ml-2 text-yellow-100">4.2s ⚠️</span>
-            </span>
-            <span className="inline-flex items-center justify-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-green-400 to-lime-400 text-white font-bold text-base shadow-md">
-              Mobile Friendly <span className="ml-2 text-green-50">95% ✅</span>
-            </span>
-          </div>
+      <div>
+        <h3 className="text-lg font-bold text-canai-cyan mb-1">Performance At-a-Glance</h3>
+        <div className="flex flex-wrap gap-2 mb-3">
+          <SampleMetric label="Conversion Rate" value="2.1%" color="bg-gradient-to-r from-pink-600 to-rose-400" emoji="📉" />
+          <SampleMetric label="Load Speed" value="4.2s" color="bg-gradient-to-r from-yellow-400 to-amber-500" emoji="⚠️" />
+          <SampleMetric label="Mobile Friendly" value="95%" color="bg-gradient-to-r from-green-500 to-lime-400" emoji="✅" />
         </div>
-        <p className="text-white text-base">
-          <span className="font-semibold text-canai-primary">Key Issue:</span>{" "}
-          CTA button is below the fold on mobile, potentially reducing engagement by <b>35%</b>.
-          Moving it up could increase conversions to <span className="font-semibold text-canai-primary">3.4%</span>.
-        </p>
-        <p className="text-sm text-canai-light/80 italic pt-1 font-medium">
-          [Sample from a detailed 350-word audit with actionable recommendations]
-        </p>
+        <div className="text-canai-light space-y-1">
+          <p>
+            <span className="font-semibold text-canai-primary">Key Opportunity:</span>
+            <br />The main CTA is below-the-fold on mobile, reducing engagement up to <b>35%</b>. Moving it up could boost conversion to <span className="font-bold text-canai-cyan">3.4%</span>.
+          </p>
+          <p className="text-canai-light/80 italic pt-1 text-sm">
+            [From a detailed 350-word audit, including actionable website fixes]
+          </p>
+        </div>
       </div>
-    )
+    ),
   }
 ];
 
@@ -120,42 +116,40 @@ const Samples = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-tl from-[#0A0F1C] to-[#00B2E3]/20 flex flex-col">
-      {/* Consistent page header with logo and back button */}
-      <PageHeader 
-        showBackButton={true} 
-        className="max-w-7xl mx-auto pt-7 pb-3 px-4" 
-      />
+    <div className="min-h-screen w-full bg-gradient-to-tl from-[#0A0F1C] to-[#00B2E3]/25 flex flex-col">
+      {/* Consistent page header */}
+      <PageHeader showBackButton className="max-w-7xl mx-auto pt-8 pb-2 px-4" />
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 pb-16 pt-2">
         <div className="max-w-6xl mx-auto space-y-12">
           {/* Title & subtitle */}
-          <div className="text-center pb-7">
-            <h1 className="font-playfair text-4xl md:text-5xl font-bold text-canai-light animate-fade-in mb-2 drop-shadow-lg">
-              Sample CanAI Outputs
+          <div className="text-center pb-6">
+            <h1 className="font-playfair text-4xl md:text-5xl font-bold text-canai-light animate-fade-in mb-2 drop-shadow-xl">
+              Explore CanAI Output Samples
             </h1>
-            <p className="text-xl text-canai-light/95 animate-fade-in max-w-3xl mx-auto leading-relaxed font-medium" style={{ animationDelay: '0.12s' }}>
-              Experience the quality, depth, and intelligence of our AI-generated content.<br className="hidden md:block"/> 
-              Each output is personalized, professionally crafted, and ready to use.
+            <p className="text-xl text-canai-light/95 animate-fade-in max-w-3xl mx-auto leading-relaxed font-medium" style={{ animationDelay: '0.13s' }}>
+              These examples reflect the same design, polish, and intelligence your final deliverables receive.<br className="hidden md:block" />
+              Full outputs are always custom and ready to use.
             </p>
           </div>
           {/* Gallery grid */}
-          <div className="grid gap-10 lg:grid-cols-3 md:grid-cols-2">
+          <div className="grid gap-9 md:grid-cols-2 lg:grid-cols-3">
             {sampleCards.map((card, idx) => (
               <div
                 key={idx}
-                className="flex flex-col h-full rounded-2xl shadow-lg border-2 border-canai-primary/80 transition-transform duration-200 hover:scale-[1.025] hover:shadow-[0_0_42px_#36d1fecc] bg-[rgba(19,60,101,0.82)] animate-fade-in"
-                style={{ 
-                  minHeight: 520,
-                  animationDelay: `${idx * 0.1 + 0.1}s`
+                className="flex flex-col h-full rounded-2xl canai-product-card border-canai-primary transition-transform hover:scale-102 hover:shadow-[0_0_40px_#36d1fee3] bg-[rgba(19,60,101,0.90)] animate-fade-in"
+                style={{
+                  minHeight: 470,
+                  animationDelay: `${idx * 0.13 + 0.1}s`
                 }}
               >
-                <div className="flex items-center space-x-3 mb-5 pt-6 px-7">
+                <div className="flex items-center gap-3 mb-3 pt-7 px-7">
                   {card.icon}
-                  <h2 className="font-manrope font-extrabold text-base md:text-lg text-canai-primary text-glow-hero tracking-wide leading-tight">
-                    {card.title}
-                  </h2>
+                  <div>
+                    <h2 className="font-manrope font-bold text-lg text-canai-primary tracking-wide leading-tight">{card.title}</h2>
+                    <span className="block text-canai-light text-xs font-semibold">{card.subtitle}</span>
+                  </div>
                 </div>
-                <div className="bg-[rgba(14,41,66,0.96)] rounded-xl p-7 mx-5 mb-6 text-white/90 flex-1 shadow-lg overflow-hidden border border-canai-primary/10">
+                <div className="bg-[rgba(14,41,66,0.99)] rounded-xl p-7 mx-5 mb-5 text-white/90 flex-1 shadow-lg overflow-hidden border border-canai-primary/10">
                   {card.content}
                 </div>
               </div>
@@ -168,21 +162,21 @@ const Samples = () => {
                 Ready for Your Custom Content?
               </h2>
               <p className="text-canai-light opacity-90 leading-relaxed font-medium">
-                Get personalized, investor-ready content tailored to your goals.<br />
-                Choose business plans, social content, or site audits – delivered in hours.
+                Get investor-ready plans, high-converting posts, or expert audits in hours.<br />
+                See why 65% of users prefer CanAI outputs!
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button 
+              <Button
                 onClick={() => navigate('/discovery-funnel')}
-                size="lg" 
+                size="lg"
                 variant="canai"
                 className="canai-button-primary text-lg px-10 py-5 shadow-md hover:scale-105 animate-glow-pop min-w-[220px]"
               >
                 Start Your Project
               </Button>
-              <p className="text-base text-canai-light/80 font-semibold">
-                ✨ 500+ plans created • 📈 65% prefer CanAI outputs
+              <p className="text-base text-canai-light/80 font-semibold mt-2 sm:mt-0">
+                ✨ 500+ plans created &nbsp;•&nbsp; 📈 65% prefer CanAI outputs
               </p>
             </div>
           </div>
