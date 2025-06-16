@@ -1,3 +1,4 @@
+
 import React from "react";
 import { FileText, MessageSquare, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import StandardBackground from "@/components/StandardBackground";
 import PageHeader from "@/components/PageHeader";
 import StandardCard from "@/components/StandardCard";
 import SampleMetricBadge from "@/components/Samples/SampleMetricBadge";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 import { PageTitle, BodyText, SectionTitle, CardTitle, AccentText } from "@/components/StandardTypography";
 
 // Card data lives here so that it's scalable to future additions/changes.
@@ -14,6 +16,8 @@ const sampleCards = [
     icon: <FileText className="text-white drop-shadow-lg" size={36} />,
     title: "Business Plan Sample",
     subtitle: "EcoClean Solutions (BUSINESS_BUILDER)",
+    image: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d",
+    imageAlt: "Professional business planning with laptop and documents showcasing EcoClean Solutions business strategy",
     content: (
       <div>
         <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 font-playfair animate-fade-in">
@@ -43,6 +47,8 @@ const sampleCards = [
     icon: <MessageSquare className="text-white drop-shadow-lg" size={36} />,
     title: "Social & Email Campaign",
     subtitle: "For SMB Owners (SOCIAL_EMAIL)",
+    image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6",
+    imageAlt: "Social media marketing and email campaign interface showing engagement metrics and content optimization",
     content: (
       <div className="space-y-5">
         <div>
@@ -73,6 +79,8 @@ const sampleCards = [
     icon: <Search className="text-white drop-shadow-lg" size={36} />,
     title: "Website Audit Results",
     subtitle: "Homepage (SITE_AUDIT)",
+    image: "https://images.unsplash.com/photo-1518770660439-4636190af475",
+    imageAlt: "Website analytics dashboard showing performance metrics, conversion rates, and optimization recommendations",
     content: (
       <div>
         <h3 className="text-xl font-bold text-white mb-3 font-playfair animate-fade-in">Performance At-a-Glance</h3>
@@ -127,6 +135,18 @@ const Samples = () => {
                 aria-labelledby={`sample-title-${idx}`}
               >
                 <StandardCard variant="content" padding="none" className="h-full flex flex-col">
+                  {/* Optimized header image */}
+                  <div className="relative h-32 overflow-hidden">
+                    <OptimizedImage
+                      src={card.image}
+                      alt={card.imageAlt}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      priority={idx < 2}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0A0F1C]/60 to-transparent" />
+                  </div>
+                  
                   <header className="flex items-center gap-5 p-8 pb-4">
                     <div className="rounded-2xl bg-gradient-to-br from-[#36d1fe] to-[#00B2E3] p-4 flex items-center justify-center shadow-lg border border-[rgba(255,255,255,0.2)] shadow-[0_0_20px_rgba(54,209,254,0.4)]">
                       {card.icon}

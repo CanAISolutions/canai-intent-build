@@ -8,6 +8,7 @@ import EnhancedSecondaryCTAs from "@/components/DiscoveryHook/EnhancedSecondaryC
 import PricingModal from "@/components/PricingModal";
 import PreviewModal from "@/components/PreviewModal";
 import MemberstackLoginButton from "@/components/DiscoveryHook/MemberstackLoginButton";
+import { BackgroundImage } from "@/components/ui/background-image";
 
 // Import API and analytics utilities
 import { getMessages, logInteraction } from "@/utils/api";
@@ -110,7 +111,13 @@ const DiscoveryHook = () => {
   };
 
   return (
-    <StandardBackground>
+    <BackgroundImage
+      src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5"
+      alt="Digital technology matrix background representing AI-powered business intelligence and data processing"
+      className="min-h-screen"
+      overlay={true}
+      overlayOpacity={0.75}
+    >
       {/* Memberstack login button (top right) */}
       <MemberstackLoginButton />
 
@@ -153,7 +160,7 @@ const DiscoveryHook = () => {
       </div>
 
       <main
-        className="flex-1 w-full flex flex-col items-center justify-center"
+        className="flex-1 w-full flex flex-col items-center justify-center relative z-10"
         aria-label="CanAI Emotional Sovereignty Platform Landing"
       >
         {/* Enhanced HERO */}
@@ -183,12 +190,12 @@ const DiscoveryHook = () => {
 
       {/* Performance Debug Info (remove in production) */}
       {process.env.NODE_ENV === 'development' && loadTime > 0 && (
-        <div className="fixed bottom-4 left-4 bg-black/80 text-white p-2 rounded text-xs">
+        <div className="fixed bottom-4 left-4 bg-black/80 text-white p-2 rounded text-xs z-50">
           Load Time: {loadTime.toFixed(2)}ms
           {loadTime > 1500 && <span className="text-red-400"> (⚠️ &gt;1.5s)</span>}
         </div>
       )}
-    </StandardBackground>
+    </BackgroundImage>
   );
 };
 

@@ -5,14 +5,21 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import CanAILogo from '@/components/CanAILogo';
 import StandardBackground from '@/components/StandardBackground';
+import { BackgroundImage } from '@/components/ui/background-image';
 import { BodyText, CaptionText } from '@/components/StandardTypography';
 
 const Index = () => {
   const navigate = useNavigate();
 
   return (
-    <StandardBackground className="items-center justify-center">
-      <div className="text-center space-y-6 sm:space-y-8 max-w-2xl mx-auto px-4">
+    <BackgroundImage
+      src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e"
+      alt="Futuristic AI technology background with circuit patterns and digital elements representing CanAI's emotional sovereignty platform"
+      className="min-h-screen flex flex-col items-center justify-center"
+      overlay={true}
+      overlayOpacity={0.8}
+    >
+      <div className="text-center space-y-6 sm:space-y-8 max-w-2xl mx-auto px-4 relative z-10">
         <div className="animate-fade-in animate-logo-breathe">
           <CanAILogo size="xl" />
         </div>
@@ -53,7 +60,7 @@ const Index = () => {
           </CaptionText>
         </div>
       </div>
-    </StandardBackground>
+    </BackgroundImage>
   );
 };
 
