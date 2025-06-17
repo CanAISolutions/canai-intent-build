@@ -68,33 +68,31 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
     <div
       id="pricing-modal"
       ref={modalRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
-      style={{ backdropFilter: "blur(6px)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
     >
       <div
-        className="relative bg-gradient-to-br from-[#193c65]/95 to-[#12294a]/95 rounded-3xl px-4 py-8 max-w-2xl w-full flex flex-col items-center shadow-2xl border-4 border-[#36d1fe] animate-glow-pop ring-2 ring-[#36d1fe]/30 backdrop-blur-md"
+        className="relative bg-gradient-to-br from-[#193c65]/95 via-[#1e4a73]/95 to-[#12294a]/95 rounded-3xl px-4 py-8 max-w-2xl w-full flex flex-col items-center shadow-2xl border-4 border-[#36d1fe] backdrop-blur-md"
         style={{
-          borderImage: "linear-gradient(120deg, #36d1fe 70%, #193c65 100%) 1",
-          boxShadow: "0 0 48px 10px rgba(18, 41, 74, 0.7)"
+          boxShadow: "0 0 48px 10px rgba(54, 209, 254, 0.4)"
         }}
         onClick={e => e.stopPropagation()}
       >
         <button
           id="pricing-close"
           onClick={onClose}
-          className="absolute top-6 right-6 z-10 modal-close transition-colors bg-[#143657]/80 rounded-full p-2 hover:bg-[#36d1fe]/30 focus-visible:outline-[#36d1fe] text-white"
+          className="absolute top-6 right-6 z-10 transition-colors bg-[#143657]/80 rounded-full p-2 hover:bg-[#36d1fe]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#36d1fe] text-white hover:text-[#36d1fe]"
           aria-label="Close Pricing Modal"
         >
-          <X size={22} color="#E6F6FF" />
+          <X size={22} />
         </button>
         <div className="text-center mb-5">
-          <h2 className="modal-title text-3xl font-bold text-white mb-2 font-manrope" id="modal-title" tabIndex={0}>
+          <h2 className="text-3xl font-bold text-white mb-2 font-manrope" id="modal-title" tabIndex={0}>
             CanAI Pricing
           </h2>
-          <p className="text-[#E6F6FF] font-medium font-manrope">
+          <p className="text-[#cce7fa] font-medium font-manrope opacity-90">
             Choose the perfect solution for your business.
           </p>
         </div>
@@ -108,8 +106,8 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
             ))}
           </CarouselContent>
           {/* Styled Controls */}
-          <CarouselPrevious className="left-1 top-1/2 -translate-y-1/2 border-none bg-[#36d1fe] shadow-lg hover:scale-110 focus:ring-[#36d1fe] text-white" />
-          <CarouselNext className="right-1 top-1/2 -translate-y-1/2 border-none bg-[#36d1fe] shadow-lg hover:scale-110 focus:ring-[#36d1fe] text-white" />
+          <CarouselPrevious className="left-1 top-1/2 -translate-y-1/2 border-none bg-[#36d1fe] shadow-lg hover:scale-110 focus:ring-[#36d1fe] text-white hover:bg-[#4ae3ff]" />
+          <CarouselNext className="right-1 top-1/2 -translate-y-1/2 border-none bg-[#36d1fe] shadow-lg hover:scale-110 focus:ring-[#36d1fe] text-white hover:bg-[#4ae3ff]" />
         </Carousel>
       </div>
     </div>
