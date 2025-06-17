@@ -35,28 +35,86 @@ export interface RegenerateSparksResponse {
   error?: string;
 }
 
+// Get stored Discovery Funnel data
+export const getDiscoveryFunnelData = () => {
+  try {
+    const storedData = localStorage.getItem('discoveryFunnelData');
+    const trustScore = localStorage.getItem('userTrustScore');
+    
+    if (storedData) {
+      const data = JSON.parse(storedData);
+      return {
+        ...data,
+        trustScore: trustScore ? parseFloat(trustScore) : 0
+      };
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('[Spark Layer API] Failed to retrieve discovery data:', error);
+    return null;
+  }
+};
+
 // Generate initial sparks
 export const generateSparks = async (request: GenerateSparksRequest): Promise<GenerateSparksResponse> => {
   try {
     console.log('[Spark Layer API] Generating sparks:', request);
     
-    // Mock response for development
-    return {
-      sparks: [
+    // Enhanced mock response based on user input
+    const businessType = request.businessType.toLowerCase();
+    const tone = request.tone.toLowerCase();
+    
+    let sparks: SparkData[] = [];
+    
+    if (businessType.includes('bakery') || businessType.includes('food')) {
+      sparks = [
         {
-          title: 'BUSINESS_BUILDER: The Community Spark',
-          tagline: 'Unite Denver families with a cozy bakery experience'
+          title: 'BUSINESS_BUILDER: The Community Hearth',
+          tagline: `Create a ${tone} gathering place that brings neighbors together`
         },
         {
-          title: 'BUSINESS_BUILDER: The Heritage Hub',
-          tagline: 'Celebrate traditions through authentic family recipes'
+          title: 'BUSINESS_BUILDER: The Heritage Kitchen',
+          tagline: `Celebrate traditions through authentic recipes and ${tone} service`
         },
         {
-          title: 'BUSINESS_BUILDER: The Neighborhood Nest',
-          tagline: 'Create the heartbeat of your local community'
+          title: 'BUSINESS_BUILDER: The Neighborhood Haven',
+          tagline: `Become the ${tone} heartbeat of your local community`
         }
-      ]
-    };
+      ];
+    } else if (businessType.includes('tech') || businessType.includes('startup')) {
+      sparks = [
+        {
+          title: 'BUSINESS_BUILDER: The Innovation Hub',
+          tagline: `Build ${tone} technology solutions that transform industries`
+        },
+        {
+          title: 'BUSINESS_BUILDER: The Digital Pioneer',
+          tagline: `Create ${tone} experiences that users can't live without`
+        },
+        {
+          title: 'BUSINESS_BUILDER: The Future Catalyst',
+          tagline: `Drive ${tone} change through cutting-edge innovation`
+        }
+      ];
+    } else {
+      sparks = [
+        {
+          title: 'BUSINESS_BUILDER: The Market Leader',
+          tagline: `Establish your ${tone} presence in the industry`
+        },
+        {
+          title: 'BUSINESS_BUILDER: The Customer Champion',
+          tagline: `Build ${tone} relationships that drive loyalty`
+        },
+        {
+          title: 'BUSINESS_BUILDER: The Growth Engine',
+          tagline: `Create ${tone} strategies that scale your impact`
+        }
+      ];
+    }
+    
+    return { sparks };
   } catch (error) {
     console.error('[Spark Layer API] Generation failed:', error);
     return {
@@ -70,23 +128,23 @@ export const regenerateSparks = async (request: RegenerateSparksRequest): Promis
   try {
     console.log('[Spark Layer API] Regenerating sparks:', request);
     
-    // Mock response for development
-    return {
-      sparks: [
-        {
-          title: 'BUSINESS_BUILDER: The Artisan Corner',
-          tagline: 'Craft exceptional experiences through handmade excellence'
-        },
-        {
-          title: 'BUSINESS_BUILDER: The Family Table',
-          tagline: 'Where traditions meet modern community needs'
-        },
-        {
-          title: 'BUSINESS_BUILDER: The Local Haven',
-          tagline: 'Your neighborhood\'s warm gathering destination'
-        }
-      ]
-    };
+    // Enhanced regeneration with variety
+    const sparks: SparkData[] = [
+      {
+        title: 'BUSINESS_BUILDER: The Artisan Corner',
+        tagline: `Craft exceptional ${request.tone} experiences through handmade excellence`
+      },
+      {
+        title: 'BUSINESS_BUILDER: The Connection Point',
+        tagline: `Where ${request.tone} traditions meet modern community needs`
+      },
+      {
+        title: 'BUSINESS_BUILDER: The Local Legend',
+        tagline: `Your neighborhood's ${request.tone} destination for excellence`
+      }
+    ];
+    
+    return { sparks };
   } catch (error) {
     console.error('[Spark Layer API] Regeneration failed:', error);
     return {

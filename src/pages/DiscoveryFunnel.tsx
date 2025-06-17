@@ -15,7 +15,6 @@ import { useAccessibility } from '@/hooks/useAccessibility';
 // API and analytics imports
 import { validateInput, submitInitialPrompt } from '@/utils/discoveryFunnelApi';
 import { trackPageView, trackFunnelStep, trackTrustScoreUpdate } from '@/utils/analytics';
-import { logInteraction } from '@/utils/api';
 
 const DiscoveryFunnel = () => {
   const navigate = useNavigate();
@@ -41,27 +40,20 @@ const DiscoveryFunnel = () => {
   useEffect(() => {
     setPageTitle('Discovery Funnel');
     
-    // Track page view and funnel step
-    trackPageView('discovery_funnel');
-    trackFunnelStep('discovery_funnel_entered');
-    
-    // Log interaction
-    logInteraction({
-      user_id: 'demo-user-id',
-      interaction_type: 'page_view',
-      interaction_details: {
-        page: 'discovery_funnel',
-        step: step + 1,
-        timestamp: new Date().toISOString(),
-      }
-    });
-  }, [setPageTitle, step]);
+    // Track page view and funnel step - with error handling
+    try {
+      trackPageView('discovery_funnel');
+      trackFunnelStep('discovery_funnel_entered');
+    } catch (error) {
+      console.warn('[Discovery Funnel] Analytics tracking failed:', error);
+    }
+  }, [setPageTitle]);
 
   const handleInputChange = async (field: string, value: string) => {
     const updatedData = { ...formData, [field]: value };
     setFormData(updatedData);
 
-    // Validate input and update trust score
+    // Validate input and update trust score with error handling
     try {
       const validation = await validateInput({
         value,
@@ -71,7 +63,12 @@ const DiscoveryFunnel = () => {
       if (validation.valid) {
         const newTrustScore = Math.min(trustScore + 15, 100);
         setTrustScore(newTrustScore);
-        trackTrustScoreUpdate(newTrustScore, { field });
+        
+        try {
+          trackTrustScoreUpdate(newTrustScore, { field });
+        } catch (error) {
+          console.warn('[Discovery Funnel] Trust score tracking failed:', error);
+        }
       }
     } catch (error) {
       console.error('[Discovery Funnel] Validation failed:', error);
@@ -79,14 +76,26 @@ const DiscoveryFunnel = () => {
   };
 
   const handleStepComplete = () => {
-    trackInteraction(`step_${step + 1}_complete`);
+    try {
+      trackInteraction(`step_${step + 1}_complete`);
+    } catch (error) {
+      console.warn('[Discovery Funnel] Step tracking failed:', error);
+    }
     
     if (step === 0) {
-      trackFunnelStep('step_1_completed', { businessType: formData.businessType, challenge: formData.challenge });
+      try {
+        trackFunnelStep('step_1_completed', { businessType: formData.businessType, challenge: formData.challenge });
+      } catch (error) {
+        console.warn('[Discovery Funnel] Step 1 tracking failed:', error);
+      }
       setStep(1);
       announce('Moving to step 2: Define your style', 'polite');
     } else if (step === 1) {
-      trackFunnelStep('step_2_completed', { tone: formData.tone, outcome: formData.outcome });
+      try {
+        trackFunnelStep('step_2_completed', { tone: formData.tone, outcome: formData.outcome });
+      } catch (error) {
+        console.warn('[Discovery Funnel] Step 2 tracking failed:', error);
+      }
       setIsModalOpen(true);
       announce('Discovery complete! Ready to continue?', 'polite');
     }
@@ -96,7 +105,12 @@ const DiscoveryFunnel = () => {
     setIsSubmitting(true);
     
     try {
-      trackFunnelStep('discovery_completed', { trustScore, formData });
+      // Track completion attempt
+      try {
+        trackFunnelStep('discovery_completed', { trustScore, formData });
+      } catch (error) {
+        console.warn('[Discovery Funnel] Completion tracking failed:', error);
+      }
       
       const response = await submitInitialPrompt({
         ...formData,
@@ -108,10 +122,13 @@ const DiscoveryFunnel = () => {
         console.log('[Discovery Funnel] Submission successful:', response);
         announce('Discovery submitted successfully! Redirecting...', 'polite');
         
-        // Navigate to next step
+        // Close modal and navigate immediately
+        setIsModalOpen(false);
+        
+        // Navigate to Spark Layer with a short delay for UX
         setTimeout(() => {
           navigate('/spark-layer');
-        }, 1500);
+        }, 500);
       } else {
         throw new Error(response.error || 'Submission failed');
       }
@@ -119,12 +136,13 @@ const DiscoveryFunnel = () => {
     } catch (error) {
       console.error('[Discovery Funnel] Submission failed:', error);
       announce('Submission failed. Please try again.', 'assertive');
+    } finally {
       setIsSubmitting(false);
     }
   };
 
-  const isStep1Complete = formData.businessType && formData.challenge;
-  const isStep2Complete = formData.tone && formData.outcome;
+  const isStep1Complete = formData.businessType.trim() && formData.challenge.trim();
+  const isStep2Complete = formData.tone.trim() && formData.outcome.trim();
 
   return (
     <StandardBackground>

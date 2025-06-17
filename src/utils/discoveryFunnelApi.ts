@@ -32,7 +32,7 @@ export const validateInput = async (request: ValidationRequest): Promise<Validat
   try {
     console.log('[Discovery Funnel API] Validating input:', request);
     
-    // Mock validation logic
+    // Enhanced validation logic
     const isValid = request.value.length > 3;
     const trustScore = isValid ? Math.min(75 + request.value.length, 100) : 25;
     
@@ -51,17 +51,27 @@ export const validateInput = async (request: ValidationRequest): Promise<Validat
   }
 };
 
-// Submit initial prompt data
+// Enhanced submission function that properly stores data
 export const submitInitialPrompt = async (request: InitialPromptRequest): Promise<InitialPromptResponse> => {
   try {
     console.log('[Discovery Funnel API] Submitting initial prompt:', request);
     
-    // Mock submission
-    const promptId = `prompt_${generateCorrelationId()}`;
+    // Store data in localStorage for next step
+    const submissionData = {
+      ...request,
+      submittedAt: new Date().toISOString(),
+      promptId: `prompt_${generateCorrelationId()}`
+    };
+    
+    // Store in localStorage for the Spark Layer to access
+    localStorage.setItem('discoveryFunnelData', JSON.stringify(submissionData));
+    localStorage.setItem('userTrustScore', request.trustScore.toString());
+    
+    console.log('[Discovery Funnel API] Data stored successfully:', submissionData);
     
     return {
       success: true,
-      promptId
+      promptId: submissionData.promptId
     };
   } catch (error) {
     console.error('[Discovery Funnel API] Submission failed:', error);
