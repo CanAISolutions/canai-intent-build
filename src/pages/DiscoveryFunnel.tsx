@@ -8,7 +8,7 @@ import { StandardForm, StandardFormGroup, StandardFormLabel, StandardFormInput }
 import { ResponsiveModal, ResponsiveModalContent, ResponsiveModalHeader, ResponsiveModalTitle, ResponsiveModalDescription } from '@/components/ui/responsive-modal';
 import { MobileOptimizedCard, MobileOptimizedCardContent } from '@/components/ui/mobile-optimized-card';
 import ProgressIndicator from '@/components/enhanced/ProgressIndicator';
-import { ArrowRight, Lightbulb, Heart, Target, Clock } from 'lucide-react';
+import { ArrowRight, Lightbulb, Heart, Target, Clock, Palette } from 'lucide-react';
 import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
 import { useAccessibility } from '@/hooks/useAccessibility';
 
@@ -35,7 +35,7 @@ const DiscoveryFunnel = () => {
   const { trackInteraction } = usePerformanceMonitor('discovery_funnel', 1500);
   const { setPageTitle, announce } = useAccessibility();
 
-  const steps = ['Your Business', 'Your Style'];
+  const steps = ['Business Vision', 'Brand Personality'];
 
   useEffect(() => {
     setPageTitle('Discovery Funnel');
@@ -92,19 +92,14 @@ const DiscoveryFunnel = () => {
         console.warn('[Discovery Funnel] Step 1 tracking failed:', error);
       }
       setStep(1);
-      announce('Moving to step 2: Define your style', 'polite');
+      announce('Moving to step 2: Define your brand personality', 'polite');
     } else if (step === 1) {
-      try {
-        trackFunnelStep('step_2_completed', { tone: formData.tone, outcome: formData.outcome });
-      } catch (error) {
-        console.warn('[Discovery Funnel] Step 2 tracking failed:', error);
-      }
-      setIsModalOpen(true);
-      announce('Discovery complete! Ready to continue?', 'polite');
+      // Instead of opening modal, directly submit and navigate
+      handleDirectSubmit();
     }
   };
 
-  const handleSubmit = async () => {
+  const handleDirectSubmit = async () => {
     setIsSubmitting(true);
     
     try {
@@ -123,15 +118,10 @@ const DiscoveryFunnel = () => {
 
       if (response.success) {
         console.log('[Discovery Funnel] Submission successful:', response);
-        announce('Discovery submitted successfully! Redirecting...', 'polite');
+        announce('Discovery submitted successfully! Redirecting to Spark Layer...', 'polite');
         
-        // Close modal and navigate immediately
-        setIsModalOpen(false);
-        
-        // Navigate to Spark Layer with a short delay for UX
-        setTimeout(() => {
-          navigate('/spark-layer');
-        }, 500);
+        // Navigate directly to Spark Layer
+        navigate('/spark-layer');
       } else {
         throw new Error(response.error || 'Submission failed');
       }
@@ -139,13 +129,43 @@ const DiscoveryFunnel = () => {
     } catch (error) {
       console.error('[Discovery Funnel] Submission failed:', error);
       announce('Submission failed. Please try again.', 'assertive');
+      // Show modal as fallback for manual retry
+      setIsModalOpen(true);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const isStep1Complete = formData.businessType.trim().length >= 5 && formData.challenge.trim().length >= 5;
-  const isStep2Complete = formData.tone.trim().length >= 5 && formData.outcome.trim().length >= 5;
+  const handleModalSubmit = async () => {
+    setIsSubmitting(true);
+    
+    try {
+      const response = await submitInitialPrompt({
+        ...formData,
+        trustScore,
+        timestamp: new Date().toISOString()
+      });
+
+      if (response.success) {
+        console.log('[Discovery Funnel] Modal submission successful:', response);
+        announce('Discovery submitted successfully! Redirecting...', 'polite');
+        
+        setIsModalOpen(false);
+        navigate('/spark-layer');
+      } else {
+        throw new Error(response.error || 'Submission failed');
+      }
+
+    } catch (error) {
+      console.error('[Discovery Funnel] Modal submission failed:', error);
+      announce('Submission failed. Please try again.', 'assertive');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const isStep1Complete = formData.businessType.trim().length >= 10 && formData.challenge.trim().length >= 15;
+  const isStep2Complete = formData.tone.trim().length >= 10 && formData.outcome.trim().length >= 15;
 
   return (
     <StandardBackground>
@@ -203,7 +223,7 @@ const DiscoveryFunnel = () => {
                   <StandardFormInput
                     value={formData.businessType}
                     onChange={(e) => handleInputChange('businessType', e.target.value)}
-                    placeholder="e.g., Family bakery, Tech startup, Consulting firm..."
+                    placeholder="e.g., Family bakery specializing in artisan sourdough and pastries"
                     className="text-white placeholder:text-white/50"
                   />
                 </StandardFormGroup>
@@ -215,7 +235,7 @@ const DiscoveryFunnel = () => {
                   <StandardFormInput
                     value={formData.challenge}
                     onChange={(e) => handleInputChange('challenge', e.target.value)}
-                    placeholder="e.g., Finding customers, Scaling operations, Building brand awareness..."
+                    placeholder="e.g., Finding loyal customers who appreciate handcrafted quality over mass-produced alternatives"
                     className="text-white placeholder:text-white/50"
                   />
                 </StandardFormGroup>
@@ -229,7 +249,7 @@ const DiscoveryFunnel = () => {
                     icon={<ArrowRight size={20} />}
                     iconPosition="right"
                   >
-                    Continue to Style
+                    Continue to Brand Personality
                   </EnhancedButton>
                 </div>
               </StandardForm>
@@ -237,31 +257,36 @@ const DiscoveryFunnel = () => {
 
             {step === 1 && (
               <StandardForm>
-                <SectionTitle className="text-white text-center mb-6 flex items-center justify-center gap-2">
-                  <Heart className="w-6 h-6" />
-                  Define Your Style
-                </SectionTitle>
+                <div className="text-center mb-6">
+                  <SectionTitle className="text-white flex items-center justify-center gap-2 mb-3">
+                    <Palette className="w-6 h-6" />
+                    Define Your Brand Personality
+                  </SectionTitle>
+                  <BodyText className="text-white/80 text-sm">
+                    Now let's understand how you want to connect with your audience
+                  </BodyText>
+                </div>
 
                 <StandardFormGroup>
                   <StandardFormLabel required className="text-white">
-                    What tone best represents your brand?
+                    What tone and personality should represent your brand?
                   </StandardFormLabel>
                   <StandardFormInput
                     value={formData.tone}
                     onChange={(e) => handleInputChange('tone', e.target.value)}
-                    placeholder="e.g., Warm and welcoming, Professional and trustworthy, Bold and innovative..."
+                    placeholder="e.g., Warm and welcoming like a neighborhood gathering place, with authentic craftsmanship"
                     className="text-white placeholder:text-white/50"
                   />
                 </StandardFormGroup>
 
                 <StandardFormGroup>
                   <StandardFormLabel required className="text-white">
-                    What outcome do you want to achieve?
+                    What specific outcome do you want to achieve for your business?
                   </StandardFormLabel>
                   <StandardFormInput
                     value={formData.outcome}
                     onChange={(e) => handleInputChange('outcome', e.target.value)}
-                    placeholder="e.g., Build community connections, Increase revenue, Establish market leadership..."
+                    placeholder="e.g., Build a community hub where families create memories while supporting local craftsmanship"
                     className="text-white placeholder:text-white/50"
                   />
                 </StandardFormGroup>
@@ -270,12 +295,14 @@ const DiscoveryFunnel = () => {
                   <EnhancedButton
                     onClick={handleStepComplete}
                     disabled={!isStep2Complete}
+                    loading={isSubmitting}
+                    loadingText="Creating your sparks..."
                     variant="primary"
                     size="lg"
                     icon={<Target size={20} />}
                     iconPosition="right"
                   >
-                    Complete Discovery
+                    Generate My Sparks
                   </EnhancedButton>
                 </div>
               </StandardForm>
@@ -284,7 +311,7 @@ const DiscoveryFunnel = () => {
         </MobileOptimizedCard>
       </div>
 
-      {/* Completion Modal */}
+      {/* Fallback Modal - only shows if direct submission fails */}
       <ResponsiveModal open={isModalOpen} onOpenChange={setIsModalOpen}>
         <ResponsiveModalContent>
           <ResponsiveModalHeader>
@@ -299,7 +326,7 @@ const DiscoveryFunnel = () => {
           
           <div className="flex justify-center mt-6">
             <EnhancedButton
-              onClick={handleSubmit}
+              onClick={handleModalSubmit}
               loading={isSubmitting}
               loadingText="Processing your vision..."
               variant="primary"
