@@ -13,7 +13,7 @@ import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
 import { useAccessibility } from '@/hooks/useAccessibility';
 
 // API and analytics imports
-import { validateInput, submitInitialPrompt } from '@/utils/discoveryFunnelApi';
+import { validateInput, submitInitialPrompt, calculateOverallTrustScore } from '@/utils/discoveryFunnelApi';
 import { trackPageView, trackFunnelStep, trackTrustScoreUpdate } from '@/utils/analytics';
 
 const DiscoveryFunnel = () => {
@@ -49,27 +49,30 @@ const DiscoveryFunnel = () => {
     }
   }, [setPageTitle]);
 
+  // Recalculate trust score whenever form data changes
+  useEffect(() => {
+    const newTrustScore = calculateOverallTrustScore(formData);
+    setTrustScore(newTrustScore);
+    
+    if (newTrustScore > 0) {
+      try {
+        trackTrustScoreUpdate(newTrustScore, { formData });
+      } catch (error) {
+        console.warn('[Discovery Funnel] Trust score tracking failed:', error);
+      }
+    }
+  }, [formData]);
+
   const handleInputChange = async (field: string, value: string) => {
     const updatedData = { ...formData, [field]: value };
     setFormData(updatedData);
 
-    // Validate input and update trust score with error handling
+    // Validate input for feedback (but trust score is calculated overall)
     try {
-      const validation = await validateInput({
+      await validateInput({
         value,
         context: updatedData
       });
-
-      if (validation.valid) {
-        const newTrustScore = Math.min(trustScore + 15, 100);
-        setTrustScore(newTrustScore);
-        
-        try {
-          trackTrustScoreUpdate(newTrustScore, { field });
-        } catch (error) {
-          console.warn('[Discovery Funnel] Trust score tracking failed:', error);
-        }
-      }
     } catch (error) {
       console.error('[Discovery Funnel] Validation failed:', error);
     }
@@ -141,8 +144,8 @@ const DiscoveryFunnel = () => {
     }
   };
 
-  const isStep1Complete = formData.businessType.trim() && formData.challenge.trim();
-  const isStep2Complete = formData.tone.trim() && formData.outcome.trim();
+  const isStep1Complete = formData.businessType.trim().length >= 5 && formData.challenge.trim().length >= 5;
+  const isStep2Complete = formData.tone.trim().length >= 5 && formData.outcome.trim().length >= 5;
 
   return (
     <StandardBackground>
@@ -172,6 +175,12 @@ const DiscoveryFunnel = () => {
                   style={{ width: `${trustScore}%` }}
                 />
               </div>
+              <BodyText className="text-white/70 text-sm mt-2">
+                {trustScore < 30 && "Add more detail to increase your score"}
+                {trustScore >= 30 && trustScore < 60 && "Good progress! More specifics will help"}
+                {trustScore >= 60 && trustScore < 85 && "Excellent detail! You're almost ready"}
+                {trustScore >= 85 && "Outstanding! Your vision is crystal clear"}
+              </BodyText>
             </MobileOptimizedCardContent>
           </MobileOptimizedCard>
         )}
@@ -220,7 +229,7 @@ const DiscoveryFunnel = () => {
                     icon={<ArrowRight size={20} />}
                     iconPosition="right"
                   >
-                    Continue
+                    Continue to Style
                   </EnhancedButton>
                 </div>
               </StandardForm>
@@ -284,7 +293,7 @@ const DiscoveryFunnel = () => {
               Ready to Create Something Amazing?
             </ResponsiveModalTitle>
             <ResponsiveModalDescription className="text-center">
-              We've captured your vision. Let's transform it into something extraordinary with CanAI's emotional intelligence.
+              We've captured your vision with a {trustScore}% trust score. Let's transform it into something extraordinary with CanAI's emotional intelligence.
             </ResponsiveModalDescription>
           </ResponsiveModalHeader>
           
