@@ -9,6 +9,10 @@ interface StandardCardProps {
   hover?: boolean;
   padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   style?: React.CSSProperties;
+  role?: string;
+  'aria-labelledby'?: string;
+  'aria-describedby'?: string;
+  'aria-label'?: string;
 }
 
 const StandardCard: React.FC<StandardCardProps> = ({
@@ -17,7 +21,12 @@ const StandardCard: React.FC<StandardCardProps> = ({
   variant = 'default',
   hover = true,
   padding = 'lg',
-  style
+  style,
+  role,
+  'aria-labelledby': ariaLabelledBy,
+  'aria-describedby': ariaDescribedBy,
+  'aria-label': ariaLabel,
+  ...props
 }) => {
   const baseClasses = "rounded-3xl border-2 transition-all duration-300 overflow-hidden relative";
   
@@ -51,6 +60,11 @@ const StandardCard: React.FC<StandardCardProps> = ({
         className
       )}
       style={style}
+      role={role}
+      aria-labelledby={ariaLabelledBy}
+      aria-describedby={ariaDescribedBy}
+      aria-label={ariaLabel}
+      {...props}
     >
       <div className="w-full h-full break-words overflow-hidden word-wrap text-white">
         {children}
